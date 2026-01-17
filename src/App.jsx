@@ -598,6 +598,8 @@ const SuhasWebsite = () => {
           </div>
         </div>
       </footer>
+      <footer>
+      </footer>
 
       <style>{`
         @keyframes marquee {
