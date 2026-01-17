@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Instagram, Twitter, Youtube, Music, ArrowRight, ShoppingBag, ExternalLink, Play, Disc } from 'lucide-react';
+import { Menu, X, Instagram, Twitter, Youtube, Music, ArrowRight, ShoppingBag, ExternalLink, Play, Disc, Heart, DollarSign } from 'lucide-react';
 
 // --- Helper Component for "Apple-style" Scroll Reveals ---
 const RevealOnScroll = ({ children, className = "", delay = 0, threshold = 0.1 }) => {
@@ -44,7 +44,6 @@ const RevealOnScroll = ({ children, className = "", delay = 0, threshold = 0.1 }
 // --- Interactive Piano Keys Component ---
 const AbstractPiano = ({ isExpanded, onPlayNote }) => {
   const playNote = (index) => {
-    // Basic frequency algorithm relative to C3 (index 0) or C4 depending on expansion
     const baseFreq = isExpanded ? 130.81 : 261.63; 
     const frequency = baseFreq * Math.pow(2, index / 12);
 
@@ -61,11 +60,11 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
       oscillator.connect(gainNode);
       gainNode.connect(audioCtx.destination);
       
-      oscillator.type = 'triangle'; // Soft triangle wave for a synth-like pad sound
+      oscillator.type = 'triangle'; 
       oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
       
       gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.05); // Softer attack
+      gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.05); 
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
       
       oscillator.start();
@@ -75,11 +74,10 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
     }
   };
 
-  // 13 keys (1 octave C to C) vs 37 keys (3 octaves)
   const numKeys = isExpanded ? 37 : 13;
 
   return (
-    <div className={`flex gap-1 items-start relative z-30 transition-all duration-700 ${isExpanded ? 'h-40 mt-auto mb-8' : 'h-24 mix-blend-normal'}`}>
+    <div className={`flex gap-1 items-start justify-center relative z-30 transition-all duration-700 ${isExpanded ? 'h-40 mt-auto mb-8' : 'h-24 mix-blend-normal'}`}>
       {[...Array(numKeys)].map((_, i) => {
         const octaveIndex = i % 12;
         const isBlackKey = [1, 3, 6, 8, 10].includes(octaveIndex);
@@ -91,12 +89,17 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
             className={`transition-all duration-100 ease-out cursor-pointer active:scale-95 relative ${
               isBlackKey 
                 ? `z-10 rounded-b-lg bg-zinc-950 border border-zinc-800 shadow-lg shadow-black/80 active:bg-zinc-800 ${isExpanded ? 'w-6 h-24 -mx-3' : 'w-5 h-14 -mx-2.5'}` 
-                : `rounded-b-lg bg-white/5 border border-white/5 hover:bg-white/10 active:bg-white/20 backdrop-blur-sm ${isExpanded ? 'w-10 h-40' : 'w-8 h-24'}`
+                : `rounded-b-lg bg-gradient-to-b from-white/30 via-white/20 to-white/15 border-t-2 border-x border-b border-white/40 hover:from-white/35 hover:via-white/25 active:translate-y-0.5 active:shadow-[inset_0_3px_6px_rgba(0,0,0,0.25)] backdrop-blur-lg shadow-[0_2px_8px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-100 ${isExpanded ? 'w-10 h-40' : 'w-8 h-24'}`
             }`}
             aria-label="Play piano note"
           >
             {/* Subtle reflection shine for that rubber/matte look */}
-            {!isBlackKey && <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-white/10 rounded-full blur-[1px]"></div>}
+            {!isBlackKey && (
+              <>
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-4/5 h-1 bg-white/40 rounded-full blur-[1px]"></div>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2/3 h-1.5 bg-white/20 rounded-full blur-[2px]"></div>
+              </>
+            )}
           </button>
         );
       })}
@@ -156,7 +159,6 @@ const GeometricVisualizer = ({ noteTrigger }) => {
       const outerMesh = new THREE.Mesh(outerGeometry, outerMaterial);
       scene.add(outerMesh);
 
-      // Particles
       const particlesGeometry = new THREE.BufferGeometry();
       const particlesCount = 700;
       const posArray = new Float32Array(particlesCount * 3);
@@ -265,11 +267,12 @@ const SuhasWebsite = () => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+  // Content Structure maintained from previous version
   const navLinks = [
-    { name: 'Home', href: '#home' },
+    { name: 'About', href: '#about' },
     { name: 'Music', href: '#music' },
     { name: 'Store', href: '#store' },
-    { name: 'About', href: '#about' },
+    { name: 'Support', href: '#donate' },
   ];
 
   const discography = [
@@ -279,12 +282,17 @@ const SuhasWebsite = () => {
   ];
 
   const storeItems = [
-    { id: 1, name: 'Fractals Hoodie', price: '$85', image: 'black' },
-    { id: 2, name: 'Tour Tee 2026', price: '$45', image: 'gray' },
-    { id: 3, name: 'Fractals LP (180g)', price: '$50', image: 'zinc' },
+    { id: 1, name: 'Fractals (Single)', price: '$1.29', desc: 'Digital Copy of Fractals (Single)', type: 'Digital Download', link: 'https://music.apple.com/us/album/fractals-single/1768715442' },
+    { id: 2, name: 'Fractals CD', price: '$5.00', desc: 'Limited Digipak Edition', type: 'CD', link: null },
+    { id: 3, name: 'Fractals Tee', price: '$30.00', desc: 'Heavyweight Cotton - Black', type: 'Apparel', link: null },
   ];
 
+  // Updated links
   const appleMusicLink = "https://music.apple.com/us/album/fractals-single/1768715442";
+  const spotifyLink = "https://open.spotify.com/track/4Udyb9Ijofesgz8YcmrsB6?si=KcFSYSf9Q2SwzGrJjKejNg";
+  const youtubeLink = "https://youtube.com/@suhaspadav?si=9VeGZgDY1mThJlF9";
+  const instagramLink = "https://www.instagram.com/suhas.als?igsh=MTVjaTR2a2YwaDFhOQ%3D%3D&utm_source=qr";
+
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-cyan-500 selection:text-black overflow-x-hidden">
@@ -293,16 +301,16 @@ const SuhasWebsite = () => {
       <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-black/80 backdrop-blur-md py-4' : 'bg-transparent py-6'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           <a href="#" className="text-3xl font-bold tracking-tighter hover:text-cyan-400 transition-colors z-50 relative flex items-center gap-2">
-            SUHAS.
+            SUHAS
           </a>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex space-x-12">
             {navLinks.map((link) => (
               <a 
                 key={link.name} 
                 href={link.href} 
-                className="text-sm uppercase tracking-widest hover:text-cyan-400 transition-colors relative group"
+                className="text-sm uppercase tracking-widest hover:text-cyan-400 transition-colors relative group font-bold"
               >
                 {link.name}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-500 transition-all group-hover:w-full"></span>
@@ -339,22 +347,34 @@ const SuhasWebsite = () => {
         {showVisualizer && <GeometricVisualizer noteTrigger={noteTrigger} />}
 
         {!showVisualizer && (
-           <div className="absolute inset-0 pointer-events-none">
-             <div 
-               className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-900/20 rounded-full blur-[100px]"
-               style={{ transform: `translateY(${scrollY * 0.2}px)` }}
-             ></div>
-             <div 
-               className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-900/20 rounded-full blur-[100px]"
-               style={{ transform: `translateY(${scrollY * -0.1}px)` }}
-             ></div>
-           </div>
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Album Art Background */}
+            <div className="absolute inset-0">
+              <img 
+                src="/images/poster.jpg" 
+                alt="" 
+                className="w-full h-full object-cover opacity-25"
+                style={{ transform: `translateY(${scrollY * 0.3}px) scale(1.1)` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80"></div>
+            </div>
+            
+            {/* Ambient Glows */}
+            <div 
+              className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-900/20 rounded-full blur-[100px]"
+              style={{ transform: `translateY(${scrollY * 0.2}px)` }}
+            ></div>
+            <div 
+              className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-900/20 rounded-full blur-[100px]"
+              style={{ transform: `translateY(${scrollY * -0.1}px)` }}
+            ></div>
+          </div>
         )}
 
         <div className={`absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40 z-0 pointer-events-none transition-opacity duration-1000 ${showVisualizer ? 'opacity-80' : 'opacity-100'}`}></div>
 
         <div 
-          className={`relative z-10 max-w-5xl mx-auto space-y-8 will-change-transform flex flex-col items-center pt-32 md:pt-0 transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-12' : 'justify-center'}`}
+          className={`relative z-10 max-w-6xl mx-auto px-4 md:px-8 space-y-8 will-change-transform flex flex-col items-center pt-32 md:pt-0 transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-12' : 'justify-center'}`}
           style={{ 
             transform: showVisualizer ? 'none' : `translateY(${scrollY * 0.5}px)`, 
             opacity: showVisualizer ? 1 : Math.max(0, 1 - scrollY / 700) 
@@ -364,49 +384,63 @@ const SuhasWebsite = () => {
           <div className={`transition-all duration-700 flex flex-col items-center gap-8 ${showVisualizer ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
             <RevealOnScroll>
               <div className="flex flex-col items-center gap-4">
-                 <h2 className="text-cyan-400 tracking-[0.3em] text-sm md:text-base font-bold uppercase shadow-black drop-shadow-lg">
-                   Latest Release • Sept 20, 2024
-                 </h2>
+                  <h2 className="text-cyan-400 tracking-[0.3em] text-sm md:text-base font-bold uppercase shadow-black drop-shadow-lg">
+                   New Single Out Now
+                  </h2>
               </div>
             </RevealOnScroll>
             
             <RevealOnScroll delay={100}>
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none drop-shadow-2xl">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-indigo-500 animate-gradient-x">
-                  FRACTALS
-                </span>
-              </h1>
-              <p className="mt-4 text-zinc-300 text-lg md:text-xl max-w-2xl mx-auto font-light tracking-wide shadow-black drop-shadow-md">
-                A 5-minute journey into modern jazz fusion.
-              </p>
-            </RevealOnScroll>
+            <h1 
+              className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none drop-shadow-2xl"
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                e.currentTarget.style.setProperty('--mouse-x', `${x}%`);
+                e.currentTarget.style.setProperty('--mouse-y', `${y}%`);
+              }}
+              style={{
+                '--mouse-x': '50%',
+                '--mouse-y': '50%',
+              }}
+            >
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-indigo-500 animate-gradient-x gradient-mouse">
+                FRACTALS
+              </span>
+            </h1>
+            <p className="mt-4 text-zinc-300 text-lg md:text-xl max-w-2xl mx-auto font-light tracking-wide shadow-black drop-shadow-md">
+              A journey into the chaotic symmetry of Jazz.
+            </p>
+          </RevealOnScroll>
           </div>
 
           {/* Piano and Controls */}
           <RevealOnScroll delay={200}>
-            <div className={`flex flex-col gap-6 justify-center items-center ${showVisualizer ? 'w-full' : ''}`}>
+            <div className={`flex flex-col gap-8 justify-center items-center ${showVisualizer ? 'w-full' : ''}`}>
               
               <AbstractPiano isExpanded={showVisualizer} onPlayNote={handleNotePlay} />
               
-              <div className="flex gap-4">
+              <div className="flex flex-col md:flex-row gap-4 items-center">
                 {!showVisualizer ? (
                   <>
-                    <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-white text-black text-lg font-bold uppercase tracking-wider hover:scale-105 transition-transform duration-300 flex items-center gap-2 rounded-full shadow-lg shadow-cyan-900/50">
-                      <Play size={20} fill="currentColor" /> Stream Now
+                    <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-white text-black text-lg font-bold uppercase tracking-wider hover:scale-105 transition-transform duration-300 flex items-center justify-center gap-2 rounded-full shadow-lg shadow-cyan-900/50">
+                       Stream Now
                     </a>
                     <button 
                       onClick={() => setShowVisualizer(true)}
                       className="px-8 py-4 border border-white/30 hover:border-white text-white text-lg font-bold uppercase tracking-wider hover:bg-white/10 transition-all duration-300 rounded-full backdrop-blur-sm"
                     >
-                      Watch Visualizer
+                      Interact
                     </button>
                   </>
                 ) : (
                   <button 
                     onClick={() => setShowVisualizer(false)}
-                    className="px-8 py-4 border border-white/30 text-white hover:bg-white hover:text-black text-lg font-bold uppercase tracking-wider transition-all duration-300 rounded-full backdrop-blur-sm shadow-[0_0_20px_rgba(0,0,0,0.5)]"
+                    className="group relative w-16 h-16 flex items-center justify-center border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
                   >
-                    Close Visualizer
+                    <X size={24} className="text-white group-hover:scale-110 transition-transform duration-300" />
+                    <span className="absolute -bottom-8 text-[10px] tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Close</span>
                   </button>
                 )}
               </div>
@@ -416,41 +450,105 @@ const SuhasWebsite = () => {
       </section>
 
       {/* Marquee Scroller */}
-      <div className="w-full bg-cyan-700 overflow-hidden py-4 whitespace-nowrap transform -skew-y-1 origin-left border-y-4 border-black z-20 relative shadow-2xl shadow-cyan-900/50">
-        <div className="inline-block animate-marquee">
-          {[...Array(10)].map((_, i) => (
-            <span key={i} className="text-black font-black text-xl md:text-3xl mx-8 uppercase tracking-widest italic">
-              FRACTALS - SINGLE OUT NOW • PROGRESSIVE JAZZ FUSION • 
-            </span>
-          ))}
+      <div className="w-full relative z-20">
+        <div 
+          className="w-full overflow-hidden py-4 whitespace-nowrap transform -skew-y-1 origin-left relative"
+          style={{ 
+            background: 'linear-gradient(to right, #360225, #2f43a983, #5f188291)',
+            backgroundSize: '200% 100%',
+            animation: 'gradient-shift 15s ease infinite'
+          }}
+        >
+          <div 
+            className="inline-block"
+            style={{ animation: 'marquee 30s linear infinite' }}
+          >
+            {[...Array(10)].map((_, i) => (
+              <span key={i} className="text-white font-black text-xl md:text-3xl mx-8 uppercase tracking-widest italic">
+                FRACTALS - SINGLE OUT NOW • PROGRESSIVE JAZZ FUSION • STREAM ON APPLE MUSIC •
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* Bio / About Section */}
+      <section id="about" className="min-h-[80vh] flex items-center justify-center py-20 relative overflow-hidden bg-black">
+         {/* Background Image of Artist */}
+         <div className="absolute inset-0 z-0">
+            <img 
+              src="/images/suhas.jpeg"
+              alt="Suhas Background" 
+              className="w-full h-full object-cover opacity-30"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black"></div>
+         </div>
+
+         <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <RevealOnScroll>
+                <div className="space-y-8">
+                    <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">
+                        About
+                    </h2>
+                    <div className="w-20 h-1 bg-cyan-500"></div>
+                </div>
+            </RevealOnScroll>
+            
+            <RevealOnScroll delay={200}>
+                <div className="space-y-6 text-zinc-300 text-lg leading-relaxed font-light">
+                    <p>
+                        Suhas is a pianist and composer exploring the progressive Jazz Fusion space.
+                    </p>
+                    <p>
+                        Drawing from modern jazz, Suhas’s music indulges in constantly evolving polyrhythms, and improvisation into rhythmically rich themes, rooted in live performance.
+                    </p>
+                    <div className="pt-4">
+                        <a href="#music" className="inline-flex items-center gap-2 text-white border-b border-cyan-500 pb-1 hover:text-cyan-400 transition-colors uppercase tracking-widest text-sm font-bold">
+                            Explore Discography <ArrowRight size={16} />
+                        </a>
+                    </div>
+                </div>
+            </RevealOnScroll>
+         </div>
+      </section>
+
       {/* Latest Release / Music */}
-      <section id="music" className="py-32 bg-black relative overflow-hidden">
+      <section id="music" className="py-32 bg-black relative overflow-hidden border-t border-zinc-900">
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-20">
             <div className="lg:w-1/2 flex justify-center perspective-1000">
               <div 
-                className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px]"
-                style={{ 
-                  transform: `rotate(${scrollY * 0.15}deg)`,
-                  transition: 'transform 0.1s linear'
-                }}
+                className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] animate-spin-slow"
               >
-                 <div className="absolute inset-0 rounded-full bg-zinc-900 border-2 border-zinc-800 flex items-center justify-center shadow-2xl shadow-cyan-900/20">
-                    <div className="absolute inset-4 rounded-full border border-zinc-800/50"></div>
-                    <div className="absolute inset-8 rounded-full border border-zinc-800/50"></div>
-                    <div className="absolute inset-12 rounded-full border border-zinc-800/50"></div>
-                    <div className="w-1/3 h-1/3 rounded-full bg-gradient-to-tr from-cyan-900 to-black flex items-center justify-center relative overflow-hidden border border-white/10">
-                        <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80">
-                           <div className="flex gap-[2px]">
-                             {[...Array(5)].map((_, i) => <div key={i} className="w-1 h-8 bg-white/80"></div>)}
-                           </div>
-                           <span className="font-black text-white text-xs md:text-sm tracking-widest mt-2">SUHAS</span>
-                        </div>
-                    </div>
-                 </div>
+                {/* Vinyl Record - Black */}
+                <div className="absolute inset-0 rounded-full bg-zinc-950 border-2 border-zinc-800 flex items-center justify-center shadow-2xl shadow-cyan-900/20 overflow-hidden">
+                  
+                  {/* Vinyl Grooves */}
+                  <div className="absolute inset-2 rounded-full border border-zinc-800/60"></div>
+                  <div className="absolute inset-4 rounded-full border border-zinc-800/50"></div>
+                  <div className="absolute inset-8 rounded-full border border-zinc-800/40"></div>
+                  <div className="absolute inset-12 rounded-full border border-zinc-800/30"></div>
+                  <div className="absolute inset-16 rounded-full border border-zinc-800/20"></div>
+                  <div className="absolute inset-20 rounded-full border border-zinc-800/20"></div>
+                  <div className="absolute inset-24 rounded-full border border-zinc-800/20"></div>
+                  
+                  {/* Center Label Sticker with Album Art */}
+                  <div className="w-[60%] h-[60%] rounded-full relative overflow-hidden border-2 border-zinc-700 shadow-lg">
+                    {/* Album Art */}
+                    <img 
+                      src="/images/album-art.PNG"
+                      alt="Fractals Album Art"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    
+                    {/* Label Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-black/30"></div>
+                    
+                    {/* Center Hole */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[15%] h-[15%] rounded-full bg-black border border-zinc-600 shadow-inner"></div>
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -458,11 +556,11 @@ const SuhasWebsite = () => {
               <RevealOnScroll>
                 <div>
                   <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase mb-4 block">Single • 2024</span>
-                  <h2 className="text-6xl md:text-8xl font-bold leading-tight mb-8">
+                  <h2 className="text-6xl md:text-8xl font-black leading-tight mb-8">
                     FRACTALS
                   </h2>
                   <p className="text-zinc-400 text-xl leading-relaxed max-w-md border-l-2 border-cyan-500 pl-6">
-                    "A daring exploration of poly-rhythms and melodic improvisation. Suhas blends classical piano roots with the raw energy of modern synthesis."
+                    "A daring exploration of poly-rhythms and melodic improvisation. Suhas channels live interaction and rhythmic nuance into a modern jazz fusion sound."
                   </p>
                 </div>
               </RevealOnScroll>
@@ -472,42 +570,46 @@ const SuhasWebsite = () => {
                   <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-8 py-4 border border-zinc-800 hover:border-cyan-500 hover:bg-zinc-900 transition-all uppercase text-sm font-bold tracking-wider rounded-full">
                     Apple Music <ExternalLink size={14} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
                   </a>
-                  {['Spotify', 'Bandcamp'].map((platform) => (
-                    <button key={platform} className="group flex items-center gap-2 px-8 py-4 border border-zinc-800 hover:border-cyan-500 hover:bg-zinc-900 transition-all uppercase text-sm font-bold tracking-wider rounded-full">
-                      {platform} <ExternalLink size={14} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  ))}
+                  <a href={spotifyLink} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-8 py-4 border border-zinc-800 hover:border-cyan-500 hover:bg-zinc-900 transition-all uppercase text-sm font-bold tracking-wider rounded-full">
+                    Spotify <ExternalLink size={14} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                  <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-8 py-4 border border-zinc-800 hover:border-cyan-500 hover:bg-zinc-900 transition-all uppercase text-sm font-bold tracking-wider rounded-full">
+                    Youtube <ExternalLink size={14} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
+                  </a>
                 </div>
               </RevealOnScroll>
 
-              <RevealOnScroll delay={300}>
+              {/* <RevealOnScroll delay={300}>
                  <div className="mt-12 pt-12 border-t border-zinc-900">
-                    <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-6">More by Suhas</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                       {discography.map((disc, i) => (
-                         <div key={i} className="bg-zinc-900/50 p-4 rounded hover:bg-zinc-900 transition-colors cursor-pointer group">
-                            <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center mb-3 group-hover:bg-cyan-600 transition-colors">
-                               <Disc size={20} />
-                            </div>
-                            <h4 className="font-bold text-sm truncate">{disc.title}</h4>
-                            <p className="text-xs text-zinc-500">{disc.type} • {disc.year}</p>
-                         </div>
-                       ))}
-                    </div>
+                   <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-6">More by Suhas</h3>
+                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {discography.map((disc, i) => (
+                        <div key={i} className="bg-zinc-900/50 p-4 rounded hover:bg-zinc-900 transition-colors cursor-pointer group">
+                           <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center mb-3 group-hover:bg-cyan-600 transition-colors">
+                              <Disc size={20} />
+                           </div>
+                           <h4 className="font-bold text-sm truncate">{disc.title}</h4>
+                           <p className="text-xs text-zinc-500">{disc.type} • {disc.year}</p>
+                        </div>
+                      ))}
+                   </div>
                  </div>
-              </RevealOnScroll>
+              </RevealOnScroll> */}
             </div>
           </div>
         </div>
       </section>
 
       {/* Store Section */}
-      <section id="store" className="py-32 bg-zinc-950">
+      <section id="store" className="py-32 bg-zinc-950 border-t border-zinc-900">
         <div className="container mx-auto px-6">
           <RevealOnScroll>
-            <div className="flex justify-between items-center mb-20">
-              <h2 className="text-4xl md:text-6xl font-bold uppercase tracking-tight">Store</h2>
-              <a href="#" className="hidden md:flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
+            <div className="flex justify-between items-end mb-20">
+              <div>
+                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-2">Store</h2>
+                <p className="text-zinc-500 tracking-widest uppercase text-xs">Official Merchandise</p>
+              </div>
+              <a href="#" className="hidden md:flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group text-sm uppercase tracking-widest">
                 View All <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
               </a>
             </div>
@@ -516,78 +618,200 @@ const SuhasWebsite = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {storeItems.map((item, i) => (
               <RevealOnScroll key={item.id} delay={i * 150}>
-                <div className="group cursor-pointer">
-                  <div className={`aspect-[4/5] bg-zinc-900 mb-8 relative overflow-hidden rounded-lg`}>
-                    <div className="absolute inset-0 flex items-center justify-center text-zinc-800 transition-transform duration-700 group-hover:scale-110">
-                       <ShoppingBag size={80} strokeWidth={1} />
-                    </div>
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
-                      <span className="text-white font-bold uppercase tracking-widest border border-white/50 px-8 py-4 rounded-full hover:bg-white hover:text-black transition-colors">Add to Cart</span>
+                <a 
+                  href={item.link || '#'} 
+                  target={item.link ? "_blank" : "_self"}
+                  rel={item.link ? "noopener noreferrer" : undefined}
+                  className="group cursor-pointer block"
+                >
+                  <div className={`aspect-square bg-zinc-900 mb-6 relative overflow-hidden border border-zinc-800`}>
+                    {item.type === 'Digital Download' ? (
+                      <img 
+                        src="/images/album-art.PNG"
+                        alt={item.name}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : item.type === 'CD' ? (
+                      <img 
+                        src="/images/cd-art.png"
+                        alt={item.name}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : item.type === 'Apparel' ? (
+                      <img 
+                        src="/images/tshirt.png"
+                        alt={item.name}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-zinc-800 transition-transform duration-700 group-hover:scale-105">
+                        {/* Icon based placeholder for products */}
+                        {item.type === 'Vinyl' && <Disc size={120} strokeWidth={0.5} />}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
+                      <span className="text-white font-bold uppercase tracking-widest border border-white px-6 py-3 hover:bg-white hover:text-black transition-colors text-xs">
+                          {item.link ? 'Buy Now' : 'Add to Cart'}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex justify-between items-start border-t border-zinc-800 pt-6">
+                  <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-2xl font-bold uppercase mb-2">{item.name}</h3>
-                      <p className="text-zinc-500 text-sm">Signature Series</p>
+                      <h3 className="text-xl font-bold uppercase mb-1">{item.name}</h3>
+                      <p className="text-zinc-500 text-xs">{item.desc}</p>
                     </div>
-                    <span className="text-cyan-400 font-mono text-xl">{item.price}</span>
+                    <span className="text-cyan-400 font-mono text-lg">{item.price}</span>
                   </div>
-                </div>
+                </a>
               </RevealOnScroll>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Newsletter / Contact */}
-      <section id="about" className="py-32 relative overflow-hidden bg-black">
-        <div className="absolute inset-0 w-full h-full">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-cyan-950 via-black to-indigo-950 opacity-80"></div>
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-600/20 rounded-full blur-[128px] animate-pulse"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[128px] animate-pulse delay-1000"></div>
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
-        </div>
-
-        <div className="container mx-auto px-6 text-center max-w-3xl relative z-10">
+      {/* Donate / Support / Connect Section */}
+      <section id="donate" className="py-32 relative overflow-hidden bg-[#050505] border-t border-zinc-900">
+        <div className="container mx-auto px-6 max-w-6xl relative z-10">
           <RevealOnScroll>
-            <h2 className="text-5xl md:text-8xl font-black uppercase mb-8 leading-none tracking-tighter text-white">
-              Join The <br /> Movement
-            </h2>
-            <p className="text-xl md:text-2xl font-bold mb-12 max-w-xl mx-auto opacity-80 text-white/90">
-              Exclusive improvisation sessions, early vinyl access, and behind-the-scenes content.
-            </p>
+            <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-6xl font-black uppercase mb-6 leading-none tracking-widest text-white">
+                Support & Connect
+                </h2>
+                <p className="text-zinc-400 text-lg max-w-xl mx-auto font-light leading-relaxed">
+                Be a part of the journey. Help fund the upcoming studio album.
+                </p>
+            </div>
           </RevealOnScroll>
           
-          <RevealOnScroll delay={100}>
-            <form className="flex flex-col md:flex-row gap-4 max-w-lg mx-auto" onSubmit={(e) => e.preventDefault()}>
-              <input 
-                type="email" 
-                placeholder="YOUR@EMAIL.COM" 
-                className="flex-1 bg-black/40 text-white px-8 py-5 outline-none focus:ring-4 focus:ring-white/50 placeholder:text-white/50 font-mono rounded-full backdrop-blur-md border border-white/20"
-              />
-              <button className="bg-white text-cyan-900 px-10 py-5 font-bold uppercase tracking-widest hover:bg-zinc-100 hover:scale-105 transition-all rounded-full shadow-xl">
-                Subscribe
-              </button>
-            </form>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            
+            {/* Donation Area */}
+            <RevealOnScroll delay={100}>
+                <div className="space-y-6">
+                    <h3 className="text-2xl font-bold text-center lg:text-left text-white mb-8 flex items-center gap-2">
+                      <div className="w-2 h-8 bg-green-500 rounded-full"></div> Funding
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <a href="#" className="group relative bg-zinc-900 border border-zinc-800 hover:border-green-500 p-8 flex flex-col items-center gap-4 transition-all duration-300 hover:bg-zinc-800 rounded-xl">
+                            <div className="w-12 h-12 rounded-full bg-black flex items-center justify-center text-green-500 mb-2 group-hover:scale-110 transition-transform">
+                                <DollarSign size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold uppercase">Kickstarter</h3>
+                            <p className="text-zinc-500 text-sm text-center">Back the Vinyl production run.</p>
+                            <span className="text-xs uppercase tracking-widest border-b border-transparent group-hover:border-green-500 transition-all mt-4">View Campaign</span>
+                        </a>
+
+                        <a href="#" className="group relative bg-zinc-900 border border-zinc-800 hover:border-yellow-500 p-8 flex flex-col items-center gap-4 transition-all duration-300 hover:bg-zinc-800 rounded-xl">
+                            <div className="w-12 h-12 rounded-full bg-black flex items-center justify-center text-yellow-500 mb-2 group-hover:scale-110 transition-transform">
+                                <Heart size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold uppercase">GoFundMe</h3>
+                            <p className="text-zinc-500 text-sm text-center">Direct support for tour logistics.</p>
+                            <span className="text-xs uppercase tracking-widest border-b border-transparent group-hover:border-yellow-500 transition-all mt-4">Donate Now</span>
+                        </a>
+                    </div>
+                </div>
+            </RevealOnScroll>
+
+            {/* Connect Area */}
+            <RevealOnScroll delay={200}>
+                <div className="space-y-6">
+                    <h3 className="text-2xl font-bold text-center lg:text-left text-white mb-8 flex items-center gap-2">
+                      <div className="w-2 h-8 bg-cyan-500 rounded-full"></div> Socials
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                        <a 
+                            href={instagramLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-4 p-4 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-cyan-500 transition-all rounded-xl group"
+                        >
+                            <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-zinc-400 group-hover:text-cyan-400 group-hover:bg-cyan-900/30 transition-colors">
+                                <Instagram size={20} />
+                            </div>
+                            <div>
+                                <p className="font-bold text-sm text-white group-hover:text-cyan-400 transition-colors">Instagram</p>
+                                <p className="text-xs text-zinc-500">Follow</p>
+                            </div>
+                        </a>
+
+                        {/* <a 
+                            href="#"
+                            className="flex items-center gap-4 p-4 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-cyan-500 transition-all rounded-xl group"
+                        >
+                            <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-zinc-400 group-hover:text-cyan-400 group-hover:bg-cyan-900/30 transition-colors">
+                                <Twitter size={20} />
+                            </div>
+                            <div>
+                                <p className="font-bold text-sm text-white group-hover:text-cyan-400 transition-colors">Twitter</p>
+                                <p className="text-xs text-zinc-500">Follow</p>
+                            </div>
+                        </a> */}
+
+                        <a 
+                            href={youtubeLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-4 p-4 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-cyan-500 transition-all rounded-xl group"
+                        >
+                            <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-zinc-400 group-hover:text-cyan-400 group-hover:bg-cyan-900/30 transition-colors">
+                                <Youtube size={20} />
+                            </div>
+                            <div>
+                                <p className="font-bold text-sm text-white group-hover:text-cyan-400 transition-colors">YouTube</p>
+                                <p className="text-xs text-zinc-500">Follow</p>
+                            </div>
+                        </a>
+
+                        <a 
+                            href={appleMusicLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-4 p-4 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-cyan-500 transition-all rounded-xl group"
+                        >
+                            <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-zinc-400 group-hover:text-cyan-400 group-hover:bg-cyan-900/30 transition-colors">
+                                <Music size={20} />
+                            </div>
+                            <div>
+                                <p className="font-bold text-sm text-white group-hover:text-cyan-400 transition-colors">Apple Music</p>
+                                <p className="text-xs text-zinc-500">Follow</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </RevealOnScroll>
+          </div>
+
+          {/* Bookings Section */}
+          <RevealOnScroll delay={300}>
+            <div className="mt-16 pt-16 border-t border-zinc-900">
+              <h3 className="text-2xl font-bold text-center text-white mb-8 flex items-center gap-2 justify-center">
+                <div className="w-2 h-8 bg-purple-500 rounded-full"></div> Bookings & Recordings
+              </h3>
+              <div className="text-center max-w-2xl mx-auto">
+                <p className="text-zinc-400 text-base md:text-lg font-light leading-relaxed mb-8">
+                  For inquiries regarding live performances, studio sessions, and collaborations, please reach out directly.
+                </p>
+                <a 
+                  href="mailto:suhasmusicofficial@gmail.com" 
+                  className="relative inline-block text-lg md:text-2xl font-bold tracking-tight hover:text-cyan-400 transition-colors py-2 group"
+                >
+                  suhasmusicofficial@gmail.com
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-cyan-500 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+              </div>
+            </div>
           </RevealOnScroll>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-black py-12 border-t border-zinc-900">
+      <footer className="bg-black py-16 border-t border-zinc-900 text-sm">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="text-center md:text-left">
-              <h2 className="text-2xl font-bold tracking-tighter mb-2">SUHAS.</h2>
-              <p className="text-zinc-500 text-xs uppercase tracking-widest">© 2026 Suhas Music.</p>
-            </div>
-            
-            <div className="flex gap-6">
-              {[Instagram, Twitter, Youtube, Music].map((Icon, i) => (
-                <a key={i} href="#" className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:bg-cyan-600 hover:text-white hover:scale-110 transition-all">
-                  <Icon size={20} />
-                </a>
-              ))}
+              <h2 className="text-2xl font-bold tracking-widest mb-2">SUHAS</h2>
+              <p className="text-zinc-600 text-xs uppercase tracking-widest">© 2026 Suhas Music. All Rights Reserved.</p>
             </div>
             
             <div className="flex gap-8 text-xs font-bold uppercase text-zinc-500">
@@ -618,6 +842,46 @@ const SuhasWebsite = () => {
         }
         .perspective-1000 {
             perspective: 1000px;
+        }
+        .gradient-mouse {
+          background: radial-gradient(
+            circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            #22d3ee 0%,
+            #ffffff 25%,
+            #6366f1 50%,
+            #22d3ee 75%,
+            #ffffff 100%
+          );
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          color: transparent;
+          padding: 0 0.05em; /* Add slight padding to prevent clipping */
+          transition: background-position 0.3s ease;
+        }
+
+        .gradient-mouse:hover {
+          animation: none;
+        }
+
+        .bg-gradient-radial {
+          background: radial-gradient(circle, var(--tw-gradient-stops));
+        }
+
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50% }
+          50% { background-position: 100% 50% }
+          100% { background-position: 0% 50% }
+        }
+
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .animate-spin-slow {
+          animation: spin-slow 20s linear infinite;
         }
       `}</style>
     </div>
