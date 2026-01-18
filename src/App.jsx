@@ -93,7 +93,6 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
             }`}
             aria-label="Play piano note"
           >
-            {/* Subtle reflection shine for that rubber/matte look */}
             {!isBlackKey && (
               <>
                 <div className="absolute top-2 left-1/2 -translate-x-1/2 w-4/5 h-1 bg-white/40 rounded-full blur-[1px]"></div>
@@ -137,7 +136,6 @@ const GeometricVisualizer = ({ noteTrigger }) => {
       renderer.setPixelRatio(window.devicePixelRatio);
       mountRef.current.appendChild(renderer.domElement);
 
-      // Core Sphere - Cyan
       const coreGeometry = new THREE.IcosahedronGeometry(1.2, 1);
       const coreMaterial = new THREE.MeshBasicMaterial({ 
         color: 0x22d3ee, 
@@ -148,7 +146,6 @@ const GeometricVisualizer = ({ noteTrigger }) => {
       const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
       scene.add(coreMesh);
 
-      // Outer Shell - Indigo
       const outerGeometry = new THREE.IcosahedronGeometry(2.5, 1);
       const outerMaterial = new THREE.MeshBasicMaterial({ 
         color: 0x6366f1, 
@@ -246,7 +243,6 @@ const GeometricVisualizer = ({ noteTrigger }) => {
 const SuhasWebsite = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const [showVisualizer, setShowVisualizer] = useState(false);
   const [noteTrigger, setNoteTrigger] = useState(0); 
 
@@ -257,17 +253,14 @@ const SuhasWebsite = () => {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-      requestAnimationFrame(() => {
-        setScrollY(window.scrollY);
-      });
     };
-    window.addEventListener('scroll', handleScroll);
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // Content Structure maintained from previous version
   const navLinks = [
     { name: 'About', href: '#about' },
     { name: 'Music', href: '#music' },
@@ -287,12 +280,10 @@ const SuhasWebsite = () => {
     { id: 3, name: 'Fractals Tee', price: '$30.00', desc: 'Heavyweight Cotton - Black', type: 'Apparel', link: null },
   ];
 
-  // Updated links
   const appleMusicLink = "https://music.apple.com/us/album/fractals-single/1768715442";
   const spotifyLink = "https://open.spotify.com/track/4Udyb9Ijofesgz8YcmrsB6?si=KcFSYSf9Q2SwzGrJjKejNg";
   const youtubeLink = "https://youtube.com/@suhaspadav?si=9VeGZgDY1mThJlF9";
   const instagramLink = "https://www.instagram.com/suhas.als?igsh=MTVjaTR2a2YwaDFhOQ%3D%3D&utm_source=qr";
-
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-cyan-500 selection:text-black overflow-x-hidden">
@@ -304,7 +295,6 @@ const SuhasWebsite = () => {
             SUHAS
           </a>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex space-x-12">
             {navLinks.map((link) => (
               <a 
@@ -318,13 +308,11 @@ const SuhasWebsite = () => {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
           <button onClick={toggleMenu} className="md:hidden text-white hover:text-cyan-400 z-50 relative">
             {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
 
-        {/* Mobile Menu Overlay */}
         {isMenuOpen && (
           <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center space-y-8 animate-in fade-in duration-300">
             {navLinks.map((link) => (
@@ -341,44 +329,31 @@ const SuhasWebsite = () => {
         )}
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section - FIXED SCROLLING */}
       <section id="home" className="relative h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden">
         
         {showVisualizer && <GeometricVisualizer noteTrigger={noteTrigger} />}
 
         {!showVisualizer && (
           <div className="absolute inset-0 pointer-events-none">
-            {/* Album Art Background */}
             <div className="absolute inset-0">
               <img 
                 src="/images/poster.jpg" 
                 alt="" 
-                className="w-full h-full object-cover opacity-25"
-                style={{ transform: `translateY(${scrollY * 0.3}px) scale(1.1)` }}
+                className="w-full h-full object-cover opacity-55 fixed top-0 left-0"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80"></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/70"></div>
             </div>
             
-            {/* Ambient Glows */}
-            <div 
-              className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-900/20 rounded-full blur-[100px]"
-              style={{ transform: `translateY(${scrollY * 0.2}px)` }}
-            ></div>
-            <div 
-              className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-900/20 rounded-full blur-[100px]"
-              style={{ transform: `translateY(${scrollY * -0.1}px)` }}
-            ></div>
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-900/20 rounded-full blur-[100px]"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-900/20 rounded-full blur-[100px]"></div>
           </div>
         )}
 
-        <div className={`absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40 z-0 pointer-events-none transition-opacity duration-1000 ${showVisualizer ? 'opacity-80' : 'opacity-100'}`}></div>
+        <div className={`absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-black/40 z-0 pointer-events-none transition-opacity duration-1000 ${showVisualizer ? 'opacity-80' : 'opacity-100'}`}></div>
 
         <div 
-          className={`relative z-10 max-w-6xl mx-auto px-4 md:px-8 space-y-8 will-change-transform flex flex-col items-center pt-32 md:pt-0 transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-12' : 'justify-center'}`}
-          style={{ 
-            transform: showVisualizer ? 'none' : `translateY(${scrollY * 0.5}px)`, 
-            opacity: showVisualizer ? 1 : Math.max(0, 1 - scrollY / 700) 
-          }}
+          className={`relative z-10 max-w-6xl mx-auto px-4 md:px-8 space-y-8 flex flex-col items-center pt-32 md:pt-0 transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-12' : 'justify-center'}`}
         >
           {/* Main Hero Text */}
           <div className={`transition-all duration-700 flex flex-col items-center gap-8 ${showVisualizer ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
@@ -450,9 +425,12 @@ const SuhasWebsite = () => {
       </section>
 
       {/* Marquee Scroller */}
-      <div className="w-full relative z-20">
+      <div className="w-full relative z-20 -mt-16">
+        {/* Dark overlay behind marquee */}
+        <div className="absolute inset-0 bg-black/60 z-0"></div>
+        
         <div 
-          className="w-full overflow-hidden py-4 whitespace-nowrap transform -skew-y-1 origin-left relative"
+          className="w-full overflow-hidden py-4 whitespace-nowrap transform -skew-y-1 origin-left relative z-10"
           style={{ 
             background: 'linear-gradient(to right, #360225, #2f43a983, #5f188291)',
             backgroundSize: '200% 100%',
@@ -474,15 +452,13 @@ const SuhasWebsite = () => {
 
       {/* Bio / About Section */}
       <section id="about" className="min-h-[80vh] flex items-center justify-center py-20 relative overflow-hidden bg-black">
-         {/* Background Image of Artist */}
          <div className="absolute inset-0 z-0">
             <img 
               src="/images/suhas.jpeg"
               alt="Suhas Background" 
-              className="w-full h-full object-cover opacity-30"
+              className="w-full h-full object-cover opacity-90 object-[center_35%]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black"></div>
+            <div className="absolute inset-0 bg-black/30"></div>
          </div>
 
          <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -496,12 +472,12 @@ const SuhasWebsite = () => {
             </RevealOnScroll>
             
             <RevealOnScroll delay={200}>
-                <div className="space-y-6 text-zinc-300 text-lg leading-relaxed font-light">
+                <div className="space-y-6 text-zinc-300 text-xl leading-relaxed font-light">
                     <p>
                         Suhas is a pianist and composer exploring the progressive Jazz Fusion space.
                     </p>
                     <p>
-                        Drawing from modern jazz, Suhas’s music indulges in constantly evolving polyrhythms, and improvisation into rhythmically rich themes, rooted in live performance.
+                        Drawing from modern jazz, Suhas's music indulges in constantly evolving polyrhythms, and improvisation into rhythmically rich themes, rooted in live performance.
                     </p>
                     <div className="pt-4">
                         <a href="#music" className="inline-flex items-center gap-2 text-white border-b border-cyan-500 pb-1 hover:text-cyan-400 transition-colors uppercase tracking-widest text-sm font-bold">
@@ -521,10 +497,8 @@ const SuhasWebsite = () => {
               <div 
                 className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] animate-spin-slow"
               >
-                {/* Vinyl Record - Black */}
                 <div className="absolute inset-0 rounded-full bg-zinc-950 border-2 border-zinc-800 flex items-center justify-center shadow-2xl shadow-cyan-900/20 overflow-hidden">
                   
-                  {/* Vinyl Grooves */}
                   <div className="absolute inset-2 rounded-full border border-zinc-800/60"></div>
                   <div className="absolute inset-4 rounded-full border border-zinc-800/50"></div>
                   <div className="absolute inset-8 rounded-full border border-zinc-800/40"></div>
@@ -533,19 +507,15 @@ const SuhasWebsite = () => {
                   <div className="absolute inset-20 rounded-full border border-zinc-800/20"></div>
                   <div className="absolute inset-24 rounded-full border border-zinc-800/20"></div>
                   
-                  {/* Center Label Sticker with Album Art */}
                   <div className="w-[60%] h-[60%] rounded-full relative overflow-hidden border-2 border-zinc-700 shadow-lg">
-                    {/* Album Art */}
                     <img 
                       src="/images/album-art.PNG"
                       alt="Fractals Album Art"
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                     
-                    {/* Label Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-black/30"></div>
                     
-                    {/* Center Hole */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[15%] h-[15%] rounded-full bg-black border border-zinc-600 shadow-inner"></div>
                   </div>
                 </div>
@@ -578,23 +548,6 @@ const SuhasWebsite = () => {
                   </a>
                 </div>
               </RevealOnScroll>
-
-              {/* <RevealOnScroll delay={300}>
-                 <div className="mt-12 pt-12 border-t border-zinc-900">
-                   <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-6">More by Suhas</h3>
-                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {discography.map((disc, i) => (
-                        <div key={i} className="bg-zinc-900/50 p-4 rounded hover:bg-zinc-900 transition-colors cursor-pointer group">
-                           <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center mb-3 group-hover:bg-cyan-600 transition-colors">
-                              <Disc size={20} />
-                           </div>
-                           <h4 className="font-bold text-sm truncate">{disc.title}</h4>
-                           <p className="text-xs text-zinc-500">{disc.type} • {disc.year}</p>
-                        </div>
-                      ))}
-                   </div>
-                 </div>
-              </RevealOnScroll> */}
             </div>
           </div>
         </div>
@@ -645,7 +598,6 @@ const SuhasWebsite = () => {
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-zinc-800 transition-transform duration-700 group-hover:scale-105">
-                        {/* Icon based placeholder for products */}
                         {item.type === 'Vinyl' && <Disc size={120} strokeWidth={0.5} />}
                       </div>
                     )}
@@ -685,7 +637,6 @@ const SuhasWebsite = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             
-            {/* Donation Area */}
             <RevealOnScroll delay={100}>
                 <div className="space-y-6">
                     <h3 className="text-2xl font-bold text-center lg:text-left text-white mb-8 flex items-center gap-2">
@@ -713,7 +664,6 @@ const SuhasWebsite = () => {
                 </div>
             </RevealOnScroll>
 
-            {/* Connect Area */}
             <RevealOnScroll delay={200}>
                 <div className="space-y-6">
                     <h3 className="text-2xl font-bold text-center lg:text-left text-white mb-8 flex items-center gap-2">
@@ -734,19 +684,6 @@ const SuhasWebsite = () => {
                                 <p className="text-xs text-zinc-500">Follow</p>
                             </div>
                         </a>
-
-                        {/* <a 
-                            href="#"
-                            className="flex items-center gap-4 p-4 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:border-cyan-500 transition-all rounded-xl group"
-                        >
-                            <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-zinc-400 group-hover:text-cyan-400 group-hover:bg-cyan-900/30 transition-colors">
-                                <Twitter size={20} />
-                            </div>
-                            <div>
-                                <p className="font-bold text-sm text-white group-hover:text-cyan-400 transition-colors">Twitter</p>
-                                <p className="text-xs text-zinc-500">Follow</p>
-                            </div>
-                        </a> */}
 
                         <a 
                             href={youtubeLink}
@@ -782,7 +719,6 @@ const SuhasWebsite = () => {
             </RevealOnScroll>
           </div>
 
-          {/* Bookings Section */}
           <RevealOnScroll delay={300}>
             <div className="mt-16 pt-16 border-t border-zinc-900">
               <h3 className="text-2xl font-bold text-center text-white mb-8 flex items-center gap-2 justify-center">
@@ -806,19 +742,50 @@ const SuhasWebsite = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black py-16 border-t border-zinc-900 text-sm">
+      <footer className="bg-zinc-950 py-16 border-t border-zinc-800 text-sm relative z-10">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
             <div className="text-center md:text-left">
               <h2 className="text-2xl font-bold tracking-widest mb-2">SUHAS</h2>
-              <p className="text-zinc-600 text-xs uppercase tracking-widest">© 2026 Suhas Music. All Rights Reserved.</p>
+              <p className="text-zinc-500 text-xs uppercase tracking-widest">© 2026 Suhas Music. All Rights Reserved.</p>
             </div>
             
-            <div className="flex gap-8 text-xs font-bold uppercase text-zinc-500">
-              <a href="#" className="hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms</a>
-              <a href="#" className="hover:text-white transition-colors">Contact</a>
+            {/* Social Links */}
+            <div className="flex gap-4">
+              <a 
+                href={instagramLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-cyan-400 hover:border-cyan-500 hover:bg-zinc-800 transition-all"
+                aria-label="Instagram"
+              >
+                <Instagram size={18} />
+              </a>
+              <a 
+                href={youtubeLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-cyan-400 hover:border-cyan-500 hover:bg-zinc-800 transition-all"
+                aria-label="YouTube"
+              >
+                <Youtube size={18} />
+              </a>
+              <a 
+                href={appleMusicLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-cyan-400 hover:border-cyan-500 hover:bg-zinc-800 transition-all"
+                aria-label="Apple Music"
+              >
+                <Music size={18} />
+              </a>
             </div>
+          </div>
+          
+          <div className="flex gap-8 text-xs font-bold uppercase text-zinc-500 justify-center md:justify-end">
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">Contact</a>
           </div>
         </div>
       </footer>
@@ -857,7 +824,8 @@ const SuhasWebsite = () => {
           -webkit-text-fill-color: transparent;
           background-clip: text;
           color: transparent;
-          padding: 0 0.05em; /* Add slight padding to prevent clipping */
+          padding: 0 0.25em; /* Increased padding to prevent text clipping */
+          display: inline-block; /* Critical for preventing overflow clipping */
           transition: background-position 0.3s ease;
         }
 
