@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Instagram, Twitter, Youtube, Music, ArrowRight, ShoppingBag, ExternalLink, Play, Disc, Heart, DollarSign } from 'lucide-react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // --- Helper Component for "Apple-style" Scroll Reveals ---
 const RevealOnScroll = ({ children, className = "", delay = 0, threshold = 0.1 }) => {
@@ -852,6 +853,7 @@ const SuhasWebsite = () => {
           animation: spin-slow 20s linear infinite;
         }
       `}</style>
+      <SpeedInsights />
     </div>
   );
 };
