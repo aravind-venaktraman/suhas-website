@@ -236,154 +236,6 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
 
   return (
     <div className="w-full space-y-6">
-      {/* Control Panel */}
-      {isExpanded && (
-        <div className="bg-zinc-900/80 backdrop-blur-xl border border-zinc-700 rounded-2xl p-6 space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {/* Reverb */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-cyan-400"></span>
-                Reverb
-              </label>
-              <input 
-                type="range" 
-                min="0" 
-                max="1" 
-                step="0.01" 
-                value={reverbMix}
-                onChange={(e) => setReverbMix(parseFloat(e.target.value))}
-                className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-              />
-              <span className="text-xs text-zinc-500">{Math.round(reverbMix * 100)}%</span>
-            </div>
-
-            {/* Delay */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-purple-400"></span>
-                Delay
-              </label>
-              <input 
-                type="range" 
-                min="0" 
-                max="1" 
-                step="0.01" 
-                value={delayMix}
-                onChange={(e) => setDelayMix(parseFloat(e.target.value))}
-                className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
-              />
-              <span className="text-xs text-zinc-500">{Math.round(delayMix * 100)}%</span>
-            </div>
-
-            {/* Filter */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-green-400 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-400"></span>
-                Filter
-              </label>
-              <input 
-                type="range" 
-                min="100" 
-                max="10000" 
-                step="100" 
-                value={filterFreq}
-                onChange={(e) => setFilterFreq(parseFloat(e.target.value))}
-                className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-green-500"
-              />
-              <span className="text-xs text-zinc-500">{Math.round(filterFreq)}Hz</span>
-            </div>
-
-            {/* Distortion */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-orange-400 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-orange-400"></span>
-                Drive
-              </label>
-              <input 
-                type="range" 
-                min="0" 
-                max="1" 
-                step="0.01" 
-                value={distortion}
-                onChange={(e) => setDistortion(parseFloat(e.target.value))}
-                className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
-              />
-              <span className="text-xs text-zinc-500">{Math.round(distortion * 100)}%</span>
-            </div>
-          </div>
-
-          {/* Transport & Features */}
-          <div className="flex flex-wrap gap-4 pt-4 border-t border-zinc-700">
-            <button
-              onClick={() => setRecording(!recording)}
-              className={`px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${
-                recording 
-                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/50 animate-pulse' 
-                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-              }`}
-            >
-              {recording ? '⏺ Recording' : '⏺ Record'}
-            </button>
-
-            <button
-              onClick={playRecording}
-              disabled={recordedNotes.length === 0 || isPlaying}
-              className={`px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${
-                isPlaying
-                  ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
-                  : recordedNotes.length > 0
-                  ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                  : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
-              }`}
-            >
-              ▶ Play ({recordedNotes.length})
-            </button>
-
-            <button
-              onClick={clearRecording}
-              disabled={recordedNotes.length === 0}
-              className={`px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${
-                recordedNotes.length > 0
-                  ? 'bg-zinc-800 text-zinc-300 hover:bg-red-900'
-                  : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
-              }`}
-            >
-              ⏹ Clear
-            </button>
-
-            <button
-              onClick={() => setArpeggiator(!arpeggiator)}
-              className={`px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${
-                arpeggiator
-                  ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/50'
-                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-              }`}
-            >
-              ♪ Arp
-            </button>
-
-            <div className="flex items-center gap-2 bg-zinc-800 rounded-lg px-3">
-              <button
-                onClick={() => setOctaveShift(Math.max(-2, octaveShift - 1))}
-                className="text-zinc-300 hover:text-white font-bold"
-              >
-                −
-              </button>
-              <span className="text-xs font-bold text-zinc-400 min-w-[60px] text-center">
-                Oct {octaveShift > 0 ? '+' : ''}{octaveShift}
-              </span>
-              <button
-                onClick={() => setOctaveShift(Math.min(2, octaveShift + 1))}
-                className="text-zinc-300 hover:text-white font-bold"
-              >
-                +
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Keyboard */}
       <div className={`flex gap-1 items-start justify-center relative z-30 transition-all duration-700 ${isExpanded ? 'h-40 mt-auto mb-8' : 'h-24 mix-blend-normal'}`}>
         {[...Array(numKeys)].map((_, i) => {
@@ -432,6 +284,66 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
           );
         })}
       </div>
+
+      {/* Transport Controls - Below keyboard when expanded */}
+      {isExpanded && (
+        <div className="flex flex-wrap justify-center gap-2 md:gap-3 pt-4 px-2">
+          <button
+            onClick={() => setRecording(!recording)}
+            className={`group relative px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-xs md:text-sm uppercase tracking-wider transition-all ${
+              recording 
+                ? 'bg-red-500/20 border-2 border-red-500 text-red-400 shadow-lg shadow-red-500/30 animate-pulse' 
+                : 'bg-white/5 border-2 border-white/20 text-zinc-300 hover:border-cyan-500/60 hover:bg-white/10'
+            }`}
+          >
+            <span className="relative z-10">{recording ? '⏺ Rec' : '⏺ Record'}</span>
+          </button>
+
+          <button
+            onClick={playRecording}
+            disabled={recordedNotes.length === 0 || isPlaying}
+            className={`group relative px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-xs md:text-sm uppercase tracking-wider transition-all ${
+              isPlaying
+                ? 'bg-green-500/20 border-2 border-green-500 text-green-400 shadow-lg shadow-green-500/30'
+                : recordedNotes.length > 0
+                ? 'bg-white/5 border-2 border-white/20 text-zinc-300 hover:border-cyan-500/60 hover:bg-white/10'
+                : 'bg-white/5 border-2 border-white/10 text-zinc-600 cursor-not-allowed'
+            }`}
+          >
+            <span className="relative z-10">▶ Play ({recordedNotes.length})</span>
+          </button>
+
+          <button
+            onClick={clearRecording}
+            disabled={recordedNotes.length === 0}
+            className={`group relative px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-xs md:text-sm uppercase tracking-wider transition-all ${
+              recordedNotes.length > 0
+                ? 'bg-white/5 border-2 border-white/20 text-zinc-300 hover:border-red-500/60 hover:bg-red-900/20'
+                : 'bg-white/5 border-2 border-white/10 text-zinc-600 cursor-not-allowed'
+            }`}
+          >
+            <span className="relative z-10">⏹ Clear</span>
+          </button>
+
+          <div className="flex items-center gap-2 bg-white/5 border-2 border-white/20 rounded-full px-3 md:px-4 py-2 md:py-3">
+            <button
+              onClick={() => setOctaveShift(Math.max(-2, octaveShift - 1))}
+              className="text-zinc-300 hover:text-cyan-400 font-bold transition-colors text-lg"
+            >
+              −
+            </button>
+            <span className="text-xs md:text-sm font-bold text-zinc-400 min-w-[60px] md:min-w-[70px] text-center">
+              Oct {octaveShift > 0 ? '+' : ''}{octaveShift}
+            </span>
+            <button
+              onClick={() => setOctaveShift(Math.min(2, octaveShift + 1))}
+              className="text-zinc-300 hover:text-cyan-400 font-bold transition-colors text-lg"
+            >
+              +
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -510,108 +422,6 @@ const GeometricVisualizer = ({ noteTrigger }) => {
       const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
       scene.add(particlesMesh);
 
-      // Function to create explosion particles on note play
-      const createExplosion = (noteIndex) => {
-        const geometry = new THREE.BufferGeometry();
-        const particleCount = 100;
-        const positions = new Float32Array(particleCount * 3);
-        const velocities = [];
-        const colors = new Float32Array(particleCount * 3);
-        
-        // Color based on note (rainbow spectrum)
-        const hue = (noteIndex / 37) * 360;
-        const color = new THREE.Color(`hsl(${hue}, 100%, 60%)`);
-        
-        for(let i = 0; i < particleCount; i++) {
-          // Start at center
-          positions[i * 3] = 0;
-          positions[i * 3 + 1] = 0;
-          positions[i * 3 + 2] = 0;
-          
-          // Random outward velocity
-          const theta = Math.random() * Math.PI * 2;
-          const phi = Math.random() * Math.PI;
-          const speed = 0.05 + Math.random() * 0.1;
-          
-          velocities.push({
-            x: Math.sin(phi) * Math.cos(theta) * speed,
-            y: Math.sin(phi) * Math.sin(theta) * speed,
-            z: Math.cos(phi) * speed
-          });
-          
-          colors[i * 3] = color.r;
-          colors[i * 3 + 1] = color.g;
-          colors[i * 3 + 2] = color.b;
-        }
-        
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        
-        const material = new THREE.PointsMaterial({
-          size: 0.08,
-          vertexColors: true,
-          transparent: true,
-          opacity: 1,
-          blending: THREE.AdditiveBlending
-        });
-        
-        const particles = new THREE.Points(geometry, material);
-        scene.add(particles);
-        
-        particleSystemsRef.current.push({
-          mesh: particles,
-          velocities,
-          life: 1.0,
-          positions: positions
-        });
-      };
-
-      // Function to create expanding shockwave rings
-      const createShockwave = (noteIndex) => {
-        const hue = (noteIndex / 37) * 360;
-        const color = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
-        
-        const geometry = new THREE.RingGeometry(0.1, 0.15, 32);
-        const material = new THREE.MeshBasicMaterial({ 
-          color: color,
-          transparent: true,
-          opacity: 0.8,
-          side: THREE.DoubleSide
-        });
-        
-        const ring = new THREE.Mesh(geometry, material);
-        ring.rotation.x = Math.PI / 2;
-        scene.add(ring);
-        
-        shockwavesRef.current.push({
-          mesh: ring,
-          scale: 0.1,
-          life: 1.0
-        });
-      };
-
-      // Function to create color trail behind core
-      const createTrail = (noteIndex) => {
-        const hue = (noteIndex / 37) * 360;
-        const color = new THREE.Color(`hsl(${hue}, 100%, 60%)`);
-        
-        const geometry = new THREE.SphereGeometry(0.1, 8, 8);
-        const material = new THREE.MeshBasicMaterial({ 
-          color: color,
-          transparent: true,
-          opacity: 0.6
-        });
-        
-        const trail = new THREE.Mesh(geometry, material);
-        trail.position.copy(coreMesh.position);
-        scene.add(trail);
-        
-        trailsRef.current.push({
-          mesh: trail,
-          life: 1.0
-        });
-      };
-
       let time = 0;
       const animate = () => {
         requestAnimationFrame(animate);
@@ -645,68 +455,6 @@ const GeometricVisualizer = ({ noteTrigger }) => {
         }
         particlesMesh.geometry.attributes.position.needsUpdate = true;
         particlesMesh.rotation.y = time * 0.05;
-
-        // Update explosion particles
-        particleSystemsRef.current = particleSystemsRef.current.filter(system => {
-          system.life -= 0.02;
-          
-          if(system.life <= 0) {
-            scene.remove(system.mesh);
-            system.mesh.geometry.dispose();
-            system.mesh.material.dispose();
-            return false;
-          }
-          
-          const positions = system.positions;
-          for(let i = 0; i < system.velocities.length; i++) {
-            positions[i * 3] += system.velocities[i].x;
-            positions[i * 3 + 1] += system.velocities[i].y;
-            positions[i * 3 + 2] += system.velocities[i].z;
-            
-            // Apply gravity
-            system.velocities[i].y -= 0.001;
-          }
-          
-          system.mesh.geometry.attributes.position.needsUpdate = true;
-          system.mesh.material.opacity = system.life;
-          
-          return true;
-        });
-
-        // Update shockwaves
-        shockwavesRef.current = shockwavesRef.current.filter(wave => {
-          wave.life -= 0.015;
-          wave.scale += 0.15;
-          
-          if(wave.life <= 0) {
-            scene.remove(wave.mesh);
-            wave.mesh.geometry.dispose();
-            wave.mesh.material.dispose();
-            return false;
-          }
-          
-          wave.mesh.scale.set(wave.scale, wave.scale, 1);
-          wave.mesh.material.opacity = wave.life * 0.8;
-          
-          return true;
-        });
-
-        // Update trails
-        trailsRef.current = trailsRef.current.filter(trail => {
-          trail.life -= 0.03;
-          
-          if(trail.life <= 0) {
-            scene.remove(trail.mesh);
-            trail.mesh.geometry.dispose();
-            trail.mesh.material.dispose();
-            return false;
-          }
-          
-          trail.mesh.material.opacity = trail.life * 0.6;
-          trail.mesh.scale.multiplyScalar(0.95);
-          
-          return true;
-        });
 
         // Camera orbit
         camera.position.x = Math.sin(time * 0.3) * 0.3;
@@ -746,109 +494,10 @@ const GeometricVisualizer = ({ noteTrigger }) => {
     };
   }, []);
 
-  // Trigger effects when note is played
+  // Trigger effects when note is played (simplified - no particle effects)
   useEffect(() => {
     if (noteTrigger.timestamp > 0 && sceneRef.current) {
-      // Create multiple effects
-      if (typeof noteTrigger.noteIndex === 'number') {
-        // Explosion particles
-        if (sceneRef.current) {
-          const geometry = new window.THREE.BufferGeometry();
-          const particleCount = 100;
-          const positions = new Float32Array(particleCount * 3);
-          const velocities = [];
-          const colors = new Float32Array(particleCount * 3);
-          
-          const hue = (noteTrigger.noteIndex / 37) * 360;
-          const color = new window.THREE.Color(`hsl(${hue}, 100%, 60%)`);
-          
-          for(let i = 0; i < particleCount; i++) {
-            positions[i * 3] = 0;
-            positions[i * 3 + 1] = 0;
-            positions[i * 3 + 2] = 0;
-            
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.random() * Math.PI;
-            const speed = 0.05 + Math.random() * 0.1;
-            
-            velocities.push({
-              x: Math.sin(phi) * Math.cos(theta) * speed,
-              y: Math.sin(phi) * Math.sin(theta) * speed,
-              z: Math.cos(phi) * speed
-            });
-            
-            colors[i * 3] = color.r;
-            colors[i * 3 + 1] = color.g;
-            colors[i * 3 + 2] = color.b;
-          }
-          
-          geometry.setAttribute('position', new window.THREE.BufferAttribute(positions, 3));
-          geometry.setAttribute('color', new window.THREE.BufferAttribute(colors, 3));
-          
-          const material = new window.THREE.PointsMaterial({
-            size: 0.08,
-            vertexColors: true,
-            transparent: true,
-            opacity: 1,
-            blending: window.THREE.AdditiveBlending
-          });
-          
-          const particles = new window.THREE.Points(geometry, material);
-          sceneRef.current.add(particles);
-          
-          particleSystemsRef.current.push({
-            mesh: particles,
-            velocities,
-            life: 1.0,
-            positions: positions
-          });
-        }
-
-        // Shockwave
-        if (sceneRef.current) {
-          const hue = (noteTrigger.noteIndex / 37) * 360;
-          const color = new window.THREE.Color(`hsl(${hue}, 100%, 50%)`);
-          
-          const geometry = new window.THREE.RingGeometry(0.1, 0.15, 32);
-          const material = new window.THREE.MeshBasicMaterial({ 
-            color: color,
-            transparent: true,
-            opacity: 0.8,
-            side: window.THREE.DoubleSide
-          });
-          
-          const ring = new window.THREE.Mesh(geometry, material);
-          ring.rotation.x = Math.PI / 2;
-          sceneRef.current.add(ring);
-          
-          shockwavesRef.current.push({
-            mesh: ring,
-            scale: 0.1,
-            life: 1.0
-          });
-        }
-
-        // Trail
-        if (sceneRef.current) {
-          const hue = (noteTrigger.noteIndex / 37) * 360;
-          const color = new window.THREE.Color(`hsl(${hue}, 100%, 60%)`);
-          
-          const geometry = new window.THREE.SphereGeometry(0.15, 8, 8);
-          const material = new window.THREE.MeshBasicMaterial({ 
-            color: color,
-            transparent: true,
-            opacity: 0.6
-          });
-          
-          const trail = new window.THREE.Mesh(geometry, material);
-          sceneRef.current.add(trail);
-          
-          trailsRef.current.push({
-            mesh: trail,
-            life: 1.0
-          });
-        }
-      }
+      // Effects removed for cleaner performance
     }
   }, [noteTrigger]);
 
@@ -882,12 +531,6 @@ const SuhasWebsite = () => {
     { name: 'Contribute', href: '#contribute' },
     { name: 'Store', href: '#store' },
     { name: 'Connect', href: '#connect' },
-  ];
-
-  const discography = [
-    { title: "Chasing Dreams", year: "2025", type: "Single" },
-    { title: "Whispering Winds", year: "2025", type: "Single" },
-    { title: "Electric Night", year: "2025", type: "Single" },
   ];
 
   const storeItems = [
@@ -975,7 +618,7 @@ const SuhasWebsite = () => {
         <div className={`absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-black/40 z-0 pointer-events-none transition-opacity duration-1000 ${showVisualizer ? 'opacity-80' : 'opacity-100'}`}></div>
 
         <div 
-          className={`relative z-10 max-w-6xl mx-auto px-4 md:px-8 space-y-8 flex flex-col items-center pt-32 md:pt-0 transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-12' : 'justify-center'}`}
+          className={`relative z-10 max-w-6xl mx-auto px-4 md:px-8 space-y-8 flex flex-col items-center transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-8 md:pb-12 pt-20 md:pt-32' : 'justify-center pt-32 md:pt-0'}`}
         >
           {/* Main Hero Text */}
           <div className={`transition-all duration-700 flex flex-col items-center gap-8 ${showVisualizer ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
@@ -1014,14 +657,14 @@ const SuhasWebsite = () => {
 
           {/* Piano and Controls */}
           <RevealOnScroll delay={200}>
-            <div className={`flex flex-col gap-8 justify-center items-center ${showVisualizer ? 'w-full' : ''}`}>
+            <div className={`flex flex-col gap-6 md:gap-8 justify-center items-center w-full ${showVisualizer ? 'max-w-full' : ''}`}>
               
               <AbstractPiano isExpanded={showVisualizer} onPlayNote={handleNotePlay} />
               
-              <div className="flex flex-col gap-4 items-center">
+              <div className="flex flex-col gap-4 items-center w-full">
                 {!showVisualizer ? (
                   <>
-                    <div className="flex gap-4 items-center">
+                    <div className="flex gap-4 items-center flex-wrap justify-center">
                       <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
                         <Music size={20} className="text-white" />
                       </a>
@@ -1033,12 +676,12 @@ const SuhasWebsite = () => {
                           <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
                         </svg>
                       </a>
-                      <a href={saavnLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                      {/* <a href={saavnLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
                         <Music size={20} className="text-white" />
                       </a>
                       <a href={tidalLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
                         <Music size={20} className="text-white" />
-                      </a>
+                      </a> */}
                     </div>
                     <button 
                       onClick={() => setShowVisualizer(true)}
@@ -1050,10 +693,11 @@ const SuhasWebsite = () => {
                 ) : (
                   <button 
                     onClick={() => setShowVisualizer(false)}
-                    className="group relative w-16 h-16 flex items-center justify-center border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
+                    className="group relative w-14 h-14 md:w-16 md:h-16 flex items-center justify-center border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
                   >
-                    <X size={24} className="text-white group-hover:scale-110 transition-transform duration-300" />
-                    <span className="absolute -bottom-8 text-[10px] tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Close</span>
+                    <X size={20} className="md:hidden text-white group-hover:scale-110 transition-transform duration-300" />
+                    <X size={24} className="hidden md:block text-white group-hover:scale-110 transition-transform duration-300" />
+                    <span className="absolute -bottom-8 text-[10px] tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">Close</span>
                   </button>
                 )}
               </div>
@@ -1091,17 +735,17 @@ const SuhasWebsite = () => {
       )}
 
       {/* Bio / About Section */}
-      <section id="about" className="min-h-[80vh] flex items-center justify-center py-20 relative overflow-hidden bg-black">
-         <div className="absolute inset-0 z-0">
+      <section id="about" className="min-h-screen flex items-center justify-center py-32 relative overflow-hidden bg-black">
+        <div className="absolute inset-0 z-0">
             <img 
               src="/images/suhas.jpeg"
               alt="Suhas Background" 
-              className="w-full h-full object-cover opacity-90 object-[center_20%]"
+              className="w-full h-full object-cover opacity-90 object-center"
             />
-            <div className="absolute inset-0 bg-black/30"></div>
-         </div>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
+        </div>
 
-         <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-16 items-center max-w-7xl">
             <RevealOnScroll>
                 <div className="space-y-8">
                     <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">
@@ -1112,7 +756,7 @@ const SuhasWebsite = () => {
             </RevealOnScroll>
             
             <RevealOnScroll delay={200}>
-                <div className="space-y-6 text-zinc-300 text-xl leading-relaxed font-light mt-60">
+                <div className="space-y-6 text-zinc-300 text-xl leading-relaxed font-light mt-[65px]">
                     <p>
                         Suhas is a pianist and composer exploring the progressive Jazz Fusion space.
                     </p>
@@ -1121,11 +765,11 @@ const SuhasWebsite = () => {
                     </p>
                 </div>
             </RevealOnScroll>
-         </div>
+        </div>
       </section>
 
       {/* Latest Release / Music */}
-      <section id="music" className="py-32 bg-black relative overflow-hidden border-t border-zinc-900">
+      <section id="music" className="min-h-screen flex items-center justify-center py-32 bg-black relative overflow-hidden border-t border-zinc-900">
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-20">
             <div className="lg:w-1/2 flex justify-center perspective-1000">
@@ -1189,10 +833,10 @@ const SuhasWebsite = () => {
       </section>
 
       {/* Contribute / Fundraising Section */}
-      <section id="contribute" className="py-32 relative overflow-hidden bg-gradient-to-b from-black via-zinc-950 to-black border-t border-zinc-900">
+      <section id="contribute" className="min-h-screen flex items-center justify-center py-24 relative overflow-hidden bg-gradient-to-b from-black via-zinc-950 to-black border-t border-zinc-900">
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
           <RevealOnScroll>
-            <div className="mb-20 text-center">
+            <div className="mb-16 text-center">
               <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-2">
                 Contribute
               </h2>
@@ -1206,11 +850,11 @@ const SuhasWebsite = () => {
             </div>
           </RevealOnScroll>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             
             {/* Kickstarter Card */}
             <RevealOnScroll delay={100}>
-              <div className="group relative bg-gradient-to-br from-zinc-900 to-zinc-950 border-2 border-zinc-800 hover:border-green-500 p-12 flex flex-col items-center gap-6 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/20 rounded-2xl cursor-default overflow-hidden h-full">
+              <div className="group relative bg-gradient-to-br from-zinc-900 to-zinc-950 border-2 border-zinc-800 hover:border-green-500 p-10 flex flex-col items-center gap-6 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/20 rounded-2xl cursor-default overflow-hidden">
                 {/* Background Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
@@ -1252,7 +896,7 @@ const SuhasWebsite = () => {
 
             {/* GoFundMe Card */}
             <RevealOnScroll delay={200}>
-              <div className="group relative bg-gradient-to-br from-zinc-900 to-zinc-950 border-2 border-zinc-800 hover:border-yellow-500 p-12 flex flex-col items-center gap-6 transition-all duration-500 hover:shadow-2xl hover:shadow-yellow-500/20 rounded-2xl cursor-default overflow-hidden h-full">
+              <div className="group relative bg-gradient-to-br from-zinc-900 to-zinc-950 border-2 border-zinc-800 hover:border-yellow-500 p-10 flex flex-col items-center gap-6 transition-all duration-500 hover:shadow-2xl hover:shadow-yellow-500/20 rounded-2xl cursor-default overflow-hidden">
                 {/* Background Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
@@ -1296,10 +940,10 @@ const SuhasWebsite = () => {
       </section>
 
       {/* Store Section */}
-      <section id="store" className="py-32 bg-zinc-950 border-t border-zinc-900">
+      <section id="store" className="min-h-screen flex items-center justify-center py-24 bg-zinc-950 border-t border-zinc-900">
         <div className="container mx-auto px-6">
           <RevealOnScroll>
-            <div className="flex justify-between items-end mb-20">
+            <div className="flex justify-between items-end mb-16">
               <div>
                 <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-2">Store</h2>
                 <p className="text-zinc-500 tracking-widest uppercase text-xs">Official Merchandise</p>
@@ -1310,7 +954,7 @@ const SuhasWebsite = () => {
             </div>
           </RevealOnScroll>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
             {storeItems.map((item, i) => (
               <RevealOnScroll key={item.id} delay={i * 150}>
                 {item.link ? (
@@ -1404,31 +1048,31 @@ const SuhasWebsite = () => {
       </section>
 
       {/* Connect / Socials Section */}
-      <section id="connect" className="py-32 relative overflow-hidden bg-black border-t border-zinc-900">
-        {/* Trendy Gen-Z Background with Gradients and Shapes */}
-        <div className="absolute inset-0 z-0">
-          {/* Animated gradient blobs */}
+      <section id="connect" className="min-h-screen flex items-center justify-center py-24 relative overflow-hidden bg-black border-t border-zinc-900">
+        {/* More Subtle Background with Distant Elements */}
+        <div className="absolute inset-0 z-0 opacity-30">
+          {/* Animated gradient blobs - more subtle and distant */}
           <div className="absolute top-0 left-0 w-full h-full">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-pink-500/30 via-purple-500/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-tl from-cyan-500/30 via-blue-500/20 to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-br from-yellow-500/20 via-orange-500/20 to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+            <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-cyan-500/10 via-purple-500/5 to-transparent rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gradient-to-tl from-indigo-500/10 via-blue-500/5 to-transparent rounded-full blur-[120px] animate-pulse" style={{animationDelay: '1s'}}></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-br from-purple-500/8 via-pink-500/5 to-transparent rounded-full blur-[120px] animate-pulse" style={{animationDelay: '2s'}}></div>
           </div>
           
-          {/* Grid overlay */}
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.3) 1px, transparent 1px)',
-            backgroundSize: '50px 50px'
+          {/* Grid overlay - more subtle */}
+          <div className="absolute inset-0 opacity-5" style={{
+            backgroundImage: 'linear-gradient(rgba(34, 211, 238, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.2) 1px, transparent 1px)',
+            backgroundSize: '60px 60px'
           }}></div>
 
-          {/* Floating abstract shapes */}
-          <div className="absolute top-20 left-20 w-32 h-32 border-4 border-pink-500/30 rounded-full animate-spin-slow"></div>
-          <div className="absolute bottom-20 right-20 w-40 h-40 border-4 border-cyan-500/30 rotate-45" style={{animation: 'spin-slow 15s linear infinite reverse'}}></div>
-          <div className="absolute top-1/3 right-1/3 w-24 h-24 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg rotate-12 animate-pulse"></div>
+          {/* Floating abstract shapes - more distant and subtle */}
+          <div className="absolute top-32 left-32 w-24 h-24 border-2 border-cyan-500/10 rounded-full animate-spin-slow"></div>
+          <div className="absolute bottom-32 right-32 w-32 h-32 border-2 border-purple-500/10 rotate-45" style={{animation: 'spin-slow 15s linear infinite reverse'}}></div>
+          <div className="absolute top-1/3 right-1/3 w-20 h-20 bg-gradient-to-br from-indigo-500/5 to-cyan-500/5 rounded-lg rotate-12 animate-pulse"></div>
         </div>
 
         <div className="container mx-auto px-6 max-w-5xl relative z-10">
           <RevealOnScroll>
-            <div className="mb-20">
+            <div className="mb-16">
               <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight mb-2">
                 Connect
               </h2>
@@ -1436,17 +1080,17 @@ const SuhasWebsite = () => {
             </div>
           </RevealOnScroll>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <RevealOnScroll delay={0}>
               <a 
                 href={instagramLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex flex-col items-center gap-6 p-10 bg-white/5 border-2 border-white/10 hover:border-cyan-500/60 backdrop-blur-xl transition-all duration-500 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20"
+                className="group relative flex flex-col items-center gap-6 p-8 bg-white/5 border-2 border-white/10 hover:border-purple-500/50 backdrop-blur-xl transition-all duration-500 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-white/5 transition-all duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 via-pink-500/0 to-orange-500/0 group-hover:from-purple-500/5 group-hover:via-pink-500/8 group-hover:to-orange-500/5 transition-all duration-500"></div>
                 
-                <div className="relative w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:shadow-cyan-500/50 group-hover:scale-110 transition-all duration-500 border border-white/20">
+                <div className="relative w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:shadow-purple-500/30 group-hover:scale-110 transition-all duration-500 border border-white/20">
                   <Instagram size={36} className="text-white" />
                 </div>
                 
@@ -1455,7 +1099,7 @@ const SuhasWebsite = () => {
                   <p className="text-sm text-zinc-400 font-medium">@suhas.als</p>
                 </div>
 
-                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-all duration-500"></div>
+                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all duration-500"></div>
               </a>
             </RevealOnScroll>
 
@@ -1464,20 +1108,20 @@ const SuhasWebsite = () => {
                 href={youtubeLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex flex-col items-center gap-6 p-10 bg-white/5 border-2 border-white/10 hover:border-cyan-500/60 backdrop-blur-xl transition-all duration-500 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20"
+                className="group relative flex flex-col items-center gap-6 p-8 bg-white/5 border-2 border-white/10 hover:border-red-500/50 backdrop-blur-xl transition-all duration-500 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-red-500/20"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-white/5 transition-all duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-red-500/0 group-hover:from-red-500/5 group-hover:to-red-500/10 transition-all duration-500"></div>
                 
-                <div className="relative w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:shadow-cyan-500/50 group-hover:scale-110 transition-all duration-500 border border-white/20">
+                <div className="relative w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:shadow-red-500/30 group-hover:scale-110 transition-all duration-500 border border-white/20">
                   <Youtube size={36} className="text-white" />
                 </div>
                 
                 <div className="text-center relative">
                   <p className="font-black text-2xl text-white mb-1">YouTube</p>
-                  <p className="text-sm text-zinc-400 font-medium">@suhaspadav</p>
+                  <p className="text-sm text-zinc-400 font-medium">@suhasmusicofficial</p>
                 </div>
 
-                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-all duration-500"></div>
+                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-red-500/5 rounded-full blur-2xl group-hover:bg-red-500/10 transition-all duration-500"></div>
               </a>
             </RevealOnScroll>
 
@@ -1486,11 +1130,11 @@ const SuhasWebsite = () => {
                 href={appleMusicLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex flex-col items-center gap-6 p-10 bg-white/5 border-2 border-white/10 hover:border-cyan-500/60 backdrop-blur-xl transition-all duration-500 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20"
+                className="group relative flex flex-col items-center gap-6 p-8 bg-white/5 border-2 border-white/10 hover:border-rose-500/50 backdrop-blur-xl transition-all duration-500 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-rose-500/20"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-white/5 transition-all duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/0 to-fuchsia-600/0 group-hover:from-rose-500/5 group-hover:to-fuchsia-600/8 transition-all duration-500"></div>
                 
-                <div className="relative w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:shadow-cyan-500/50 group-hover:scale-110 transition-all duration-500 border border-white/20">
+                <div className="relative w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:shadow-rose-500/30 group-hover:scale-110 transition-all duration-500 border border-white/20">
                   <Music size={36} className="text-white" />
                 </div>
                 
@@ -1499,28 +1143,28 @@ const SuhasWebsite = () => {
                   <p className="text-sm text-zinc-400 font-medium">Stream now</p>
                 </div>
 
-                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-all duration-500"></div>
+                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl group-hover:bg-rose-500/10 transition-all duration-500"></div>
               </a>
             </RevealOnScroll>
           </div>
 
           {/* Bookings & Collaborations */}
-          <div className="mt-20 pt-16 border-t border-zinc-800">
+          <div className="mt-16 pt-12 border-t border-zinc-800">
             <RevealOnScroll delay={300}>
               <div className="text-center max-w-3xl mx-auto">
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <div className="w-2 h-10 bg-purple-500 rounded-full"></div>
-                  <h3 className="text-3xl font-black uppercase text-white">
+                  <h3 className="text-2xl md:text-3xl font-black uppercase text-white">
                     Bookings & Collaborations
                   </h3>
                   <div className="w-2 h-10 bg-purple-500 rounded-full"></div>
                 </div>
-                <p className="text-zinc-400 text-lg font-light leading-relaxed mb-8">
+                <p className="text-zinc-400 text-base md:text-lg font-light leading-relaxed mb-6">
                   For inquiries regarding live performances, studio sessions, and collaborations
                 </p>
                 <a 
                   href="mailto:suhasmusicofficial@gmail.com" 
-                  className="relative inline-block text-2xl md:text-3xl font-bold tracking-tight text-white hover:text-cyan-400 transition-colors py-2 group"
+                  className="relative inline-block text-xl md:text-2xl font-bold tracking-tight text-white hover:text-cyan-400 transition-colors py-2 group"
                 >
                   suhasmusicofficial@gmail.com
                   <span className="absolute bottom-0 left-0 w-0 h-1 bg-cyan-500 transition-all duration-300 group-hover:w-full"></span>
