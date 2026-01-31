@@ -523,7 +523,32 @@ const SuhasWebsite = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    // Disable scrolling when menu is open
+    if (!isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  };
+  
+  useEffect(() => {
+    if (isMenuOpen) {
+      // Save current scroll position and scroll to top
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+    } else {
+      // Restore scroll position
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+  }, [isMenuOpen]);
 
   const navLinks = [
     { name: 'About', href: '#about' },
@@ -556,8 +581,12 @@ const SuhasWebsite = () => {
       {/* Navigation */}
       <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-black/80 backdrop-blur-md py-4' : 'bg-transparent py-6'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
-          <a href="#" className="text-3xl font-bold tracking-tighter hover:text-cyan-400 transition-colors z-50 relative flex items-center gap-2">
-            SUHAS
+          <a href="#" className="z-50 relative flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <img 
+              src="/images/suhas-productions-logo.png" 
+              alt="SUHAS" 
+              className="h-12 md:h-16 w-auto"
+            />
           </a>
 
           <div className="hidden md:flex space-x-12">
@@ -579,19 +608,45 @@ const SuhasWebsite = () => {
         </div>
 
         {isMenuOpen && (
-          <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center space-y-8 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex flex-col items-center justify-center overflow-hidden animate-in fade-in duration-300">
+          {/* Logo at top */}
+          <div className="absolute top-6 left-6">
+            <img 
+              src="/images/suhas-productions-logo.png" 
+              alt="SUHAS" 
+              className="h-12 w-auto"
+            />
+          </div>
+
+          {/* Close button */}
+          <button 
+            onClick={() => {
+              setIsMenuOpen(false);
+              document.body.style.overflow = 'unset';
+            }}
+            className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center text-white hover:text-cyan-400 transition-colors"
+          >
+            <X size={32} />
+          </button>
+
+          {/* Menu links */}
+          <div className="flex flex-col items-center space-y-8">
             {navLinks.map((link) => (
               <a 
                 key={link.name} 
                 href={link.href} 
                 className="text-4xl font-bold uppercase hover:text-cyan-400 transition-colors tracking-tighter"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  document.body.style.overflow = 'unset';
+                }}
               >
                 {link.name}
               </a>
             ))}
           </div>
-        )}
+        </div>
+      )}
       </nav>
 
       {/* Hero Section - FIXED SCROLLING */}
@@ -683,12 +738,12 @@ const SuhasWebsite = () => {
                         <Music size={20} className="text-white" />
                       </a> */}
                     </div>
-                    <button 
+                    {/* <button 
                       onClick={() => setShowVisualizer(true)}
                       className="px-8 py-4 border border-white/30 hover:border-white text-white text-lg font-bold uppercase tracking-wider hover:bg-white/10 transition-all duration-300 rounded-full backdrop-blur-sm"
                     >
                       Interact
-                    </button>
+                    </button> */}
                   </>
                 ) : (
                   <button 
@@ -1180,7 +1235,11 @@ const SuhasWebsite = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
             <div className="text-center md:text-left">
-              <h2 className="text-2xl font-bold tracking-widest mb-2">SUHAS</h2>
+              <img 
+                src="/images/suhas-productions-logo.png" 
+                alt="SUHAS" 
+                className="h-10 md:h-12 w-auto mb-2 mx-auto md:mx-0"
+              />
               <p className="text-zinc-500 text-xs uppercase tracking-widest">© 2026 Suhas Music. All Rights Reserved.</p>
             </div>
             
