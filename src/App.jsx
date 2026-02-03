@@ -566,14 +566,14 @@ const SuhasWebsite = () => {
 
   const appleMusicLink = "https://music.apple.com/us/album/fractals-single/1768715442";
   const spotifyLink = "https://open.spotify.com/track/4Udyb9Ijofesgz8YcmrsB6?si=KcFSYSf9Q2SwzGrJjKejNg";
-  const youtubeLink = "https://youtube.com/@suhaspadav?si=9VeGZgDY1mThJlF9";
+  const youtubeLink = "https://www.youtube.com/@Suhasmusicofficial";
   const instagramLink = "https://www.instagram.com/suhas.als?igsh=MTVjaTR2a2YwaDFhOQ%3D%3D&utm_source=qr";
   const saavnLink = "https://www.jiosaavn.com";
   const tidalLink = "https://tidal.com";
   
   const appleMusicArtistLink = "https://music.apple.com/us/artist/suhas/1768715441";
   const spotifyArtistLink = "https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K";
-  const youtubeCreatorLink = "https://youtube.com/@suhaspadav";
+  const youtubeCreatorLink = "https://www.youtube.com/@Suhasmusicofficial";
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-cyan-500 selection:text-black overflow-x-hidden">
@@ -673,7 +673,7 @@ const SuhasWebsite = () => {
         <div className={`absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-black/40 z-0 pointer-events-none transition-opacity duration-1000 ${showVisualizer ? 'opacity-80' : 'opacity-100'}`}></div>
 
         <div 
-          className={`relative z-10 max-w-6xl mx-auto px-4 md:px-8 space-y-8 flex flex-col items-center transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-8 md:pb-12 pt-20 md:pt-32' : 'justify-center pt-32 md:pt-0'}`}
+          className={`relative z-10 max-w-6xl mx-auto px-4 md:px-8 space-y-8 flex flex-col items-center transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-8 md:pb-12 pt-20 md:pt-32' : 'justify-center pt-0'}`}
         >
           {/* Main Hero Text */}
           <div className={`transition-all duration-700 flex flex-col items-center gap-8 ${showVisualizer ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
