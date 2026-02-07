@@ -1,0 +1,22 @@
+{
+  "name": "Suhas Music — Progressive Jazz Fusion",
+  "short_name": "Suhas Music",
+  "description": "Official website for Suhas — progressive jazz fusion pianist and composer. Stream Fractals on Spotify, Apple Music & YouTube.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/suhas-favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/suhas-favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

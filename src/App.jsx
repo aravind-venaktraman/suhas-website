@@ -569,13 +569,13 @@ const SuhasWebsite = () => {
   const youtubeLink = "https://www.youtube.com/@Suhasmusicofficial";
   const instagramLink = "https://www.instagram.com/suhas.als?igsh=MTVjaTR2a2YwaDFhOQ%3D%3D&utm_source=qr";
   const saavnLink = "https://www.jiosaavn.com";
-  const tidalLink = "https://tidal.com";
+  const tidalLink = "https://tidal.com";  
   
   const appleMusicArtistLink = "https://music.apple.com/us/artist/suhas/1768715441";
   const spotifyArtistLink = "https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K";
   const youtubeCreatorLink = "https://www.youtube.com/@Suhasmusicofficial";
 
-  return (
+  return ( 
     <div className="min-h-screen bg-black text-white font-sans selection:bg-cyan-500 selection:text-black overflow-x-hidden">
       
       {/* Navigation */}
@@ -583,9 +583,9 @@ const SuhasWebsite = () => {
         <div className="container mx-auto px-6 flex justify-between items-center">
           <a href="#" className="z-50 relative flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img 
-              src="/images/suhas-productions-logo.png" 
+              src="/images/suhas-productions-new-logo.PNG" 
               alt="SUHAS" 
-              className="h-12 md:h-16 w-auto"
+              className="h-16 md:h-20 w-auto"
             />
           </a>
 
@@ -612,9 +612,9 @@ const SuhasWebsite = () => {
           {/* Logo at top */}
           <div className="absolute top-6 left-6">
             <img 
-              src="/images/suhas-productions-logo.png" 
+              src="/images/suhas-productions-new-logo.PNG" 
               alt="SUHAS" 
-              className="h-12 w-auto"
+              className="h-16 w-auto"
             />
           </div>
 
@@ -1236,9 +1236,9 @@ const SuhasWebsite = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
             <div className="text-center md:text-left">
               <img 
-                src="/images/suhas-productions-logo.png" 
+                src="/images/suhas-productions-new-logo.PNG" 
                 alt="SUHAS" 
-                className="h-10 md:h-12 w-auto mb-2 mx-auto md:mx-0"
+                className="h-14 md:h-16 w-auto mb-2 mx-auto md:mx-0"
               />
               <p className="text-zinc-500 text-xs uppercase tracking-widest">© 2026 Suhas Music. All Rights Reserved.</p>
             </div>

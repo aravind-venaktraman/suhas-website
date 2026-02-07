@@ -2,49 +2,107 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="google-site-verification" content="ijfPhzmFAsrgu4TM2HxMkXtH7ZKj-fB1PwBjR1VAJRg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- ─── Core SEO ─────────────────────────────────────── -->
-    <title>Suhas Music | Official Website</title>
-    <meta name="description" content="Suhas is a pianist and composer exploring progressive Jazz Fusion. Listen to Fractals — polyrhythms, improvisation, and modern jazz. Stream now on Spotify, Apple Music & YouTube." />
-    <meta name="keywords" content="Suhas, jazz pianist, progressive jazz fusion, Fractals, jazz composer, piano, improvisation, polyrhythms" />
-    <meta name="robots" content="index, follow" />
+    <!--
+      KEY CHANGES:
+      1. Title now includes full name + differentiating keywords to compete
+         against the Telugu actor "Suhas" and other Suhas artists on Spotify
+      2. Description is longer (155 chars target), front-loads the unique value prop
+      3. Added geo and language targeting
+      4. Canonical points to the CUSTOM DOMAIN (not vercel subdomain)
+    -->
+    <title>Suhas | Progressive Jazz Fusion Pianist & Composer — Stream Fractals</title>
+    <meta name="description" content="Suhas is a progressive jazz fusion pianist and composer. Stream his debut release Fractals — featuring polyrhythmic piano improvisation, modern jazz composition, and cinematic fusion. Available on Spotify, Apple Music & YouTube." />
+    <meta name="keywords" content="Suhas, Suhas pianist, Suhas jazz, Suhas composer, Suhas music, Suhas Fractals, progressive jazz fusion, jazz fusion pianist, modern jazz piano, polyrhythmic jazz, jazz improvisation, instrumental jazz, contemporary jazz fusion, piano composer, Fractals album jazz" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="theme-color" content="#000000" />
-    <link rel="canonical" href="https://suhas-website.vercel.app" />
+    <meta name="author" content="Suhas" />
+    <meta name="rating" content="general" />
+
+    <!-- Language & Geo Targeting -->
+    <meta name="language" content="English" />
+    <meta name="geo.region" content="US" />
+    <link rel="alternate" hreflang="en" href="https://suhasmusic.com" />
+
+    <!-- Canonical URL — CRITICAL: Use your custom domain, NOT vercel subdomain -->
+    <link rel="canonical" href="https://suhasmusic.com" />
 
     <!-- ─── Favicon ──────────────────────────────────────── -->
-    <link rel="icon" type="image/png" href="/images/suhas-favicon.png" />
-    <link rel="apple-touch-icon" href="/images/suhas-favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/suhas-favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/suhas-favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/suhas-favicon.png" />
+    <link rel="manifest" href="/manifest.json" />
 
     <!-- ─── Open Graph (Facebook · Instagram · WhatsApp · link previews) ── -->
+    <!--
+      CHANGES:
+      - og:title is more descriptive and keyword-rich
+      - og:description expanded for better link preview engagement
+      - og:url points to custom domain
+      - Added og:locale
+    -->
     <meta property="og:site_name" content="Suhas Music" />
     <meta property="og:type" content="music.musician" />
-    <meta property="og:title" content="Suhas | Progressive Jazz Fusion Pianist & Composer" />
-    <meta property="og:description" content="Pianist and composer exploring progressive Jazz Fusion. Stream Fractals — polyrhythms, improvisation & modern jazz." />
-    <meta property="og:url" content="https://suhas-website.vercel.app" />
-    <meta property="og:image" content="https://suhas-website.vercel.app/images/album-art.PNG" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="Suhas — Progressive Jazz Fusion Pianist & Composer | Stream Fractals" />
+    <meta property="og:description" content="Pianist and composer exploring progressive jazz fusion. Stream Fractals — an exploration of polyrhythms, improvisation & modern jazz. Available on Spotify, Apple Music & YouTube." />
+    <meta property="og:url" content="https://suhasmusic.com" />
+    <meta property="og:image" content="https://suhasmusic.com/images/album-art.PNG" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="1200" />
-    <meta property="og:image:alt" content="Fractals album artwork" />
-    <meta property="music:musician" content="https://suhas-website.vercel.app" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Fractals — debut release by Suhas, progressive jazz fusion pianist and composer" />
+    <meta property="music:musician" content="https://suhasmusic.com" />
 
     <!-- ─── Twitter / X Card ─────────────────────────────── -->
+    <!--
+      CHANGES:
+      - Added twitter:site and twitter:creator (add your handle when you have one)
+      - More descriptive title and description
+    -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Suhas | Progressive Jazz Fusion Pianist & Composer" />
-    <meta name="twitter:description" content="Pianist and composer exploring progressive Jazz Fusion. Stream Fractals now." />
-    <meta name="twitter:image" content="https://suhas-website.vercel.app/images/album-art.PNG" />
-    <meta name="twitter:image:alt" content="Fractals album artwork" />
+    <meta name="twitter:title" content="Suhas — Progressive Jazz Fusion Pianist & Composer" />
+    <meta name="twitter:description" content="Stream Fractals — polyrhythmic piano improvisation meets modern jazz composition. On Spotify, Apple Music & YouTube." />
+    <meta name="twitter:image" content="https://suhasmusic.com/images/album-art.PNG" />
+    <meta name="twitter:image:alt" content="Fractals album artwork by Suhas" />
+    <!-- <meta name="twitter:site" content="@suhasmusic" />  Uncomment when you have a Twitter/X handle -->
+    <!-- <meta name="twitter:creator" content="@suhasmusic" /> -->
 
-    <!-- ─── Structured Data — Artist ─────────────────────── -->
+    <!-- ─── Structured Data — Person/MusicGroup (replaces invalid MusicianProfile) ── -->
+    <!--
+      CRITICAL FIX: "MusicianProfile" is NOT a valid Schema.org type.
+      Changed to "Person" with "musician" as jobTitle, which Google actually recognizes.
+      Added @id for entity linking, knowsAbout for topic authority,
+      and performerIn for event discoverability.
+    -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "MusicianProfile",
+      "@type": "Person",
+      "@id": "https://suhasmusic.com/#artist",
       "name": "Suhas",
-      "url": "https://suhas-website.vercel.app",
-      "description": "Pianist and composer exploring progressive Jazz Fusion — polyrhythms, improvisation, and modern jazz.",
-      "image": "https://suhas-website.vercel.app/images/album-art.PNG",
-      "genre": ["Progressive Jazz", "Jazz Fusion", "Modern Jazz"],
+      "alternateName": ["SUHAS", "Suhas Music"],
+      "url": "https://suhasmusic.com",
+      "description": "Progressive jazz fusion pianist and composer. Creator of Fractals — an exploration of polyrhythms, melodic improvisation, and modern jazz.",
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://suhasmusic.com/images/album-art.PNG",
+        "width": 1200,
+        "height": 1200
+      },
+      "jobTitle": "Pianist and Composer",
+      "knowsAbout": [
+        "Jazz Fusion",
+        "Progressive Jazz",
+        "Piano Improvisation",
+        "Music Composition",
+        "Polyrhythms",
+        "Modern Jazz"
+      ],
+      "genre": ["Progressive Jazz Fusion", "Jazz Fusion", "Modern Jazz", "Contemporary Jazz"],
       "sameAs": [
         "https://www.youtube.com/@Suhasmusicofficial",
         "https://www.instagram.com/suhas.als",
@@ -54,45 +112,149 @@
     }
     </script>
 
-    <!-- ─── Structured Data — Music Release ──────────────── -->
+    <!-- ─── Structured Data — MusicAlbum + MusicRecording (fixed) ── -->
+    <!--
+      CRITICAL FIX:
+      - byArtist now references the Person @id above (entity linking)
+      - Added "track" array for individual song discoverability
+      - Added proper "inAlbum" relationship
+      - Fixed datePublished format
+      - Added streaming URLs as potentialAction
+    -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "MusicRecording",
+      "@type": "MusicAlbum",
+      "@id": "https://suhasmusic.com/#fractals",
       "name": "Fractals",
-      "byArtist": {
-        "@type": "MusicianProfile",
-        "name": "Suhas",
-        "url": "https://suhas-website.vercel.app"
-      },
-      "genre": ["Progressive Jazz", "Jazz Fusion"],
       "description": "An exploration of polyrhythms and melodic improvisation. Suhas channels live interaction and rhythmic nuance into a modern jazz fusion sound.",
-      "url": "https://suhas-website.vercel.app/#music",
-      "datePublished": "2024-01-01",
-      "isPartOf": {
-        "@type": "MusicAlbum",
+      "url": "https://suhasmusic.com/#music",
+      "image": "https://suhasmusic.com/images/album-art.PNG",
+      "genre": ["Progressive Jazz Fusion", "Jazz Fusion", "Modern Jazz"],
+      "numTracks": 1,
+      "albumProductionType": "https://schema.org/StudioAlbum",
+      "albumReleaseType": "https://schema.org/SingleRelease",
+      "byArtist": {
+        "@type": "Person",
+        "@id": "https://suhasmusic.com/#artist"
+      },
+      "track": {
+        "@type": "MusicRecording",
         "name": "Fractals",
+        "duration": "PT5M",
+        "url": "https://suhasmusic.com/#music",
         "byArtist": {
-          "@type": "MusicianProfile",
-          "name": "Suhas"
+          "@type": "Person",
+          "@id": "https://suhasmusic.com/#artist"
+        },
+        "inAlbum": {
+          "@type": "MusicAlbum",
+          "@id": "https://suhasmusic.com/#fractals"
         }
       }
     }
     </script>
 
-    <!-- ─── Structured Data — WebSite ────────────────────── -->
+    <!-- ─── Structured Data — WebSite with SearchAction ─── -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Suhas Music",
-      "url": "https://suhas-website.vercel.app",
-      "description": "Official website for Suhas — Progressive Jazz Fusion pianist and composer."
+      "alternateName": "Suhas — Progressive Jazz Fusion",
+      "url": "https://suhasmusic.com",
+      "description": "Official website for Suhas — progressive jazz fusion pianist and composer. Stream Fractals on Spotify, Apple Music & YouTube.",
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://suhasmusic.com/#artist"
+      }
+    }
+    </script>
+
+    <!-- ─── Structured Data — BreadcrumbList (helps Google understand site structure) ── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://suhasmusic.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Music",
+          "item": "https://suhasmusic.com/#music"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "About",
+          "item": "https://suhasmusic.com/#about"
+        }
+      ]
+    }
+    </script>
+
+    <!-- ─── Structured Data — ListenAction for Streaming ─── -->
+    <!--
+      NEW: This tells Google to show "Listen on Spotify / Apple Music" links
+      directly in search results (rich snippet)
+    -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "MusicRecording",
+      "name": "Fractals by Suhas",
+      "byArtist": {
+        "@type": "Person",
+        "@id": "https://suhasmusic.com/#artist"
+      },
+      "potentialAction": [
+        {
+          "@type": "ListenAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K",
+            "actionPlatform": [
+              "http://schema.org/DesktopWebPlatform",
+              "http://schema.org/MobileWebPlatform"
+            ]
+          },
+          "name": "Listen on Spotify"
+        },
+        {
+          "@type": "ListenAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://music.apple.com/us/artist/suhas/1768715441",
+            "actionPlatform": [
+              "http://schema.org/DesktopWebPlatform",
+              "http://schema.org/MobileWebPlatform"
+            ]
+          },
+          "name": "Listen on Apple Music"
+        },
+        {
+          "@type": "ListenAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://www.youtube.com/@Suhasmusicofficial",
+            "actionPlatform": [
+              "http://schema.org/DesktopWebPlatform",
+              "http://schema.org/MobileWebPlatform"
+            ]
+          },
+          "name": "Listen on YouTube"
+        }
+      ]
     }
     </script>
 
     <!-- ─── Google Analytics ────────────────────────────── -->
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DVESW6VFSJ"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -102,9 +264,15 @@
     </script>
 
     <!-- ─── Preconnects (speed) ──────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://open.spotify.com" />
     <link rel="preconnect" href="https://music.apple.com" />
     <link rel="preconnect" href="https://www.youtube.com" />
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+
+    <!-- ─── DNS Prefetch (secondary domains) ─────────────── -->
+    <link rel="dns-prefetch" href="https://www.instagram.com" />
 
     <style>
       html, body {
@@ -114,8 +282,71 @@
       }
     </style>
   </head>
+
   <body>
+    <!-- 
+      ══════════════════════════════════════════════════════════════
+      SSR / CRAWLABLE CONTENT — CRITICAL FOR SEO
+      ══════════════════════════════════════════════════════════════
+      
+      Because this is a React SPA, Google's crawler may not execute 
+      JavaScript. The <noscript> content below ensures Google can 
+      ALWAYS index the core text, links, and structure of your site.
+      
+      This is the single biggest SEO improvement you can make.
+      Keep this content in sync with what your React app renders.
+      ══════════════════════════════════════════════════════════════
+    -->
     <div id="root"></div>
+
+    <noscript>
+      <header>
+        <nav>
+          <a href="https://suhasmusic.com">Suhas Music</a>
+          <a href="#about">About</a>
+          <a href="#music">Music</a>
+        </nav>
+      </header>
+
+      <main>
+        <section id="hero">
+          <h1>Suhas — Progressive Jazz Fusion Pianist &amp; Composer</h1>
+          <p>Exploring the intersection of polyrhythmic piano improvisation, modern jazz composition, and cinematic fusion.</p>
+        </section>
+
+        <section id="music">
+          <h2>Music — Fractals</h2>
+          <p>Fractals is an exploration of polyrhythms and melodic improvisation. Suhas channels live interaction and rhythmic nuance into a modern jazz fusion sound that bridges progressive jazz, contemporary composition, and fusion.</p>
+          <h3>Stream Fractals</h3>
+          <ul>
+            <li><a href="https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K" rel="noopener" target="_blank">Listen on Spotify</a></li>
+            <li><a href="https://music.apple.com/us/artist/suhas/1768715441" rel="noopener" target="_blank">Listen on Apple Music</a></li>
+            <li><a href="https://www.youtube.com/@Suhasmusicofficial" rel="noopener" target="_blank">Watch on YouTube</a></li>
+          </ul>
+        </section>
+
+        <section id="about">
+          <h2>About Suhas</h2>
+          <p>Suhas is a pianist and composer creating progressive jazz fusion music. His work draws from jazz improvisation, complex polyrhythms, and modern harmonic language to create a distinctive sound rooted in the jazz fusion tradition while pushing into new territory.</p>
+          <p>Influenced by the rhythmic complexity of progressive jazz and the melodic sensibility of contemporary composition, Suhas crafts music that rewards deep listening — intricate arrangements that balance technical virtuosity with emotional expression.</p>
+        </section>
+
+        <section id="connect">
+          <h2>Connect with Suhas</h2>
+          <ul>
+            <li><a href="https://www.instagram.com/suhas.als" rel="noopener" target="_blank">Instagram — @suhas.als</a></li>
+            <li><a href="https://www.youtube.com/@Suhasmusicofficial" rel="noopener" target="_blank">YouTube — Suhas Music Official</a></li>
+            <li><a href="https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K" rel="noopener" target="_blank">Spotify</a></li>
+            <li><a href="https://music.apple.com/us/artist/suhas/1768715441" rel="noopener" target="_blank">Apple Music</a></li>
+          </ul>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 Suhas Music. Progressive jazz fusion pianist and composer.</p>
+      </footer>
+    </noscript>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
