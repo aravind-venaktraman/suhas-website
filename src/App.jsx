@@ -34,47 +34,7 @@ const FontLoader = () => {
   return null;
 };
 
-const MorphCursor = () => {
-  const [pos, setPos] = useState({ x: -100, y: -100 });
-  const [tgt, setTgt] = useState({ x: -100, y: -100 });
-  const [type, setType] = useState('default');
-  const [vis, setVis] = useState(false);
-  const [clicked, setClicked] = useState(false);
-  const raf = useRef(null);
-  useEffect(() => {
-    const mv = (e) => { setTgt({ x: e.clientX, y: e.clientY }); setVis(true); const el = e.target.closest('[data-cursor]'); setType(el ? el.dataset.cursor : 'default'); };
-    const lv = () => setVis(false);
-    const dn = () => setClicked(true);
-    const up = () => setClicked(false);
-    window.addEventListener('mousemove', mv, { passive: true });
-    document.addEventListener('mouseleave', lv);
-    window.addEventListener('mousedown', dn);
-    window.addEventListener('mouseup', up);
-    return () => { window.removeEventListener('mousemove', mv); document.removeEventListener('mouseleave', lv); window.removeEventListener('mousedown', dn); window.removeEventListener('mouseup', up); };
-  }, []);
-  useEffect(() => {
-    const lp = (a, b, t) => a + (b - a) * t;
-    const anim = () => { setPos(p => ({ x: lp(p.x, tgt.x, 0.12), y: lp(p.y, tgt.y, 0.12) })); raf.current = requestAnimationFrame(anim); };
-    raf.current = requestAnimationFrame(anim);
-    return () => cancelAnimationFrame(raf.current);
-  }, [tgt]);
-  const sizes = { default: 10, link: 48, play: 60, text: 3 };
-  const sz = clicked ? (sizes[type] || 10) * 0.7 : (sizes[type] || 10);
-  return (
-    <div className="pointer-events-none fixed z-[200] hidden lg:block mix-blend-difference" style={{
-      left: pos.x - sz / 2, top: pos.y - sz / 2, width: sz, height: sz,
-      borderRadius: type === 'text' ? '1px' : '50%',
-      background: type === 'play' ? 'transparent' : 'white',
-      border: type === 'play' ? '2px solid white' : 'none',
-      opacity: vis ? 1 : 0,
-      transition: 'width 0.5s cubic-bezier(0.16,1,0.3,1), height 0.5s cubic-bezier(0.16,1,0.3,1), border-radius 0.5s, opacity 0.4s, background 0.4s, border 0.4s',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-      {type === 'play' && <Play size={16} fill="white" className="ml-0.5" />}
-    </div>
-  );
-};
-
+/* --- Utility Components --- */
 const Reveal = ({ children, className = "", delay = 0, direction = "up", distance = 50, once = true }) => {
   const [v, setV] = useState(false);
   const ref = useRef(null);
@@ -149,6 +109,7 @@ const LoadingScreen = ({ onComplete }) => {
   );
 };
 
+/* --- PIANO: fix #6 — fewer keys on mobile in expanded mode --- */
 const AbstractPiano = ({ isExpanded, onPlayNote }) => {
   const samplerRef = useRef(null);
   const [Tone, setTone] = useState(null);
@@ -159,6 +120,14 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
   const effectsRef = useRef({});
   const [octaveShift, setOctaveShift] = useState(0);
   const [totalPlayed, setTotalPlayed] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     const sc = document.createElement('script');
@@ -201,32 +170,33 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
     setTimeout(() => setIsPlaying(false), (recordedNotes[recordedNotes.length - 1].time - f + 2) * 1000);
   };
 
-  const numKeys = isExpanded ? 37 : 13;
+  // Fix #6: on mobile expanded, show 25 keys (2 octaves) instead of 37
+  const numKeys = isExpanded ? (isMobile ? 25 : 37) : 13;
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 overflow-x-hidden">
       {totalPlayed > 0 && <div className="text-center"><span className="text-[9px] uppercase tracking-[0.4em] text-zinc-500 font-semibold">{totalPlayed} note{totalPlayed !== 1 ? 's' : ''} played</span></div>}
-      <div className={`flex gap-[2px] items-start justify-center relative z-30 transition-all duration-700 ease-out ${isExpanded ? 'h-48 mt-auto mb-6' : 'h-[72px] sm:h-28'}`}>
+      <div className={`flex gap-[1px] sm:gap-[2px] items-start justify-center relative z-30 transition-all duration-700 ease-out ${isExpanded ? 'h-40 sm:h-48 mt-auto mb-4 sm:mb-6' : 'h-[72px] sm:h-28'}`}>
         {[...Array(numKeys)].map((_, i) => {
           const n = i % 12, isBlack = [1,3,6,8,10].includes(n), isActive = activeNotes.has(i);
           return (
-            <button key={i} data-cursor="play" onMouseDown={() => playNote(i, 0.7)} onTouchStart={(e) => { e.preventDefault(); playNote(i, 0.7); }}
+            <button key={i} onMouseDown={() => playNote(i, 0.7)} onTouchStart={(e) => { e.preventDefault(); playNote(i, 0.7); }}
               className={`transition-all duration-75 ease-out relative active:scale-95 ${isBlack
-                ? `z-10 rounded-b shadow-lg shadow-black/80 border ${isActive ? 'bg-cyan-400 border-cyan-300 shadow-cyan-400/30' : 'bg-[#0a0a0a] border-zinc-800/60 hover:bg-zinc-800'} ${isExpanded ? 'w-[18px] sm:w-7 h-[100px] -mx-[9px] sm:-mx-[14px]' : 'w-[14px] sm:w-[19px] h-[42px] sm:h-16 -mx-[7px] sm:-mx-[9.5px]'}`
-                : `rounded-b-lg border-t border-x border-b ${isActive ? 'bg-gradient-to-b from-cyan-400/80 via-cyan-300/50 to-cyan-200/30 border-cyan-400/60 shadow-[0_0_30px_rgba(34,211,238,0.3)]' : 'bg-gradient-to-b from-white/15 via-white/8 to-white/4 border-white/15 hover:from-white/25 active:translate-y-0.5'} ${isExpanded ? 'w-[26px] sm:w-11 h-48' : 'w-[22px] sm:w-9 h-[72px] sm:h-28'}`
+                ? `z-10 rounded-b shadow-lg shadow-black/80 border ${isActive ? 'bg-cyan-400 border-cyan-300 shadow-cyan-400/30' : 'bg-[#0a0a0a] border-zinc-800/60 hover:bg-zinc-800'} ${isExpanded ? 'w-[14px] sm:w-7 h-[80px] sm:h-[100px] -mx-[7px] sm:-mx-[14px]' : 'w-[14px] sm:w-[19px] h-[42px] sm:h-16 -mx-[7px] sm:-mx-[9.5px]'}`
+                : `rounded-b-lg border-t border-x border-b ${isActive ? 'bg-gradient-to-b from-cyan-400/80 via-cyan-300/50 to-cyan-200/30 border-cyan-400/60 shadow-[0_0_30px_rgba(34,211,238,0.3)]' : 'bg-gradient-to-b from-white/15 via-white/8 to-white/4 border-white/15 hover:from-white/25 active:translate-y-0.5'} ${isExpanded ? 'w-[20px] sm:w-11 h-40 sm:h-48' : 'w-[22px] sm:w-9 h-[72px] sm:h-28'}`
               }`} aria-label={`Key ${i}`}
             >{!isBlack && isActive && <div className="absolute inset-0 rounded-b-lg bg-cyan-400/10 animate-pulse" />}</button>
           );
         })}
       </div>
       {isExpanded && (
-        <div className="flex flex-wrap justify-center gap-2 pt-3">
-          <button onClick={() => setRecording(!recording)} className={`px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border-2 transition-all active:scale-95 ${recording ? 'bg-red-500/20 border-red-500 text-red-400 animate-pulse' : 'bg-white/5 border-white/15 text-zinc-300'}`}>{recording ? '⏺ Rec' : '⏺ Record'}</button>
-          <button onClick={playRecording} disabled={!recordedNotes.length || isPlaying} className={`px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border-2 transition-all active:scale-95 ${isPlaying ? 'bg-green-500/20 border-green-500 text-green-400' : recordedNotes.length ? 'bg-white/5 border-white/15 text-zinc-300' : 'bg-white/5 border-white/10 text-zinc-700 cursor-not-allowed'}`}>▶ Play ({recordedNotes.length})</button>
-          <button onClick={() => { setRecordedNotes([]); setIsPlaying(false); }} disabled={!recordedNotes.length} className="px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider border-2 bg-white/5 border-white/15 text-zinc-300 transition-all active:scale-95 disabled:text-zinc-700 disabled:cursor-not-allowed">⏹ Clear</button>
-          <div className="flex items-center gap-3 bg-white/5 border-2 border-white/15 rounded-full px-4 py-2.5">
-            <button onClick={() => setOctaveShift(Math.max(-2, octaveShift - 1))} className="text-zinc-300 hover:text-cyan-400 font-bold text-lg leading-none active:scale-90 transition-transform">−</button>
-            <span className="text-[10px] font-bold text-zinc-400 min-w-[50px] text-center font-mono">Oct {octaveShift > 0 ? '+' : ''}{octaveShift}</span>
-            <button onClick={() => setOctaveShift(Math.min(2, octaveShift + 1))} className="text-zinc-300 hover:text-cyan-400 font-bold text-lg leading-none active:scale-90 transition-transform">+</button>
+        <div className="flex flex-wrap justify-center gap-2 pt-3 px-2">
+          <button onClick={() => setRecording(!recording)} className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border-2 transition-all active:scale-95 ${recording ? 'bg-red-500/20 border-red-500 text-red-400 animate-pulse' : 'bg-white/5 border-white/15 text-zinc-300'}`}>{recording ? '⏺ Rec' : '⏺ Record'}</button>
+          <button onClick={playRecording} disabled={!recordedNotes.length || isPlaying} className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border-2 transition-all active:scale-95 ${isPlaying ? 'bg-green-500/20 border-green-500 text-green-400' : recordedNotes.length ? 'bg-white/5 border-white/15 text-zinc-300' : 'bg-white/5 border-white/10 text-zinc-700 cursor-not-allowed'}`}>▶ Play ({recordedNotes.length})</button>
+          <button onClick={() => { setRecordedNotes([]); setIsPlaying(false); }} disabled={!recordedNotes.length} className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border-2 bg-white/5 border-white/15 text-zinc-300 transition-all active:scale-95 disabled:text-zinc-700 disabled:cursor-not-allowed">⏹ Clear</button>
+          <div className="flex items-center gap-2 bg-white/5 border-2 border-white/15 rounded-full px-3 sm:px-4 py-2 sm:py-2.5">
+            <button onClick={() => setOctaveShift(Math.max(-2, octaveShift - 1))} className="text-zinc-300 hover:text-cyan-400 font-bold text-base sm:text-lg leading-none active:scale-90 transition-transform">−</button>
+            <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 min-w-[40px] sm:min-w-[50px] text-center font-mono">Oct {octaveShift > 0 ? '+' : ''}{octaveShift}</span>
+            <button onClick={() => setOctaveShift(Math.min(2, octaveShift + 1))} className="text-zinc-300 hover:text-cyan-400 font-bold text-base sm:text-lg leading-none active:scale-90 transition-transform">+</button>
           </div>
         </div>
       )}
@@ -283,6 +253,7 @@ const GeometricVisualizer = () => {
   return <div ref={mountRef} className="absolute inset-0 z-0 opacity-80" />;
 };
 
+/* --- MAIN --- */
 const SuhasWebsite = () => {
   const [loaded, setLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -301,9 +272,23 @@ const SuhasWebsite = () => {
     ids.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
     return () => obs.disconnect();
   }, [loaded]);
+
+  // Fix #7: proper scroll lock for mobile menu (from original prod version)
   useEffect(() => {
-    if (isMenuOpen) { const y = window.scrollY; document.body.style.position = 'fixed'; document.body.style.top = `-${y}px`; document.body.style.width = '100%'; }
-    else { const y = document.body.style.top; document.body.style.position = ''; document.body.style.top = ''; document.body.style.width = ''; window.scrollTo(0, parseInt(y || '0') * -1); }
+    if (isMenuOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
   }, [isMenuOpen]);
 
   const nav = [{ n: 'About', h: '#about' },{ n: 'Music', h: '#music' },{ n: 'Contribute', h: '#contribute' },{ n: 'Store', h: '#store' },{ n: 'Connect', h: '#connect' }];
@@ -327,18 +312,19 @@ const SuhasWebsite = () => {
       <FontLoader />
       <LoadingScreen onComplete={useCallback(() => setLoaded(true), [])} />
       {loaded && (
-        <div className="min-h-screen bg-black text-white selection:bg-cyan-500/30 overflow-x-hidden lg:cursor-none" style={{ fontFamily: "var(--font-body)" }}>
-          <MorphCursor /><Grain />
+        <div className="min-h-screen bg-black text-white selection:bg-cyan-500/30 overflow-x-hidden" style={{ fontFamily: "var(--font-body)" }}>
+          {/* Fix #3: removed MorphCursor, removed lg:cursor-none */}
+          <Grain />
           <div className="fixed top-0 left-0 h-[2px] z-[60]" style={{ width: `${scrollProgress * 100}%`, background: 'linear-gradient(90deg, #22d3ee, #3b82f6, #6366f1)' }} />
 
           {/* NAV */}
           <nav className={`fixed w-full z-50 transition-all duration-500 ease-out ${scrolled ? 'bg-black/60 backdrop-blur-2xl border-b border-white/[0.04] py-3' : 'bg-transparent py-5'}`}>
             <div className="container mx-auto px-5 md:px-10 flex justify-between items-center max-w-[1400px]">
-              <a href="#" className="z-50 hover:opacity-80 transition-opacity active:scale-95" data-cursor="link"><img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-10 md:h-14 w-auto" /></a>
+              <a href="#" className="z-50 hover:opacity-80 transition-opacity active:scale-95"><img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-10 md:h-14 w-auto" /></a>
               <div className="hidden md:flex items-center gap-10">
                 {nav.map(l => (
                   <Magnetic key={l.n} strength={0.08}>
-                    <a href={l.h} data-cursor="link" className={`text-[11px] uppercase tracking-[0.25em] transition-all duration-400 relative group font-semibold ${activeSection === l.h.slice(1) ? 'text-cyan-400' : 'text-zinc-500 hover:text-white'}`}>
+                    <a href={l.h} className={`text-[11px] uppercase tracking-[0.25em] transition-all duration-400 relative group font-semibold ${activeSection === l.h.slice(1) ? 'text-cyan-400' : 'text-zinc-500 hover:text-white'}`}>
                       {l.n}<span className={`absolute -bottom-1.5 left-0 h-[2px] bg-cyan-400 transition-all duration-400 ${activeSection === l.h.slice(1) ? 'w-full' : 'w-0 group-hover:w-full'}`} />
                     </a>
                   </Magnetic>
@@ -346,13 +332,19 @@ const SuhasWebsite = () => {
               </div>
               <button onClick={() => setIsMenuOpen(true)} className="md:hidden text-white hover:text-cyan-400 z-50 w-12 h-12 flex items-center justify-center -mr-2 active:scale-90 transition-transform"><Menu size={24} /></button>
             </div>
+
+            {/* Fix #7 & #8: mobile menu with logo, proper scroll handling */}
             {isMenuOpen && (
-              <div className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center" style={{ animation: 'fadeIn 0.3s ease' }}>
-                <button onClick={() => setIsMenuOpen(false)} className="absolute top-4 right-4 w-14 h-14 flex items-center justify-center text-white hover:text-cyan-400 active:scale-90 transition-transform"><X size={28} /></button>
-                <div className="flex flex-col items-center gap-8">
-                  {nav.map((l, i) => <a key={l.n} href={l.h} className="text-[clamp(2rem,8vw,3.5rem)] tracking-[-0.02em] text-zinc-200 hover:text-white active:text-cyan-400 transition-all" style={{ fontFamily: "var(--font-heading)", fontWeight: 700, opacity: 0, animation: `slideUp 0.5s ease ${i * 60}ms forwards` }} onClick={() => setIsMenuOpen(false)}>{l.n}</a>)}
+              <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex flex-col items-center justify-center overflow-hidden" style={{ animation: 'fadeIn 0.3s ease' }}>
+                {/* Fix #8: logo in mobile menu */}
+                <div className="absolute top-6 left-6">
+                  <img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-12 w-auto" />
                 </div>
-                <div className="flex gap-4 mt-12" style={{ opacity: 0, animation: 'slideUp 0.5s ease 400ms forwards' }}>
+                <button onClick={() => setIsMenuOpen(false)} className="absolute top-5 right-5 w-14 h-14 flex items-center justify-center text-white hover:text-cyan-400 active:scale-90 transition-transform"><X size={28} /></button>
+                <div className="flex flex-col items-center gap-7">
+                  {nav.map((l, i) => <a key={l.n} href={l.h} className="text-[clamp(1.8rem,7vw,3.5rem)] tracking-[-0.02em] text-zinc-200 hover:text-white active:text-cyan-400 transition-all" style={{ fontFamily: "var(--font-heading)", fontWeight: 700, opacity: 0, animation: `slideUp 0.5s ease ${i * 60}ms forwards` }} onClick={() => setIsMenuOpen(false)}>{l.n}</a>)}
+                </div>
+                <div className="flex gap-4 mt-10" style={{ opacity: 0, animation: 'slideUp 0.5s ease 400ms forwards' }}>
                   {[{ h:L.ig, i:<Instagram size={20}/> },{ h:L.yt, i:<Youtube size={20}/> },{ h:L.sp, i:<SpotifyIcon size={18}/> }].map(({ h, i }, idx) => <a key={idx} href={h} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 active:text-white active:scale-95 transition-all">{i}</a>)}
                 </div>
               </div>
@@ -364,17 +356,17 @@ const SuhasWebsite = () => {
             {showViz && <GeometricVisualizer />}
             {!showViz && (
               <div className="absolute inset-0 pointer-events-none">
-                {/* Album art — deep bg layer with blur */}
-                <div className="absolute inset-0 overflow-hidden">
-                  <img src="/images/album-art.PNG" alt="" className="w-full h-full object-cover scale-110 blur-[40px]" style={{ opacity: heroReady ? 0.18 : 0, transition: 'opacity 3s ease 0.5s' }} />
+                {/* Fix #1 & #9: album art as blurred bg layer */}
+                <div className="absolute inset-0 overflow-hidden z-0">
+                  <img src="/images/album-art.PNG" alt="" className="w-full h-full object-cover" style={{ opacity: heroReady ? 0.25 : 0, filter: 'blur(60px) saturate(1.2) scale(1.1)', transform: 'scale(1.15)', transition: 'opacity 3s ease 0.3s' }} />
                 </div>
-                {/* Poster overlay */}
-                <div style={{ transform: `scale(${1 + scrollProgress * 0.15})`, transition: 'transform 0.05s linear' }}>
-                  <img src="/images/poster.jpg" alt="" className="w-full h-full object-cover fixed top-0 left-0" style={{ opacity: heroReady ? 0.35 : 0, transition: 'opacity 2s ease' }} />
+                {/* Poster on top */}
+                <div className="absolute inset-0 z-[1]" style={{ transform: `scale(${1 + scrollProgress * 0.15})`, transition: 'transform 0.05s linear' }}>
+                  <img src="/images/poster.jpg" alt="" className="w-full h-full object-cover fixed top-0 left-0" style={{ opacity: heroReady ? 0.3 : 0, transition: 'opacity 2s ease' }} />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black" />
-                <div className="absolute inset-0" style={{ boxShadow: 'inset 0 0 250px 80px rgba(0,0,0,0.9)' }} />
-                <FloatingParticles count={30} />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black z-[2]" />
+                <div className="absolute inset-0 z-[2]" style={{ boxShadow: 'inset 0 0 250px 80px rgba(0,0,0,0.85)' }} />
+                <div className="z-[3] absolute inset-0"><FloatingParticles count={30} /></div>
               </div>
             )}
             <div className="absolute top-0 left-0 right-0 bg-black z-20 pointer-events-none" style={{ height: heroReady ? 0 : '12vh', transition: 'height 1.2s cubic-bezier(0.22,1,0.36,1) 0.2s' }} />
@@ -388,8 +380,9 @@ const SuhasWebsite = () => {
                     <span className="text-cyan-400 tracking-[0.35em] text-[9px] sm:text-[10px] font-bold uppercase">New Single Out Now</span>
                   </span>
                 </div>
+                {/* Fix #2: smaller clamp for mobile so "Fractals" doesn't overflow */}
                 <div style={{ opacity: heroReady ? 1 : 0, transform: heroReady ? 'translateY(0)' : 'translateY(40px)', transition: 'all 1.2s cubic-bezier(0.22,1,0.36,1) 0.7s' }}>
-                  <h1 className="text-[clamp(5rem,18vw,16rem)] leading-[0.82] tracking-[-0.05em] mb-4" style={{ fontFamily: "var(--font-heading)", fontWeight: 800 }}>
+                  <h1 className="text-[clamp(3.5rem,15vw,16rem)] leading-[0.82] tracking-[-0.05em] mb-4" style={{ fontFamily: "var(--font-heading)", fontWeight: 800 }}>
                     <span className="hero-gradient-text">Fractals</span>
                   </h1>
                 </div>
@@ -406,21 +399,21 @@ const SuhasWebsite = () => {
                     <div className="flex gap-3 items-center">
                       {[{ href: L.am, icon: <Music size={16} />, l: 'Apple Music' }, { href: L.yt, icon: <Youtube size={16} />, l: 'YouTube' }, { href: L.sp, icon: <SpotifyIcon size={15} />, l: 'Spotify' }].map(s => (
                         <Magnetic key={s.l} strength={0.2}>
-                          <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.l} data-cursor="link" className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] hover:border-white/[0.25] flex items-center justify-center transition-all duration-400 hover:scale-110 active:scale-95 text-zinc-400 hover:text-white">{s.icon}</a>
+                          <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.l} className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] hover:border-white/[0.25] flex items-center justify-center transition-all duration-400 hover:scale-110 active:scale-95 text-zinc-400 hover:text-white">{s.icon}</a>
                         </Magnetic>
                       ))}
                     </div>
-                    <button onClick={() => setShowViz(true)} data-cursor="link" className="px-8 py-3 border border-white/20 hover:border-white/50 text-white text-[11px] font-bold uppercase tracking-[0.25em] hover:bg-white/10 active:scale-95 transition-all duration-400 rounded-full backdrop-blur-sm">Interact</button>
+                    <button onClick={() => setShowViz(true)} className="px-8 py-3 border border-white/20 hover:border-white/50 text-white text-[11px] font-bold uppercase tracking-[0.25em] hover:bg-white/10 active:scale-95 transition-all duration-400 rounded-full backdrop-blur-sm">Interact</button>
                   </div>
                 ) : (
-                  <button onClick={() => setShowViz(false)} data-cursor="link" className="group w-14 h-14 flex items-center justify-center border border-white/15 rounded-full hover:bg-white/10 active:scale-90 transition-all"><X size={18} className="text-white group-hover:rotate-90 transition-transform duration-400" /></button>
+                  <button onClick={() => setShowViz(false)} className="group w-14 h-14 flex items-center justify-center border border-white/15 rounded-full hover:bg-white/10 active:scale-90 transition-all"><X size={18} className="text-white group-hover:rotate-90 transition-transform duration-400" /></button>
                 )}
               </div>
-              {!showViz && <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center" style={{ opacity: heroReady ? 0.4 : 0, transition: 'opacity 1.2s ease 2.2s' }}><span className="text-[8px] uppercase tracking-[0.5em] text-zinc-500 mb-3 font-bold">Scroll</span><ChevronDown size={16} className="text-zinc-600 animate-bounce" /></div>}
+              {/* Fix #4: removed scroll text and chevron */}
             </div>
           </section>
 
-          {/* MARQUEE — new style */}
+          {/* MARQUEE */}
           {!showViz && (
             <div className="relative z-20 -mt-px">
               <div className="w-full py-4 sm:py-5 transform -skew-y-[0.5deg] origin-left" style={{ background: 'linear-gradient(135deg, #0a0014 0%, #081222 50%, #0c0a26 100%)' }}>
@@ -429,7 +422,7 @@ const SuhasWebsite = () => {
             </div>
           )}
 
-          {/* ABOUT — LEGACY from prod */}
+          {/* ABOUT — LEGACY */}
           <section id="about" className="min-h-screen flex items-center justify-center py-32 relative overflow-hidden bg-black">
             <div className="absolute inset-0 z-0">
               <img src="/images/suhas.jpeg" alt="" className="w-full h-full object-cover opacity-90 object-center" />
@@ -451,36 +444,41 @@ const SuhasWebsite = () => {
             </div>
           </section>
 
-          {/* MUSIC */}
+          {/* MUSIC — Fix #11: vinyl now has visible border/shadow against dark bg */}
           <section id="music" className="min-h-screen flex items-center py-28 md:py-36 bg-black relative overflow-hidden border-t border-zinc-900">
-            <div className="absolute inset-0 pointer-events-none"><div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/[0.02] rounded-full blur-[150px]" /></div>
+            <div className="absolute inset-0 pointer-events-none"><div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/[0.03] rounded-full blur-[150px]" /></div>
             <div className="container mx-auto px-6 md:px-12 max-w-[1400px]">
               <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
                 <div className="lg:w-1/2 flex justify-center">
                   <Reveal direction="scale" delay={100}>
                     <div className="relative">
-                      <div className="relative w-[280px] h-[280px] sm:w-[380px] sm:h-[380px] md:w-[460px] md:h-[460px] animate-spin-slow" data-cursor="play">
-                        <div className="absolute inset-0 rounded-full bg-[#040404] border border-zinc-800/30 flex items-center justify-center shadow-2xl overflow-hidden">
-                          {[3,6,10,14,18,22,26].map((v,i) => <div key={i} className="absolute rounded-full border border-zinc-800/20" style={{ inset: `${v*4}px` }} />)}
-                          <div className="w-[55%] h-[55%] rounded-full relative overflow-hidden border border-zinc-700/30">
+                      <div className="relative w-[280px] h-[280px] sm:w-[380px] sm:h-[380px] md:w-[460px] md:h-[460px] animate-spin-slow">
+                        {/* Fix #11: brighter vinyl with visible grooves */}
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-zinc-950 border-2 border-zinc-700/50 flex items-center justify-center shadow-[0_0_80px_rgba(34,211,238,0.08)] overflow-hidden">
+                          {/* Vinyl grooves - more visible */}
+                          {[2,5,8,11,14,17,20,23,26].map((v,i) => <div key={i} className="absolute rounded-full border" style={{ inset: `${v*4}px`, borderColor: i % 2 === 0 ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)' }} />)}
+                          {/* Light reflection on vinyl */}
+                          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/[0.04] via-transparent to-transparent" />
+                          {/* Center label */}
+                          <div className="w-[55%] h-[55%] rounded-full relative overflow-hidden border-2 border-zinc-600/50 shadow-lg">
                             <img src="/images/album-art.PNG" alt="Fractals" className="absolute inset-0 w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/[0.02] to-black/30" />
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[12%] h-[12%] rounded-full bg-black border border-zinc-700/40" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/[0.03] to-black/30" />
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[12%] h-[12%] rounded-full bg-black border-2 border-zinc-600/50" />
                           </div>
                         </div>
                       </div>
-                      <div className="absolute -inset-8 rounded-full bg-cyan-500/[0.02] blur-xl pointer-events-none animate-pulse" />
+                      <div className="absolute -inset-8 rounded-full bg-cyan-500/[0.03] blur-xl pointer-events-none animate-pulse" />
                     </div>
                   </Reveal>
                 </div>
                 <div className="lg:w-1/2 space-y-7">
                   <Reveal><span className="text-cyan-400 tracking-[0.35em] text-[9px] sm:text-[10px] uppercase block mb-3 font-bold">Single · 2024</span></Reveal>
                   <CharReveal text="Fractals" delay={100} stagger={35} className="text-[clamp(3.5rem,11vw,8rem)] leading-[0.85] tracking-[-0.04em] mb-6" />
-                  <Reveal delay={300}><div className="relative pl-6 border-l-2 border-cyan-500/30" data-cursor="text"><p className="text-zinc-400 text-[15px] sm:text-[16px] leading-relaxed max-w-md font-medium">"An exploration of polyrhythms and melodic improvisation. Suhas channels live interaction and rhythmic nuance into a modern jazz fusion sound."</p></div></Reveal>
+                  <Reveal delay={300}><div className="relative pl-6 border-l-2 border-cyan-500/30"><p className="text-zinc-400 text-[15px] sm:text-[16px] leading-relaxed max-w-md font-medium">"An exploration of polyrhythms and melodic improvisation. Suhas channels live interaction and rhythmic nuance into a modern jazz fusion sound."</p></div></Reveal>
                   <Reveal delay={450}>
                     <div className="flex flex-wrap gap-3 pt-3">
                       {[{ l:'Apple Music', h:L.am },{ l:'Spotify', h:L.sp },{ l:'Youtube', h:L.yt }].map(({ l, h }) => (
-                        <Magnetic key={l} strength={0.1}><a href={h} target="_blank" rel="noopener noreferrer" data-cursor="link" className="group flex items-center gap-2.5 px-6 py-3 border border-white/[0.07] hover:border-cyan-500/40 hover:bg-cyan-500/[0.04] active:scale-95 transition-all duration-400 text-[10px] sm:text-[11px] uppercase tracking-[0.2em] rounded-full text-zinc-400 hover:text-white font-bold">{l}<ArrowUpRight size={10} className="opacity-0 group-hover:opacity-70 transition-all" /></a></Magnetic>
+                        <Magnetic key={l} strength={0.1}><a href={h} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2.5 px-6 py-3 border border-white/[0.07] hover:border-cyan-500/40 hover:bg-cyan-500/[0.04] active:scale-95 transition-all duration-400 text-[10px] sm:text-[11px] uppercase tracking-[0.2em] rounded-full text-zinc-400 hover:text-white font-bold">{l}<ArrowUpRight size={10} className="opacity-0 group-hover:opacity-70 transition-all" /></a></Magnetic>
                       ))}
                     </div>
                   </Reveal>
@@ -489,43 +487,44 @@ const SuhasWebsite = () => {
             </div>
           </section>
 
-          {/* CONTRIBUTE — OLD card styles */}
+          {/* CONTRIBUTE — Fix #5: smaller text on mobile */}
           <section id="contribute" className="min-h-screen flex items-center justify-center py-24 relative overflow-hidden bg-gradient-to-b from-black via-zinc-950 to-black border-t border-zinc-900">
             <div className="container mx-auto px-6 max-w-6xl relative z-10">
               <Reveal>
-                <div className="mb-16 text-center">
-                  <h2 className="text-4xl md:text-6xl uppercase tracking-tight mb-2" style={{ fontFamily: "var(--font-heading)", fontWeight: 800 }}>Contribute</h2>
+                <div className="mb-12 sm:mb-16 text-center">
+                  <h2 className="text-3xl sm:text-4xl md:text-6xl uppercase tracking-tight mb-2" style={{ fontFamily: "var(--font-heading)", fontWeight: 800 }}>Contribute</h2>
                   <div className="w-20 h-1 bg-cyan-500 mx-auto" />
-                  <p className="text-zinc-300 text-xl md:text-2xl max-w-3xl mx-auto mt-8 font-light leading-relaxed">Help bring the next studio album to life</p>
-                  <p className="text-cyan-400 text-lg font-medium mt-4">Your support makes all the difference</p>
+                  <p className="text-zinc-300 text-lg sm:text-xl md:text-2xl max-w-3xl mx-auto mt-6 sm:mt-8 font-light leading-relaxed">Help bring the next studio album to life</p>
+                  <p className="text-cyan-400 text-base sm:text-lg font-medium mt-3 sm:mt-4">Your support makes all the difference</p>
                 </div>
               </Reveal>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto">
                 {[
-                  { icon:<DollarSign size={40} />, title:'Kickstarter', desc:'Back the production run and get exclusive rewards', color:'green', items:['Limited edition vinyl pressings','Exclusive artwork & packaging','Early access to new releases'] },
-                  { icon:<Heart size={40} />, title:'GoFundMe', desc:'Direct support for studio recording sessions', color:'yellow', items:['Professional studio recording','Equipment & production costs','Mixing & mastering sessions'] }
+                  { icon:<DollarSign size={36} />, title:'Kickstarter', desc:'Back the production run and get exclusive rewards', color:'green', items:['Limited edition vinyl pressings','Exclusive artwork & packaging','Early access to new releases'] },
+                  { icon:<Heart size={36} />, title:'GoFundMe', desc:'Direct support for studio recording sessions', color:'yellow', items:['Professional studio recording','Equipment & production costs','Mixing & mastering sessions'] }
                 ].map((c, idx) => (
                   <Reveal key={c.title} delay={idx * 100}>
-                    <div className={`group relative bg-gradient-to-br from-zinc-900 to-zinc-950 border-2 border-zinc-800 p-10 flex flex-col items-center gap-6 transition-all duration-500 rounded-2xl cursor-default overflow-hidden ${c.color === 'green' ? 'hover:border-green-500 hover:shadow-2xl hover:shadow-green-500/20' : 'hover:border-yellow-500 hover:shadow-2xl hover:shadow-yellow-500/20'}`}>
+                    {/* Fix #5: smaller padding on mobile */}
+                    <div className={`group relative bg-gradient-to-br from-zinc-900 to-zinc-950 border-2 border-zinc-800 p-6 sm:p-10 flex flex-col items-center gap-5 sm:gap-6 transition-all duration-500 rounded-2xl cursor-default overflow-hidden ${c.color === 'green' ? 'hover:border-green-500 hover:shadow-2xl hover:shadow-green-500/20' : 'hover:border-yellow-500 hover:shadow-2xl hover:shadow-yellow-500/20'}`}>
                       <div className={`absolute inset-0 ${c.color === 'green' ? 'bg-gradient-to-br from-green-500/5 to-transparent' : 'bg-gradient-to-br from-yellow-500/5 to-transparent'} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                      <div className="relative z-10 w-full flex flex-col items-center gap-6 flex-1">
-                        <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-500 shadow-lg ${c.color === 'green' ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-500/50' : 'bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-yellow-500/50'}`}>
+                      <div className="relative z-10 w-full flex flex-col items-center gap-5 sm:gap-6 flex-1">
+                        <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-500 shadow-lg ${c.color === 'green' ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-500/50' : 'bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-yellow-500/50'}`}>
                           <span className="text-white">{c.icon}</span>
                         </div>
                         <div className="text-center">
-                          <h3 className="text-3xl uppercase mb-3 text-white" style={{ fontFamily: "var(--font-heading)", fontWeight: 800 }}>{c.title}</h3>
-                          <p className="text-zinc-400 text-base mb-6 max-w-sm">{c.desc}</p>
+                          <h3 className="text-2xl sm:text-3xl uppercase mb-2 sm:mb-3 text-white" style={{ fontFamily: "var(--font-heading)", fontWeight: 800 }}>{c.title}</h3>
+                          <p className="text-zinc-400 text-sm sm:text-base mb-4 sm:mb-6 max-w-sm">{c.desc}</p>
                         </div>
-                        <div className="w-full space-y-3 text-sm text-zinc-400 border-t border-zinc-800 pt-6 flex-1">
+                        <div className="w-full space-y-2.5 sm:space-y-3 text-xs sm:text-sm text-zinc-400 border-t border-zinc-800 pt-4 sm:pt-6 flex-1">
                           {c.items.map((it, i) => (
                             <div key={i} className="flex items-center gap-2">
-                              <div className={`w-1.5 h-1.5 rounded-full ${c.color === 'green' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${c.color === 'green' ? 'bg-green-500' : 'bg-yellow-500'}`} />
                               <span>{it}</span>
                             </div>
                           ))}
                         </div>
-                        <div className="mt-auto pt-4">
-                          <span className={`inline-block text-lg font-bold uppercase tracking-widest ${c.color === 'green' ? 'text-green-500' : 'text-yellow-500'} border-b-2 border-transparent group-hover:border-current transition-all pb-1`}>Campaign Coming Soon</span>
+                        <div className="mt-auto pt-3 sm:pt-4">
+                          <span className={`inline-block text-sm sm:text-lg font-bold uppercase tracking-widest ${c.color === 'green' ? 'text-green-500' : 'text-yellow-500'} border-b-2 border-transparent group-hover:border-current transition-all pb-1`}>Coming Soon</span>
                         </div>
                       </div>
                     </div>
@@ -535,9 +534,13 @@ const SuhasWebsite = () => {
             </div>
           </section>
 
-          {/* STORE — OLD card styles */}
-          <section id="store" className="min-h-screen flex items-center justify-center py-24 bg-zinc-950 border-t border-zinc-900">
-            <div className="container mx-auto px-6">
+          {/* STORE — Fix #9: album art bg behind store */}
+          <section id="store" className="min-h-screen flex items-center justify-center py-24 bg-zinc-950 border-t border-zinc-900 relative overflow-hidden">
+            {/* Fix #9: album art behind store */}
+            <div className="absolute inset-0 pointer-events-none z-0">
+              <img src="/images/album-art.PNG" alt="" className="w-full h-full object-cover opacity-[0.04] blur-[80px] scale-125" />
+            </div>
+            <div className="container mx-auto px-6 relative z-10">
               <Reveal>
                 <div className="flex justify-between items-end mb-16">
                   <div>
@@ -553,7 +556,7 @@ const SuhasWebsite = () => {
                   const props = item.link ? { href: item.link, target: '_blank', rel: 'noopener noreferrer' } : {};
                   return (
                     <Reveal key={item.id} delay={i * 150}>
-                      <Tag {...props} className={`group block ${item.link ? 'cursor-pointer' : 'cursor-default'}`} data-cursor={item.link ? 'link' : undefined}>
+                      <Tag {...props} className={`group block ${item.link ? 'cursor-pointer' : 'cursor-default'}`}>
                         <div className="aspect-square bg-zinc-900 mb-6 relative overflow-hidden border border-zinc-800">
                           {imgs[item.type] && <img src={imgs[item.type]} alt={item.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 group-active:scale-105" />}
                           {item.link && <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm"><span className="text-white font-bold uppercase tracking-widest border border-white px-6 py-3 hover:bg-white hover:text-black transition-colors text-xs">Buy Now</span></div>}
@@ -574,7 +577,7 @@ const SuhasWebsite = () => {
             </div>
           </section>
 
-          {/* CONNECT — NEW style */}
+          {/* CONNECT */}
           <section id="connect" className="min-h-screen flex items-center py-28 relative overflow-hidden bg-[#030306] border-t border-zinc-900">
             <div className="absolute inset-0 pointer-events-none opacity-15"><div className="absolute top-1/4 left-1/4 w-[350px] h-[350px] bg-cyan-500/10 rounded-full blur-[130px]" /><div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] bg-blue-500/10 rounded-full blur-[130px]" /></div>
             <div className="container mx-auto px-6 max-w-5xl relative z-10">
@@ -587,7 +590,7 @@ const SuhasWebsite = () => {
                 {[{ href:L.ig, icon:<Instagram size={26} />, name:'Instagram', handle:'@suhas.als' },{ href:L.yt, icon:<Youtube size={26} />, name:'YouTube', handle:'@suhasmusicofficial' },{ href:L.am, icon:<Headphones size={26} />, name:'Music', handle:'Stream now' }].map((s, i) => (
                   <Reveal key={s.name} delay={i * 80}>
                     <Magnetic strength={0.06} className="w-full">
-                      <a href={s.href} target="_blank" rel="noopener noreferrer" data-cursor="link" className="group flex flex-col items-center gap-4 p-7 bg-white/[0.015] border border-white/[0.05] hover:border-white/[0.12] active:border-white/[0.12] transition-all duration-500 rounded-2xl hover:bg-white/[0.03] active:bg-white/[0.03] w-full active:scale-[0.98]">
+                      <a href={s.href} target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-4 p-7 bg-white/[0.015] border border-white/[0.05] hover:border-white/[0.12] active:border-white/[0.12] transition-all duration-500 rounded-2xl hover:bg-white/[0.03] active:bg-white/[0.03] w-full active:scale-[0.98]">
                         <div className="w-14 h-14 rounded-xl bg-white/[0.04] flex items-center justify-center group-hover:scale-110 transition-all duration-400 border border-white/[0.06] text-zinc-400 group-hover:text-white">{s.icon}</div>
                         <div className="text-center"><p className="text-lg font-bold mb-1" style={{ fontFamily: "var(--font-heading)" }}>{s.name}</p><p className="text-[11px] text-zinc-500 font-medium">{s.handle}</p></div>
                       </a>
@@ -601,7 +604,7 @@ const SuhasWebsite = () => {
                     <span className="text-cyan-400 tracking-[0.4em] text-[9px] sm:text-[10px] uppercase block mb-5 font-bold">Inquiries</span>
                     <h3 className="text-xl md:text-2xl mb-5" style={{ fontFamily: "var(--font-heading)", fontWeight: 700 }}>Bookings & Collaborations</h3>
                     <p className="text-zinc-500 text-sm mb-6 font-medium">Live performances, studio sessions, and collaborations</p>
-                    <Magnetic strength={0.1}><a href="mailto:suhasmusicofficial@gmail.com" data-cursor="link" className="group inline-flex items-center gap-2.5 text-base text-zinc-300 hover:text-cyan-400 active:text-cyan-400 transition-all duration-400 font-medium"><Mail size={16} className="opacity-30 group-hover:opacity-100 transition-opacity" />suhasmusicofficial@gmail.com</a></Magnetic>
+                    <Magnetic strength={0.1}><a href="mailto:suhasmusicofficial@gmail.com" className="group inline-flex items-center gap-2.5 text-base text-zinc-300 hover:text-cyan-400 active:text-cyan-400 transition-all duration-400 font-medium"><Mail size={16} className="opacity-30 group-hover:opacity-100 transition-opacity" />suhasmusicofficial@gmail.com</a></Magnetic>
                   </div>
                 </Reveal>
               </div>
@@ -614,14 +617,14 @@ const SuhasWebsite = () => {
               <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-6">
                 <div className="text-center md:text-left">
                   <img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-10 w-auto mb-2 mx-auto md:mx-0" />
-                  <p className="text-zinc-600 text-[9px] uppercase tracking-[0.35em] font-bold">© 2026 Suhas Music. All Rights Reserved.</p>
+                  <p className="text-zinc-600 text-[9px] uppercase tracking-[0.35em] font-bold">&copy; 2026 Suhas Music. All Rights Reserved.</p>
                 </div>
                 <div className="flex gap-3">
-                  {[{ h:L.ig, i:<Instagram size={16}/> },{ h:L.yt, i:<Youtube size={16}/> },{ h:L.amA, i:<Music size={16}/> },{ h:L.spA, i:<SpotifyIcon size={14}/> }].map(({ h, i }, idx) => <a key={idx} href={h} target="_blank" rel="noopener noreferrer" data-cursor="link" className="w-9 h-9 rounded-full bg-white/[0.03] border border-white/[0.05] flex items-center justify-center text-zinc-500 hover:text-white active:text-white hover:border-white/[0.15] active:scale-95 transition-all duration-400">{i}</a>)}
+                  {[{ h:L.ig, i:<Instagram size={16}/> },{ h:L.yt, i:<Youtube size={16}/> },{ h:L.amA, i:<Music size={16}/> },{ h:L.spA, i:<SpotifyIcon size={14}/> }].map(({ h, i }, idx) => <a key={idx} href={h} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/[0.03] border border-white/[0.05] flex items-center justify-center text-zinc-500 hover:text-white active:text-white hover:border-white/[0.15] active:scale-95 transition-all duration-400">{i}</a>)}
                 </div>
               </div>
               <div className="flex gap-7 text-[9px] uppercase text-zinc-600 justify-center md:justify-end tracking-[0.25em] font-bold">
-                {['Privacy','Terms','Contact'].map(t => <a key={t} href="mailto:suhasmusicofficial@gmail.com" data-cursor="link" className="hover:text-zinc-300 active:text-zinc-300 transition-colors py-2">{t}</a>)}
+                {['Privacy','Terms','Contact'].map(t => <a key={t} href="mailto:suhasmusicofficial@gmail.com" className="hover:text-zinc-300 active:text-zinc-300 transition-colors py-2">{t}</a>)}
               </div>
             </div>
           </footer>
