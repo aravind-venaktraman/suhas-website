@@ -589,7 +589,7 @@ const SuhasWebsite = () => {
             <div className="container mx-auto px-6">
               <div className="flex flex-col lg:flex-row items-center gap-20">
                 <div className="lg:w-1/2 flex justify-center perspective-1000">
-                  <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] animate-spin-slow">
+                  <div className="relative w-[220px] h-[220px] sm:w-[340px] sm:h-[340px] md:w-[500px] md:h-[500px] animate-spin-slow">
                     <div className="absolute inset-0 rounded-full bg-zinc-950 border-2 border-zinc-800 flex items-center justify-center shadow-2xl shadow-cyan-900/20 overflow-hidden">
                       {[2, 4, 8, 12, 16, 20, 24].map((v, i) => (
                         <div key={i} className="absolute rounded-full border border-zinc-800/40" style={{ inset: `${v * 4}px` }} />
@@ -607,10 +607,7 @@ const SuhasWebsite = () => {
                     <div>
                       <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase mb-4 block">Single • 2024</span>
                       {/* FEATURE 5: Syne font on "FRACTALS" store/music heading */}
-                      <h2
-                        className="text-6xl md:text-8xl leading-tight mb-8"
-                        style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }}
-                      >
+                      <h2 className="text-6xl md:text-8xl font-black leading-tight mb-8">
                         FRACTALS
                       </h2>
                       <p className="text-zinc-400 text-xl leading-relaxed max-w-md border-l-2 border-cyan-500 pl-6">
