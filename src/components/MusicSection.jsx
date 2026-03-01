@@ -35,6 +35,19 @@ function MusicianCard({ name, role, imgSrc, bio }) {
 }
 
 export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink }) {
+  const [isMobileLayout, setIsMobileLayout] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const handleChange = (event) => setIsMobileLayout(event.matches);
+
+    handleChange(mediaQuery);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   const streamLinks = [
     { href: appleMusicLink, label: 'Apple Music' },
     { href: spotifyLink, label: 'Spotify' },
@@ -125,9 +138,15 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
           marginBottom: -100vh collapses the extra space so Connect
           section starts immediately after Ch4 with no gap.
           ═══════════════════════════════════════════════════════════════════ */}
-      <div className="relative" style={{ minHeight: '500vh', marginBottom: '-100vh' }}>
+      <div
+        className="relative"
+        style={{ minHeight: isMobileLayout ? 'auto' : '500vh', marginBottom: isMobileLayout ? 0 : '-100vh' }}
+      >
         {/* Sticky Shards video background — stays pinned for all chapters */}
-        <div className="sticky top-0 h-screen w-full overflow-hidden" style={{ zIndex: 0 }}>
+        <div
+          className={`${isMobileLayout ? 'relative h-[55vh]' : 'sticky top-0 h-screen'} w-full overflow-hidden`}
+          style={{ zIndex: 0 }}
+        >
           <video
             autoPlay
             loop
@@ -145,7 +164,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
         {/* Chapter content — overlaid on sticky via negative margin.
             zIndex: 1 renders content above the video (zIndex: 0).
             Parent minHeight: 500vh gives sticky enough room to pin all 4 chapters. */}
-        <div className="relative" style={{ zIndex: 1, marginTop: '-100vh' }}>
+        <div className="relative" style={{ zIndex: 1, marginTop: isMobileLayout ? 0 : '-100vh' }}>
 
           {/* ── Chapter 01: The Story Behind The Track ── */}
           <div className="min-h-screen flex items-center justify-center px-6">
