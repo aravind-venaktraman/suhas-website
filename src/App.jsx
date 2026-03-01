@@ -56,18 +56,16 @@ const LoadingScreen = ({ onComplete }) => {
       style={{ transition: 'opacity 0.6s ease' }}
     >
       <div className="flex flex-col items-center gap-8">
-        <span
-          className="text-[clamp(2.5rem,8vw,5rem)] tracking-[-0.04em] text-white uppercase"
+        <img
+          src="/images/suhas-productions-new-logo.PNG"
+          alt="SUHAS"
+          className="h-20 md:h-28 w-auto"
           style={{
-            fontFamily: "'Ubuntu Sans', sans-serif",
-            fontWeight: 800,
             opacity: phase === 'revealing' ? 0 : 1,
             transform: phase === 'revealing' ? 'scale(1.15)' : 'scale(1)',
             transition: 'all 0.7s cubic-bezier(0.22,1,0.36,1)',
           }}
-        >
-          SUHAS
-        </span>
+        />
         <div className="w-56 h-[2px] bg-zinc-900 relative overflow-hidden rounded-full">
           <div
             className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-200 rounded-full"
@@ -454,7 +452,7 @@ const SuhasWebsite = () => {
 
   useEffect(() => {
     if (!loaded) return;
-    const ids = ['home', 'about', 'music', 'store', 'connect'];
+    const ids = ['home', 'about', 'music', 'connect'];
     const obs = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && setActiveSection(e.target.id)),
       { threshold: 0, rootMargin: '-45% 0px -50% 0px' }
@@ -484,7 +482,6 @@ const SuhasWebsite = () => {
   const navLinks = [
     { name: 'About', href: '#about' },
     { name: 'Music', href: '#music' },
-    { name: 'Store', href: '#store' },
     { name: 'Connect', href: '#connect' },
   ];
 
@@ -518,7 +515,7 @@ const SuhasWebsite = () => {
       <LoadingScreen onComplete={() => setLoaded(true)} />
 
       {loaded && (
-        <div className="min-h-screen bg-black text-white font-sans selection:bg-cyan-500 selection:text-black overflow-x-hidden">
+        <div className="min-h-screen bg-black text-white font-sans selection:bg-cyan-500 selection:text-black [overflow-x:clip]">
           <div
             className="fixed top-0 left-0 h-[2px] z-[60] pointer-events-none"
             style={{
@@ -704,16 +701,16 @@ const SuhasWebsite = () => {
           )}
 
           {/* ABOUT */}
-          <section id="about" className="min-h-screen flex items-center relative overflow-hidden bg-black border-t border-zinc-900">
+          <section id="about" className="min-h-screen flex items-center relative overflow-hidden bg-black border-t border-zinc-900" style={{ scrollMarginTop: '80px' }}>
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 min-h-screen">
-              {/* Left: Image 16:9 */}
+              {/* Left: Image */}
               <RevealOnScroll>
-                <div className="relative w-full h-[50vh] lg:h-full lg:min-h-screen overflow-hidden">
+                <div className="relative w-full h-[70vh] lg:h-full lg:min-h-screen overflow-hidden">
                   <img
                     src="/images/suhas4.jpg"
                     alt="Suhas"
                     className="absolute inset-0 w-full h-full object-cover"
-                    style={{ filter: 'brightness(0.92)', objectPosition: 'center 15%' }}
+                    style={{ filter: 'brightness(0.92)', objectPosition: 'center top' }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/40" />
                 </div>
@@ -752,8 +749,8 @@ const SuhasWebsite = () => {
             <MusicSection appleMusicLink={appleMusicLink} spotifyLink={spotifyLink} youtubeLink={youtubeLink} />
           </section>
 
-          {/* STORE */}
-          <section id="store" className="min-h-screen flex items-center justify-center py-24 bg-zinc-950 border-t border-zinc-900 relative overflow-hidden">
+          {/* STORE (hidden for now) */}
+          <section id="store" className="min-h-screen flex items-center justify-center py-24 bg-zinc-950 border-t border-zinc-900 relative overflow-hidden" style={{ display: 'none' }}>
             {/* Store content (blurred behind overlay) */}
             <div className="container mx-auto px-6">
               <RevealOnScroll>
@@ -819,11 +816,14 @@ const SuhasWebsite = () => {
 
           {/* CONNECT */}
           <section id="connect" className="min-h-screen flex items-center py-28 relative overflow-hidden bg-[#030306] border-t border-zinc-900">
-            {/* Shards video background */}
+            {/* suhas6 photo background */}
             <div className="absolute inset-0 z-0">
-              <video autoPlay loop muted playsInline className="w-full h-full object-cover" style={{ opacity: 0.25 }}>
-                <source src="/images/Shards_Video_Loop.mp4" type="video/mp4" />
-              </video>
+              <img
+                src="/images/suhas6.JPG"
+                alt=""
+                className="absolute inset-0 w-full h-full"
+                style={{ opacity: 0.4, objectFit: 'contain', objectPosition: 'right center' }}
+              />
               <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
             </div>
             <div className="absolute inset-0 pointer-events-none opacity-15">
