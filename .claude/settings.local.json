@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add .claude/worktrees/heuristic-torvalds/)",
+      "Bash(grep -i suhas[0-9])",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npm --version)",
+      "Bash(curl -s http://localhost:5176)",
+      "Bash(where npm)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5176)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
+      "Bash(netstat -ano)",
+      "Bash(tasklist /fi \"PID eq 33652\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5177)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5178)",
+      "Bash(npm run build)",
+      "Bash(curl -s http://localhost:5180)",
+      "Bash(curl -s http://localhost:5180/src/App.jsx)",
+      "Bash(node -e \"console.log\\(process.execPath\\)\")",
+      "Bash(ls \"C:/Users/aravi/suhas-website/.claude/worktrees/blissful-mclaren/node_modules/.bin/vite\"*)"
+    ]
+  }
+}

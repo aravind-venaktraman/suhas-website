@@ -2,7 +2,7 @@ import React, { useMemo, useState, useRef, useEffect } from "react";
 import { Check, Lock, ArrowRight, Users, Calendar, TrendingUp } from "lucide-react";
 import RevealOnScroll from "./RevealOnScroll";
 
-const syne = (w = 800) => ({ fontFamily: "'Syne', sans-serif", fontWeight: w });
+const syne = (w = 800) => ({ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: w });
 const cx = (...c) => c.filter(Boolean).join(" ");
 const cur = (c) => (c === "EUR" ? "€" : c === "GBP" ? "£" : "$");
 const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString() : "0");

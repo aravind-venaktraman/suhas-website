@@ -2,15 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Instagram, Youtube, Music, ArrowRight, ExternalLink, Headphones, ChevronRight } from 'lucide-react';
 
 import RevealOnScroll from './components/RevealOnScroll';
+import MusicSection from './components/MusicSection';
 
-// ─── FEATURE 1: Font Loader (Syne + DM Sans for new headings) ───────────────
+// ─── FEATURE 1: Font Loader (Ubuntu Sans) ───────────────────────────────────
 const FontLoader = () => {
   useEffect(() => {
     if (!document.querySelector('link[data-suhas-fonts]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href =
-        'https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap';
+        'https://fonts.googleapis.com/css2?family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap';
       link.dataset.suhasFonts = 'true';
       document.head.appendChild(link);
     }
@@ -58,7 +59,7 @@ const LoadingScreen = ({ onComplete }) => {
         <span
           className="text-[clamp(2.5rem,8vw,5rem)] tracking-[-0.04em] text-white uppercase"
           style={{
-            fontFamily: "'Syne', sans-serif",
+            fontFamily: "'Ubuntu Sans', sans-serif",
             fontWeight: 800,
             opacity: phase === 'revealing' ? 0 : 1,
             transform: phase === 'revealing' ? 'scale(1.15)' : 'scale(1)',
@@ -456,7 +457,7 @@ const SuhasWebsite = () => {
     const ids = ['home', 'about', 'music', 'store', 'connect'];
     const obs = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && setActiveSection(e.target.id)),
-      { threshold: 0.3 }
+      { threshold: 0, rootMargin: '-45% 0px -50% 0px' }
     );
     ids.forEach((id) => {
       const el = document.getElementById(id);
@@ -554,7 +555,7 @@ const SuhasWebsite = () => {
                 <a
                   href="/contribute"
                   className="ml-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[11px] font-bold uppercase tracking-[0.15em] shadow-[0_8px_30px_-8px_rgba(34,211,238,0.3)] hover:shadow-[0_12px_40px_-8px_rgba(34,211,238,0.5)] hover:brightness-110 active:scale-[0.97] transition-all"
-                  style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
+                  style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 700 }}
                 >
                   Join the Fundraiser
                 </a>
@@ -591,7 +592,7 @@ const SuhasWebsite = () => {
                     href="/contribute"
                     className="mt-4 px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-lg font-bold uppercase tracking-wider shadow-[0_12px_40px_-12px_rgba(34,211,238,0.4)] hover:brightness-110 transition-all"
                     onClick={() => setIsMenuOpen(false)}
-                    style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
+                    style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 700 }}
                   >
                     Join the Fundraiser
                   </a>
@@ -703,106 +704,62 @@ const SuhasWebsite = () => {
           )}
 
           {/* ABOUT */}
-          <section id="about" className="min-h-screen flex items-center justify-center relative overflow-hidden bg-black">
-            <div className="absolute inset-0 z-0">
-              <video autoPlay loop muted playsInline className="w-full h-full object-cover" style={{ opacity: 0.35 }}>
-                <source src="/images/Shards_Video_Loop.mp4" type="video/mp4" />
-              </video>
-              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
-            </div>
-
-            <div className="container mx-auto px-6 relative z-10 max-w-7xl w-full">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-end min-h-screen">
-                <div className="flex flex-col justify-center py-32 pr-8 relative z-10">
-                  <RevealOnScroll>
-                    <div className="space-y-8">
-                      <h2 className="text-5xl md:text-7xl uppercase tracking-tighter" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }}>
-                        About
-                      </h2>
-                      <div className="w-20 h-1 bg-cyan-500" />
-                    </div>
-                  </RevealOnScroll>
-
-                  <RevealOnScroll delay={200}>
-                    <div className="space-y-6 text-zinc-300 text-lg md:text-xl leading-relaxed font-light mt-10 max-w-lg">
-                      <p>Suhas is a pianist and composer exploring the progressive Jazz Fusion space.</p>
-                      <p>
-                        Drawing from modern jazz, Suhas&apos;s music indulges in constantly evolving polyrhythms, and improvisation into rhythmically rich themes, rooted in live performance.
-                      </p>
-                    </div>
-                  </RevealOnScroll>
+          <section id="about" className="min-h-screen flex items-center relative overflow-hidden bg-black border-t border-zinc-900">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+              {/* Left: Image 16:9 */}
+              <RevealOnScroll>
+                <div className="relative w-full h-[50vh] lg:h-full lg:min-h-screen overflow-hidden">
+                  <img
+                    src="/images/suhas4.jpg"
+                    alt="Suhas"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ filter: 'brightness(0.92)', objectPosition: 'center 15%' }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/40" />
                 </div>
+              </RevealOnScroll>
 
-                <div className="hidden md:flex items-end justify-center relative z-[1] self-end">
-                  <RevealOnScroll delay={300}>
-                    <img
-                      src="/images/suhas.png"
-                      alt="Suhas"
-                      className="w-auto max-h-[85vh] object-contain"
-                      style={{ filter: 'drop-shadow(0 0 60px rgba(0,0,0,0.9))' }}
-                    />
-                  </RevealOnScroll>
-                </div>
+              {/* Right: Text */}
+              <div className="flex flex-col justify-center px-8 md:px-16 lg:px-20 py-20 lg:py-32 relative z-10">
+                <RevealOnScroll delay={100}>
+                  <div className="space-y-6 mb-10">
+                    <h2 className="text-5xl md:text-6xl uppercase tracking-tighter" style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 800 }}>
+                      About
+                    </h2>
+                    <div className="w-16 h-[2px] bg-cyan-500" />
+                  </div>
+                </RevealOnScroll>
+
+                <RevealOnScroll delay={200}>
+                  <div className="space-y-6 text-zinc-300 text-base md:text-lg leading-relaxed max-w-xl">
+                    <p>
+                      Suhas is a pianist and composer exploring music that sits at the intersection of progressive jazz and fusion.
+                    </p>
+                    <p>
+                      He learned to play by ear before he could read, and spent years committing to writing music entirely on his own terms.
+                    </p>
+                    <p>
+                      His music is open to interpretation. Listeners hear the same track and walk away with completely different experiences. The music is melodic but complex — always leading somewhere you do not expect.
+                    </p>
+                  </div>
+                </RevealOnScroll>
               </div>
             </div>
           </section>
 
           {/* Music */}
-          <section id="music" className="min-h-screen flex items-center justify-center py-32 bg-black relative overflow-hidden border-t border-zinc-900">
-            <div className="container mx-auto px-6">
-              <div className="flex flex-col lg:flex-row items-center gap-20">
-                <div className="lg:w-1/2 flex justify-center perspective-1000">
-                  <div className="relative w-[220px] h-[220px] sm:w-[340px] sm:h-[340px] md:w-[500px] md:h-[500px] animate-spin-slow">
-                    <div className="absolute inset-0 rounded-full bg-zinc-950 border-2 border-zinc-800 flex items-center justify-center shadow-2xl shadow-cyan-900/20 overflow-hidden">
-                      {[2, 4, 8, 12, 16, 20, 24].map((v, i) => (
-                        <div key={i} className="absolute rounded-full border border-zinc-800/40" style={{ inset: `${v * 4}px` }} />
-                      ))}
-                      <div className="w-[60%] h-[60%] rounded-full relative overflow-hidden border-2 border-zinc-700 shadow-lg">
-                        <img src="/images/album-art.PNG" alt="Fractals Album Art" className="absolute inset-0 w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-black/30" />
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[15%] h-[15%] rounded-full bg-black border border-zinc-600 shadow-inner" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="lg:w-1/2 space-y-10">
-                  <RevealOnScroll>
-                    <div>
-                      <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase mb-4 block">Single • 2024</span>
-                      <h2 className="text-6xl md:text-8xl font-black leading-tight mb-8">FRACTALS</h2>
-                      <p className="text-zinc-400 text-xl leading-relaxed max-w-md border-l-2 border-cyan-500 pl-6">
-                        &quot;An exploration of polyrhythms and melodic improvisation. Suhas channels live interaction and rhythmic nuance into a modern jazz fusion sound.&quot;
-                      </p>
-                    </div>
-                  </RevealOnScroll>
-
-                  <RevealOnScroll delay={200}>
-                    <div className="flex flex-wrap gap-4">
-                      <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-8 py-4 border border-zinc-800 hover:border-cyan-500 hover:bg-zinc-900 transition-all uppercase text-sm font-bold tracking-wider rounded-full">
-                        Apple Music <ExternalLink size={14} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                      </a>
-                      <a href={spotifyLink} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-8 py-4 border border-zinc-800 hover:border-cyan-500 hover:bg-zinc-900 transition-all uppercase text-sm font-bold tracking-wider rounded-full">
-                        Spotify <ExternalLink size={14} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                      </a>
-                      <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 px-8 py-4 border border-zinc-800 hover:border-cyan-500 hover:bg-zinc-900 transition-all uppercase text-sm font-bold tracking-wider rounded-full">
-                        Youtube <ExternalLink size={14} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                      </a>
-                    </div>
-                  </RevealOnScroll>
-                </div>
-              </div>
-            </div>
+          <section id="music">
+            <MusicSection appleMusicLink={appleMusicLink} spotifyLink={spotifyLink} youtubeLink={youtubeLink} />
           </section>
 
           {/* STORE */}
-          <section id="store" className="min-h-screen flex items-center justify-center py-24 bg-zinc-950 border-t border-zinc-900">
+          <section id="store" className="min-h-screen flex items-center justify-center py-24 bg-zinc-950 border-t border-zinc-900 relative overflow-hidden">
+            {/* Store content (blurred behind overlay) */}
             <div className="container mx-auto px-6">
               <RevealOnScroll>
                 <div className="flex justify-between items-end mb-16">
                   <div>
-                    <h2 className="text-4xl md:text-6xl uppercase tracking-tight mb-2" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }}>
+                    <h2 className="text-4xl md:text-6xl uppercase tracking-tight mb-2" style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 800 }}>
                       Store
                     </h2>
                     <p className="text-zinc-500 tracking-widest uppercase text-xs font-bold">Official Merchandise</p>
@@ -828,22 +785,14 @@ const SuhasWebsite = () => {
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                           )}
-                          {item.link && (
-                            <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
-                              <span className="text-white font-bold uppercase tracking-widest border border-white px-6 py-3 hover:bg-white hover:text-black transition-colors text-xs">
-                                Buy Now
-                              </span>
-                            </div>
-                          )}
                         </div>
 
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-xl font-bold uppercase mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
+                            <h3 className="text-xl font-bold uppercase mb-1" style={{ fontFamily: "'Ubuntu Sans', sans-serif" }}>
                               {item.name}
                             </h3>
                             <p className="text-zinc-500 text-xs">{item.desc}</p>
-                            {item.soldOut && <p className="text-red-500 text-xs mt-1 font-bold">Sold Out</p>}
                           </div>
                           <span className="text-cyan-400 font-mono text-lg">{item.price}</span>
                         </div>
@@ -853,10 +802,30 @@ const SuhasWebsite = () => {
                 })}
               </div>
             </div>
+
+            {/* Frosted glass overlay */}
+            <div className="absolute inset-0 z-20 flex items-center justify-center backdrop-blur-md bg-black/60">
+              <div className="text-center">
+                <h3
+                  className="text-4xl md:text-6xl uppercase tracking-tight text-white mb-4"
+                  style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 800 }}
+                >
+                  Store Coming Soon
+                </h3>
+                <div className="w-20 h-[2px] bg-cyan-500 mx-auto" />
+              </div>
+            </div>
           </section>
 
           {/* CONNECT */}
           <section id="connect" className="min-h-screen flex items-center py-28 relative overflow-hidden bg-[#030306] border-t border-zinc-900">
+            {/* Shards video background */}
+            <div className="absolute inset-0 z-0">
+              <video autoPlay loop muted playsInline className="w-full h-full object-cover" style={{ opacity: 0.25 }}>
+                <source src="/images/Shards_Video_Loop.mp4" type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+            </div>
             <div className="absolute inset-0 pointer-events-none opacity-15">
               <div className="absolute top-1/4 left-1/4 w-[350px] h-[350px] bg-cyan-500/10 rounded-full blur-[130px]" />
               <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] bg-blue-500/10 rounded-full blur-[130px]" />
@@ -868,7 +837,7 @@ const SuhasWebsite = () => {
                   <span className="text-cyan-400 tracking-[0.4em] text-[9px] sm:text-[10px] uppercase block mb-5 font-bold">Follow the journey</span>
                 </RevealOnScroll>
                 <RevealOnScroll delay={100}>
-                  <h2 className="text-[clamp(2.5rem,8vw,5.5rem)] tracking-[-0.04em] leading-[0.9] mb-4" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }}>
+                  <h2 className="text-[clamp(2.5rem,8vw,5.5rem)] tracking-[-0.04em] leading-[0.9] mb-4" style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 800 }}>
                     Connect
                   </h2>
                 </RevealOnScroll>
@@ -925,7 +894,7 @@ const SuhasWebsite = () => {
                         {s.icon}
                       </div>
                       <div className="text-center relative">
-                        <p className="text-lg font-bold mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        <p className="text-lg font-bold mb-1" style={{ fontFamily: "'Ubuntu Sans', sans-serif" }}>
                           {s.name}
                         </p>
                         <p className="text-[11px] text-zinc-500 font-medium">{s.handle}</p>
@@ -941,7 +910,7 @@ const SuhasWebsite = () => {
                   <div className="text-center max-w-2xl mx-auto">
                     <div className="flex items-center justify-center gap-3 mb-6">
                       <div className="w-2 h-10 bg-purple-500 rounded-full" />
-                      <h3 className="text-2xl md:text-3xl font-black uppercase text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      <h3 className="text-2xl md:text-3xl font-black uppercase text-white" style={{ fontFamily: "'Ubuntu Sans', sans-serif" }}>
                         Bookings &amp; Collaborations
                       </h3>
                       <div className="w-2 h-10 bg-purple-500 rounded-full" />
@@ -1003,7 +972,7 @@ const SuhasWebsite = () => {
           </footer>
 
           <style>{`
-            :root { --font-heading: 'Syne', sans-serif; }
+            :root { --font-heading: 'Ubuntu Sans', sans-serif; }
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
             @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
             .animate-gradient-x { background-size: 200% 200%; animation: gradient-move 3s ease infinite; }

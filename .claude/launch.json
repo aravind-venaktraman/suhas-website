@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "suhas-website",
+      "runtimeExecutable": "C:\\Users\\aravi\\suhas-website\\.claude\\worktrees\\blissful-mclaren\\node_modules\\.bin\\vite.cmd",
+      "runtimeArgs": ["--port", "5180"],
+      "port": 5180,
+      "autoPort": true
+    }
+  ]
+}
