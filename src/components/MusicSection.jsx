@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { ExternalLink, ArrowRight, ChevronDown } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
 
-const ubuntuSans = (w = 800) => ({ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: w });
+const ubuntuSans = (w = 800) => ({ fontFamily: "'Michroma', sans-serif", fontWeight: w });
 
 function MusicianCard({ name, role, imgSrc, bio }) {
   const [imgFailed, setImgFailed] = useState(false);
@@ -39,13 +39,24 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
     typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
   );
 
+  const marcoBgRef = useRef(null);
+  const shardsBgRef = useRef(null);
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 767px)');
     const handleChange = (event) => setIsMobileLayout(event.matches);
-
     handleChange(mediaQuery);
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  useEffect(() => {
+    [marcoBgRef, shardsBgRef].forEach((ref) => {
+      if (ref.current) {
+        ref.current.muted = true;
+        ref.current.play().catch(() => {});
+      }
+    });
   }, []);
 
   const streamLinks = [
@@ -63,6 +74,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
       <div className="relative min-h-screen overflow-hidden">
         {/* marco.mp4 video background */}
         <video
+          ref={marcoBgRef}
           autoPlay
           loop
           muted
@@ -148,6 +160,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
           style={{ zIndex: 0 }}
         >
           <video
+            ref={shardsBgRef}
             autoPlay
             loop
             muted
@@ -191,8 +204,8 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
 
                 <RevealOnScroll delay={300} cacheKey="music:story-p2">
                   <p className="text-zinc-400 text-lg md:text-xl leading-relaxed font-light">
-                    The composition is built on polyrhythmic layers: patterns that feel complex
-                    and dissonant up close, but lock into a clear, unified symmetry.
+                    The composition is built on polyrhythmic layers — patterns that feel intricate
+                    and unpredictable up close, but resolve into a clear, unified symmetry.
                   </p>
                 </RevealOnScroll>
 
@@ -255,7 +268,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
 
               <RevealOnScroll delay={100} cacheKey="music:legends-title">
                 <h3 className="text-4xl md:text-5xl font-black tracking-tight mb-12 text-white" style={ubuntuSans()}>
-                  The Collaborators
+                  The Collaboration
                 </h3>
               </RevealOnScroll>
 
@@ -271,7 +284,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
                     name: 'Marco Minnemann',
                     role: 'Drums',
                     imgSrc: '/images/marco.jpg',
-                    bio: 'World-renowned drummer who has recorded and toured with Steven Wilson, Joe Satriani, The Aristocrats, and Guthrie Govan. He also famously auditioned for Dream Theater, showcasing a legendary drum performance. A master of polyrhythmic expression.',
+                    bio: 'World-renowned drummer who has recorded and toured with Steven Wilson, Joe Satriani, The Aristocrats, and Guthrie Govan. A master of polyrhythmic expression.',
                   },
                 ].map((musician, i) => (
                   <RevealOnScroll key={musician.name} delay={i * 150} cacheKey={`music:legend-${i}`}>
@@ -336,6 +349,11 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
         }
         .music-scroll-indicator {
           animation: music-bounce 2s ease-in-out infinite;
+        }
+        @media (max-width: 767px) {
+          .music-chapters-container {
+            margin-bottom: 0 !important;
+          }
         }
       `}</style>
     </section>

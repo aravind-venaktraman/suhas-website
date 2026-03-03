@@ -22,8 +22,8 @@ import {
   Globe,
 } from 'lucide-react';
 
-const syne = (w = 800) => ({ fontFamily: "'Syne', sans-serif", fontWeight: w });
-const dm = (w = 400) => ({ fontFamily: "'DM Sans', sans-serif", fontWeight: w });
+const syne = (w = 800) => ({ fontFamily: "'Michroma', sans-serif", fontWeight: w });
+const dm = (w = 400) => ({ fontFamily: "'Michroma', sans-serif", fontWeight: w });
 const cx = (...c) => c.filter(Boolean).join(' ');
 const cur = (c) => (c === 'EUR' ? '\u20ac' : c === 'GBP' ? '\u00a3' : '$');
 const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString() : '0');
@@ -35,7 +35,7 @@ const FontLoader = () => {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href =
-        'https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap';
+        'https://fonts.googleapis.com/css2?family=Michroma&display=swap';
       link.dataset.suhasFonts = 'true';
       document.head.appendChild(link);
     }
@@ -282,7 +282,7 @@ export default function ContributePage({ success = false, cancelled = false }) {
       <div
         className="min-h-screen text-zinc-900 overflow-x-hidden"
         style={{
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'Michroma', sans-serif",
           background: 'linear-gradient(180deg, #FAFAF9 0%, #F5F5F4 40%, #FAFAF9 100%)',
         }}
       >

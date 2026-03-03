@@ -4,14 +4,14 @@ import { Menu, X, Instagram, Youtube, Music, ArrowRight, ExternalLink, Headphone
 import RevealOnScroll from './components/RevealOnScroll';
 import MusicSection from './components/MusicSection';
 
-// ─── FEATURE 1: Font Loader (Ubuntu Sans) ───────────────────────────────────
+// ─── FEATURE 1: Font Loader (Michroma) ───────────────────────────────────────
 const FontLoader = () => {
   useEffect(() => {
     if (!document.querySelector('link[data-suhas-fonts]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href =
-        'https://fonts.googleapis.com/css2?family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap';
+        'https://fonts.googleapis.com/css2?family=Michroma&display=swap';
       link.dataset.suhasFonts = 'true';
       document.head.appendChild(link);
     }
@@ -552,15 +552,24 @@ const SuhasWebsite = () => {
                 <a
                   href="/contribute"
                   className="ml-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[11px] font-bold uppercase tracking-[0.15em] shadow-[0_8px_30px_-8px_rgba(34,211,238,0.3)] hover:shadow-[0_12px_40px_-8px_rgba(34,211,238,0.5)] hover:brightness-110 active:scale-[0.97] transition-all"
-                  style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 700 }}
+                  style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                 >
                   Join the Fundraiser
                 </a>
               </div>
 
-              <button onClick={() => setIsMenuOpen(true)} className="md:hidden text-white hover:text-cyan-400 z-50 relative">
-                <Menu size={28} />
-              </button>
+              <div className="md:hidden flex items-center gap-3 z-50 relative">
+                <a
+                  href="/contribute"
+                  className="px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[10px] font-bold uppercase tracking-[0.12em] shadow-[0_4px_15px_-4px_rgba(34,211,238,0.4)] active:scale-[0.97] transition-all"
+                  style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
+                >
+                  Fundraiser
+                </a>
+                <button onClick={() => setIsMenuOpen(true)} className="text-white hover:text-cyan-400">
+                  <Menu size={28} />
+                </button>
+              </div>
             </div>
 
             {isMenuOpen && (
@@ -589,7 +598,7 @@ const SuhasWebsite = () => {
                     href="/contribute"
                     className="mt-4 px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-lg font-bold uppercase tracking-wider shadow-[0_12px_40px_-12px_rgba(34,211,238,0.4)] hover:brightness-110 transition-all"
                     onClick={() => setIsMenuOpen(false)}
-                    style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 700 }}
+                    style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                   >
                     Join the Fundraiser
                   </a>
@@ -604,7 +613,15 @@ const SuhasWebsite = () => {
             {!showVisualizer && (
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0">
-                  <video autoPlay loop muted playsInline className="w-full h-full object-cover fixed top-0 left-0" style={{ opacity: 0.85 }}>
+                  <video
+                    ref={(el) => { if (el) { el.muted = true; el.play().catch(() => {}); } }}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover fixed top-0 left-0"
+                    style={{ opacity: 0.85 }}
+                  >
                     <source src="/images/Shards_Video_Loop.mp4" type="video/mp4" />
                   </video>
                   <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/70" />
@@ -720,7 +737,7 @@ const SuhasWebsite = () => {
               <div className="flex flex-col justify-center px-8 md:px-16 lg:px-20 py-20 lg:py-32 relative z-10">
                 <RevealOnScroll delay={100}>
                   <div className="space-y-6 mb-10">
-                    <h2 className="text-5xl md:text-6xl uppercase tracking-tighter" style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 800 }}>
+                    <h2 className="text-5xl md:text-6xl uppercase tracking-tighter" style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 800 }}>
                       About
                     </h2>
                     <div className="w-16 h-[2px] bg-cyan-500" />
@@ -756,7 +773,7 @@ const SuhasWebsite = () => {
               <RevealOnScroll>
                 <div className="flex justify-between items-end mb-16">
                   <div>
-                    <h2 className="text-4xl md:text-6xl uppercase tracking-tight mb-2" style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 800 }}>
+                    <h2 className="text-4xl md:text-6xl uppercase tracking-tight mb-2" style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 800 }}>
                       Store
                     </h2>
                     <p className="text-zinc-500 tracking-widest uppercase text-xs font-bold">Official Merchandise</p>
@@ -786,7 +803,7 @@ const SuhasWebsite = () => {
 
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-xl font-bold uppercase mb-1" style={{ fontFamily: "'Ubuntu Sans', sans-serif" }}>
+                            <h3 className="text-xl font-bold uppercase mb-1" style={{ fontFamily: "'Michroma', sans-serif" }}>
                               {item.name}
                             </h3>
                             <p className="text-zinc-500 text-xs">{item.desc}</p>
@@ -805,7 +822,7 @@ const SuhasWebsite = () => {
               <div className="text-center">
                 <h3
                   className="text-4xl md:text-6xl uppercase tracking-tight text-white mb-4"
-                  style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 800 }}
+                  style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 800 }}
                 >
                   Store Coming Soon
                 </h3>
@@ -821,10 +838,10 @@ const SuhasWebsite = () => {
               <img
                 src="/images/suhas6.JPG"
                 alt=""
-                className="absolute inset-0 w-full h-full"
+                className="absolute inset-0 w-full h-full connect-suhas-img"
                 style={{ opacity: 0.4, objectFit: 'contain', objectPosition: 'right center' }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80 connect-gradient" />
             </div>
             <div className="absolute inset-0 pointer-events-none opacity-15">
               <div className="absolute top-1/4 left-1/4 w-[350px] h-[350px] bg-cyan-500/10 rounded-full blur-[130px]" />
@@ -837,7 +854,7 @@ const SuhasWebsite = () => {
                   <span className="text-cyan-400 tracking-[0.4em] text-[9px] sm:text-[10px] uppercase block mb-5 font-bold">Follow the journey</span>
                 </RevealOnScroll>
                 <RevealOnScroll delay={100}>
-                  <h2 className="text-[clamp(2.5rem,8vw,5.5rem)] tracking-[-0.04em] leading-[0.9] mb-4" style={{ fontFamily: "'Ubuntu Sans', sans-serif", fontWeight: 800 }}>
+                  <h2 className="text-[clamp(2.5rem,8vw,5.5rem)] tracking-[-0.04em] leading-[0.9] mb-4" style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 800 }}>
                     Connect
                   </h2>
                 </RevealOnScroll>
@@ -887,14 +904,14 @@ const SuhasWebsite = () => {
                       href={s.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`group flex flex-col items-center gap-4 p-7 bg-white/[0.015] border-2 border-white/[0.05] ${s.hoverBorder} backdrop-blur-xl transition-all duration-500 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl ${s.hoverShadow} w-full active:scale-[0.98]`}
+                      className={`group flex flex-col items-center gap-4 p-7 bg-transparent border-2 border-white/[0.08] ${s.hoverBorder} hover:backdrop-blur-xl hover:bg-white/[0.05] transition-all duration-500 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl ${s.hoverShadow} w-full active:scale-[0.98]`}
                     >
                       <div className={`absolute inset-0 bg-gradient-to-br from-transparent to-transparent ${s.hoverBg} transition-all duration-500`} />
                       <div className={`relative w-14 h-14 rounded-xl bg-white/[0.04] flex items-center justify-center group-hover:scale-110 transition-all duration-400 border border-white/[0.06] text-zinc-400 group-hover:text-white shadow-lg ${s.iconHover}`}>
                         {s.icon}
                       </div>
                       <div className="text-center relative">
-                        <p className="text-lg font-bold mb-1" style={{ fontFamily: "'Ubuntu Sans', sans-serif" }}>
+                        <p className="text-lg font-bold mb-1" style={{ fontFamily: "'Michroma', sans-serif" }}>
                           {s.name}
                         </p>
                         <p className="text-[11px] text-zinc-500 font-medium">{s.handle}</p>
@@ -910,7 +927,7 @@ const SuhasWebsite = () => {
                   <div className="text-center max-w-2xl mx-auto">
                     <div className="flex items-center justify-center gap-3 mb-6">
                       <div className="w-2 h-10 bg-purple-500 rounded-full" />
-                      <h3 className="text-2xl md:text-3xl font-black uppercase text-white" style={{ fontFamily: "'Ubuntu Sans', sans-serif" }}>
+                      <h3 className="text-2xl md:text-3xl font-black uppercase text-white" style={{ fontFamily: "'Michroma', sans-serif" }}>
                         Bookings &amp; Collaborations
                       </h3>
                       <div className="w-2 h-10 bg-purple-500 rounded-full" />
@@ -919,10 +936,10 @@ const SuhasWebsite = () => {
                       For inquiries regarding live performances, studio sessions, and collaborations
                     </p>
                     <a
-                      href="mailto:suhasmusicofficial@gmail.com"
+                      href="mailto:management@suhasmusic.com"
                       className="relative inline-block text-xl md:text-2xl font-bold tracking-tight text-white hover:text-cyan-400 transition-colors py-2 group"
                     >
-                      suhasmusicofficial@gmail.com
+                      management@suhasmusic.com
                       <span className="absolute bottom-0 left-0 w-0 h-1 bg-cyan-500 transition-all duration-300 group-hover:w-full" />
                     </a>
                   </div>
@@ -958,13 +975,13 @@ const SuhasWebsite = () => {
               </div>
 
               <div className="flex gap-8 text-xs font-bold uppercase text-zinc-500 justify-center md:justify-end">
-                <a href="mailto:suhasmusicofficial@gmail.com" className="hover:text-white transition-colors">
+                <a href="mailto:management@suhasmusic.com" className="hover:text-white transition-colors">
                   Privacy
                 </a>
-                <a href="mailto:suhasmusicofficial@gmail.com" className="hover:text-white transition-colors">
+                <a href="mailto:management@suhasmusic.com" className="hover:text-white transition-colors">
                   Terms
                 </a>
-                <a href="mailto:suhasmusicofficial@gmail.com" className="hover:text-white transition-colors">
+                <a href="mailto:management@suhasmusic.com" className="hover:text-white transition-colors">
                   Contact
                 </a>
               </div>
@@ -972,7 +989,7 @@ const SuhasWebsite = () => {
           </footer>
 
           <style>{`
-            :root { --font-heading: 'Ubuntu Sans', sans-serif; }
+            :root { --font-heading: 'Michroma', sans-serif; }
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
             @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
             .animate-gradient-x { background-size: 200% 200%; animation: gradient-move 3s ease infinite; }
@@ -993,6 +1010,16 @@ const SuhasWebsite = () => {
             @keyframes gradient-shift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
             @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
             .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+            @media (max-width: 767px) {
+              .connect-suhas-img {
+                object-fit: cover !important;
+                object-position: center 15% !important;
+                opacity: 0.65 !important;
+              }
+              .connect-gradient {
+                background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.1), rgba(0,0,0,0.55)) !important;
+              }
+            }
           `}</style>
         </div>
       )}
