@@ -4,17 +4,42 @@ import { Menu, X, Instagram, Youtube, Music, ArrowRight, ExternalLink, Headphone
 import RevealOnScroll from './components/RevealOnScroll';
 import MusicSection from './components/MusicSection';
 
-// ─── FEATURE 1: Font Loader (Michroma) ───────────────────────────────────────
+// ─── FEATURE 1: Font Loader (Michroma desktop-only) ───────────────────────────
 const FontLoader = () => {
   useEffect(() => {
-    if (!document.querySelector('link[data-suhas-fonts]')) {
+    const desktopQuery = window.matchMedia('(min-width: 768px)');
+
+    const ensureFontLoaded = () => {
+      if (document.querySelector('link[data-suhas-fonts]')) return;
+
+      const preconnect = document.createElement('link');
+      preconnect.rel = 'preconnect';
+      preconnect.href = 'https://fonts.googleapis.com';
+      preconnect.dataset.suhasFonts = 'true';
+      document.head.appendChild(preconnect);
+
+      const preconnectStatic = document.createElement('link');
+      preconnectStatic.rel = 'preconnect';
+      preconnectStatic.href = 'https://fonts.gstatic.com';
+      preconnectStatic.crossOrigin = 'anonymous';
+      preconnectStatic.dataset.suhasFonts = 'true';
+      document.head.appendChild(preconnectStatic);
+
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href =
-        'https://fonts.googleapis.com/css2?family=Michroma&display=swap';
+      link.href = 'https://fonts.googleapis.com/css2?family=Michroma&display=swap';
       link.dataset.suhasFonts = 'true';
       document.head.appendChild(link);
-    }
+    };
+
+    if (desktopQuery.matches) ensureFontLoaded();
+
+    const onViewportChange = (e) => {
+      if (e.matches) ensureFontLoaded();
+    };
+
+    desktopQuery.addEventListener('change', onViewportChange);
+    return () => desktopQuery.removeEventListener('change', onViewportChange);
   }, []);
   return null;
 };
