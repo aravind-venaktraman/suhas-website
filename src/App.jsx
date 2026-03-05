@@ -35,8 +35,6 @@ const FontLoader = () => {
 const LoadingScreen = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState('loading');
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     let p = 0;
@@ -49,14 +47,14 @@ const LoadingScreen = ({ onComplete }) => {
         setTimeout(() => setPhase('revealing'), 200);
         setTimeout(() => {
           setPhase('done');
-          onCompleteRef.current();
+          onComplete();
         }, 1000);
       } else {
         setProgress(Math.floor(p));
       }
     }, 80);
     return () => clearInterval(iv);
-  }, []);
+  }, [onComplete]);
 
   if (phase === 'done') return null;
 
@@ -93,19 +91,18 @@ const LoadingScreen = ({ onComplete }) => {
 };
 
 // --- Advanced Interactive Music Keyboard with Effects ---
-const AbstractPiano = ({ isExpanded, onPlayNote }) => {
+const AbstractPiano = ({ isExpanded }) => {
   const samplerRef = useRef(null);
   const [Tone, setTone] = useState(null);
-  const [audioLoaded, setAudioLoaded] = useState(false);
   const [activeNotes, setActiveNotes] = useState(new Set());
   const [recording, setRecording] = useState(false);
   const [recordedNotes, setRecordedNotes] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const effectsRef = useRef({});
-  const [reverbMix] = useState(0.3);
-  const [delayMix] = useState(0);
-  const [filterFreq] = useState(5000);
-  const [distortion] = useState(0);
+  const reverbMix = 0.3;
+  const delayMix = 0;
+  const filterFreq = 5000;
+  const distortion = 0;
   const [arpeggiator] = useState(false);
   const [octaveShift, setOctaveShift] = useState(0);
 
@@ -127,7 +124,6 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
           A5: 'https://tonejs.github.io/audio/salamander/A5.mp3',
         },
         release: 1,
-        onload: () => setAudioLoaded(true),
       });
 
       const reverb = new window.Tone.Reverb({ decay: 2.5, wet: reverbMix }).toDestination();
@@ -142,7 +138,6 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
 
       samplerRef.current = sampler;
       effectsRef.current = { reverb, delay, filter, distortionEffect };
-      setAudioLoaded(true);
     };
 
     document.body.appendChild(script);
@@ -154,7 +149,6 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
   }, []);
 
   const playNote = async (index, velocity = 0.8, release = true) => {
-    if (onPlayNote) onPlayNote(index);
     if (!samplerRef.current || !Tone) return;
 
     try {
@@ -318,7 +312,7 @@ const AbstractPiano = ({ isExpanded, onPlayNote }) => {
 };
 
 // --- Three.js Visualizer ---
-const GeometricVisualizer = ({ noteTrigger }) => {
+const GeometricVisualizer = () => {
   const mountRef = useRef(null);
 
   useEffect(() => {
@@ -445,25 +439,51 @@ const SuhasWebsite = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showVisualizer, setShowVisualizer] = useState(false);
-  const [noteTrigger, setNoteTrigger] = useState({ timestamp: 0, noteIndex: null });
 
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState('home');
 
   const [heroEmail, setHeroEmail] = useState('');
   const [heroEmailSubmitted, setHeroEmailSubmitted] = useState(false);
+  const [heroEmailError, setHeroEmailError] = useState('');
+  const [heroSubmitting, setHeroSubmitting] = useState(false);
   const [connectEmail, setConnectEmail] = useState('');
   const [connectEmailSubmitted, setConnectEmailSubmitted] = useState(false);
+  const [connectEmailError, setConnectEmailError] = useState('');
+  const [connectSubmitting, setConnectSubmitting] = useState(false);
 
-  const handleEmailSubmit = (email, setSubmitted, setEmail) => (e) => {
-    e.preventDefault();
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
-    // TODO: wire up to email service (Mailchimp / Formspree)
-    setSubmitted(true);
-    setEmail('');
-  };
+  const handleEmailSubmit =
+    ({ email, source, setSubmitted, setEmail, setError, setSubmitting }) =>
+    async (e) => {
+      e.preventDefault();
+      const normalized = email.trim().toLowerCase();
+      if (!normalized || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+        setError('Please enter a valid email address.');
+        return;
+      }
 
-  const handleNotePlay = (noteIndex) => setNoteTrigger({ timestamp: Date.now(), noteIndex });
+      setError('');
+      setSubmitting(true);
+      try {
+        const res = await fetch('/api/email-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: normalized, source }),
+        });
+
+        if (!res.ok) {
+          const payload = await res.json().catch(() => ({}));
+          throw new Error(payload.error || 'Unable to submit right now. Please try again in a minute.');
+        }
+
+        setSubmitted(true);
+        setEmail('');
+      } catch (err) {
+        setError(err.message || 'Unable to submit right now. Please try again in a minute.');
+      } finally {
+        setSubmitting(false);
+      }
+    };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -632,7 +652,7 @@ const SuhasWebsite = () => {
 
           {/* Hero */}
           <section id="home" className="relative h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden">
-            {showVisualizer && <GeometricVisualizer noteTrigger={noteTrigger} />}
+            {showVisualizer && <GeometricVisualizer />}
             {!showVisualizer && (
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0">
@@ -688,7 +708,7 @@ const SuhasWebsite = () => {
 
               <RevealOnScroll delay={200}>
                 <div className={`flex flex-col gap-6 md:gap-8 justify-center items-center w-full ${showVisualizer ? 'max-w-full' : ''}`}>
-                  <AbstractPiano isExpanded={showVisualizer} onPlayNote={handleNotePlay} />
+                  <AbstractPiano isExpanded={showVisualizer} />
                   <div className="flex flex-col gap-4 items-center w-full">
                     {!showVisualizer ? (
                       <>
@@ -714,7 +734,14 @@ const SuhasWebsite = () => {
                           </p>
                         ) : (
                           <form
-                            onSubmit={handleEmailSubmit(heroEmail, setHeroEmailSubmitted, setHeroEmail)}
+                            onSubmit={handleEmailSubmit({
+                              email: heroEmail,
+                              source: 'hero',
+                              setSubmitted: setHeroEmailSubmitted,
+                              setEmail: setHeroEmail,
+                              setError: setHeroEmailError,
+                              setSubmitting: setHeroSubmitting,
+                            })}
                             className="flex flex-col sm:flex-row gap-2"
                           >
                             <input
@@ -723,16 +750,19 @@ const SuhasWebsite = () => {
                               onChange={(e) => setHeroEmail(e.target.value)}
                               placeholder="your@email.com"
                               required
+                              disabled={heroSubmitting}
                               className="flex-1 px-4 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-cyan-500/60 transition-colors"
                             />
                             <button
                               type="submit"
+                              disabled={heroSubmitting}
                               className="px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all whitespace-nowrap"
                             >
-                              Get Early Access
+                              {heroSubmitting ? 'Submitting...' : 'Get Early Access'}
                             </button>
                           </form>
                         )}
+                        {heroEmailError && <p className="text-center text-red-400 text-xs mt-2">{heroEmailError}</p>}
                         <p className="text-center text-zinc-600 text-[10px] tracking-widest uppercase mt-2">
                           Early access + 20% off when the merch store opens
                         </p>
@@ -996,7 +1026,14 @@ const SuhasWebsite = () => {
                       </p>
                     ) : (
                       <form
-                        onSubmit={handleEmailSubmit(connectEmail, setConnectEmailSubmitted, setConnectEmail)}
+                        onSubmit={handleEmailSubmit({
+                          email: connectEmail,
+                          source: 'connect',
+                          setSubmitted: setConnectEmailSubmitted,
+                          setEmail: setConnectEmail,
+                          setError: setConnectEmailError,
+                          setSubmitting: setConnectSubmitting,
+                        })}
                         className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
                       >
                         <input
@@ -1005,16 +1042,19 @@ const SuhasWebsite = () => {
                           onChange={(e) => setConnectEmail(e.target.value)}
                           placeholder="your@email.com"
                           required
+                          disabled={connectSubmitting}
                           className="flex-1 px-5 py-3 rounded-full bg-white/[0.05] backdrop-blur-sm border border-white/[0.1] text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
                         />
                         <button
                           type="submit"
+                          disabled={connectSubmitting}
                           className="px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all whitespace-nowrap"
                         >
-                          Subscribe
+                          {connectSubmitting ? 'Submitting...' : 'Subscribe'}
                         </button>
                       </form>
                     )}
+                    {connectEmailError && <p className="text-red-400 text-xs mt-2">{connectEmailError}</p>}
                   </div>
                 </RevealOnScroll>
               </div>
