@@ -4,42 +4,29 @@ import { Menu, X, Instagram, Youtube, Music, ArrowRight, ExternalLink, Headphone
 import RevealOnScroll from './components/RevealOnScroll';
 import MusicSection from './components/MusicSection';
 
-// ─── FEATURE 1: Font Loader (Michroma desktop-only) ───────────────────────────
+// ─── FEATURE 1: Font Loader (Michroma) ───────────────────────────────────────
 const FontLoader = () => {
   useEffect(() => {
-    const desktopQuery = window.matchMedia('(min-width: 768px)');
+    if (document.querySelector('link[data-suhas-fonts]')) return;
 
-    const ensureFontLoaded = () => {
-      if (document.querySelector('link[data-suhas-fonts]')) return;
+    const preconnect = document.createElement('link');
+    preconnect.rel = 'preconnect';
+    preconnect.href = 'https://fonts.googleapis.com';
+    preconnect.dataset.suhasFonts = 'true';
+    document.head.appendChild(preconnect);
 
-      const preconnect = document.createElement('link');
-      preconnect.rel = 'preconnect';
-      preconnect.href = 'https://fonts.googleapis.com';
-      preconnect.dataset.suhasFonts = 'true';
-      document.head.appendChild(preconnect);
+    const preconnectStatic = document.createElement('link');
+    preconnectStatic.rel = 'preconnect';
+    preconnectStatic.href = 'https://fonts.gstatic.com';
+    preconnectStatic.crossOrigin = 'anonymous';
+    preconnectStatic.dataset.suhasFonts = 'true';
+    document.head.appendChild(preconnectStatic);
 
-      const preconnectStatic = document.createElement('link');
-      preconnectStatic.rel = 'preconnect';
-      preconnectStatic.href = 'https://fonts.gstatic.com';
-      preconnectStatic.crossOrigin = 'anonymous';
-      preconnectStatic.dataset.suhasFonts = 'true';
-      document.head.appendChild(preconnectStatic);
-
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://fonts.googleapis.com/css2?family=Michroma&display=swap';
-      link.dataset.suhasFonts = 'true';
-      document.head.appendChild(link);
-    };
-
-    if (desktopQuery.matches) ensureFontLoaded();
-
-    const onViewportChange = (e) => {
-      if (e.matches) ensureFontLoaded();
-    };
-
-    desktopQuery.addEventListener('change', onViewportChange);
-    return () => desktopQuery.removeEventListener('change', onViewportChange);
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Michroma&display=swap';
+    link.dataset.suhasFonts = 'true';
+    document.head.appendChild(link);
   }, []);
   return null;
 };
@@ -463,6 +450,19 @@ const SuhasWebsite = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState('home');
 
+  const [heroEmail, setHeroEmail] = useState('');
+  const [heroEmailSubmitted, setHeroEmailSubmitted] = useState(false);
+  const [connectEmail, setConnectEmail] = useState('');
+  const [connectEmailSubmitted, setConnectEmailSubmitted] = useState(false);
+
+  const handleEmailSubmit = (email, setSubmitted, setEmail) => (e) => {
+    e.preventDefault();
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    // TODO: wire up to email service (Mailchimp / Formspree)
+    setSubmitted(true);
+    setEmail('');
+  };
+
   const handleNotePlay = (noteIndex) => setNoteTrigger({ timestamp: Date.now(), noteIndex });
 
   useEffect(() => {
@@ -574,23 +574,23 @@ const SuhasWebsite = () => {
                     />
                   </a>
                 ))}
-                <a
-                  href="/contribute"
-                  className="ml-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[11px] font-bold uppercase tracking-[0.15em] shadow-[0_8px_30px_-8px_rgba(34,211,238,0.3)] hover:shadow-[0_12px_40px_-8px_rgba(34,211,238,0.5)] hover:brightness-110 active:scale-[0.97] transition-all"
+                <span
+                  className="ml-2 px-5 py-2.5 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-[11px] font-bold uppercase tracking-[0.15em] cursor-not-allowed select-none"
                   style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
+                  title="Fundraiser launching soon"
                 >
-                  Join the Fundraiser
-                </a>
+                  Fundraiser Coming Soon
+                </span>
               </div>
 
               <div className="md:hidden flex items-center gap-3 z-50 relative">
-                <a
-                  href="/contribute"
-                  className="px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[10px] font-bold uppercase tracking-[0.12em] shadow-[0_4px_15px_-4px_rgba(34,211,238,0.4)] active:scale-[0.97] transition-all"
+                <span
+                  className="px-4 py-2 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-[10px] font-bold uppercase tracking-[0.12em] cursor-not-allowed select-none"
                   style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
+                  title="Fundraiser launching soon"
                 >
-                  Fundraiser
-                </a>
+                  Coming Soon
+                </span>
                 <button onClick={() => setIsMenuOpen(true)} className="text-white hover:text-cyan-400">
                   <Menu size={28} />
                 </button>
@@ -619,14 +619,12 @@ const SuhasWebsite = () => {
                       {link.name}
                     </a>
                   ))}
-                  <a
-                    href="/contribute"
-                    className="mt-4 px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-lg font-bold uppercase tracking-wider shadow-[0_12px_40px_-12px_rgba(34,211,238,0.4)] hover:brightness-110 transition-all"
-                    onClick={() => setIsMenuOpen(false)}
+                  <span
+                    className="mt-4 px-8 py-4 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-lg font-bold uppercase tracking-wider cursor-not-allowed select-none"
                     style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                   >
-                    Join the Fundraiser
-                  </a>
+                    Fundraiser Coming Soon
+                  </span>
                 </div>
               </div>
             )}
@@ -663,7 +661,7 @@ const SuhasWebsite = () => {
                 <RevealOnScroll>
                   <div className="flex flex-col items-center gap-4">
                     <h2 className="text-cyan-400 tracking-[0.3em] text-sm md:text-base font-bold uppercase shadow-black drop-shadow-lg">
-                      New Single Out Now
+                      Coming Soon — April 2026
                     </h2>
                   </div>
                 </RevealOnScroll>
@@ -693,6 +691,7 @@ const SuhasWebsite = () => {
                   <AbstractPiano isExpanded={showVisualizer} onPlayNote={handleNotePlay} />
                   <div className="flex flex-col gap-4 items-center w-full">
                     {!showVisualizer ? (
+                      <>
                       <div className="flex gap-4 items-center flex-wrap justify-center">
                         <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
                           <Music size={20} className="text-white" />
@@ -706,6 +705,39 @@ const SuhasWebsite = () => {
                           </svg>
                         </a>
                       </div>
+
+                      {/* Hero email subscribe */}
+                      <div className="mt-2 w-full max-w-sm mx-auto">
+                        {heroEmailSubmitted ? (
+                          <p className="text-center text-cyan-400 text-sm font-semibold tracking-wide py-3 animate-in fade-in duration-500">
+                            ✓ You're in — we'll be in touch!
+                          </p>
+                        ) : (
+                          <form
+                            onSubmit={handleEmailSubmit(heroEmail, setHeroEmailSubmitted, setHeroEmail)}
+                            className="flex flex-col sm:flex-row gap-2"
+                          >
+                            <input
+                              type="email"
+                              value={heroEmail}
+                              onChange={(e) => setHeroEmail(e.target.value)}
+                              placeholder="your@email.com"
+                              required
+                              className="flex-1 px-4 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-cyan-500/60 transition-colors"
+                            />
+                            <button
+                              type="submit"
+                              className="px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all whitespace-nowrap"
+                            >
+                              Get Early Access
+                            </button>
+                          </form>
+                        )}
+                        <p className="text-center text-zinc-600 text-[10px] tracking-widest uppercase mt-2">
+                          Early access + 20% off when the merch store opens
+                        </p>
+                      </div>
+                      </>
                     ) : (
                       <button onClick={() => setShowVisualizer(false)} className="group relative w-14 h-14 md:w-16 md:h-16 flex items-center justify-center border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
                         <X size={20} className="md:hidden text-white group-hover:scale-110 transition-transform duration-300" />
@@ -734,7 +766,7 @@ const SuhasWebsite = () => {
                 <div className="inline-block" style={{ animation: 'marquee 60s linear infinite' }}>
                   {[...Array(10)].map((_, i) => (
                     <span key={i} className="text-white font-black text-xl md:text-3xl mx-8 uppercase tracking-widest italic">
-                      FRACTALS - SINGLE OUT NOW • PROGRESSIVE JAZZ FUSION • STREAM NOW ANYWHERE •
+                      FRACTALS — COMING SOON • APRIL 2026 • PRESAVE NOW • PROGRESSIVE JAZZ FUSION •
                     </span>
                   ))}
                 </div>
@@ -947,7 +979,47 @@ const SuhasWebsite = () => {
                 ))}
               </div>
 
-              <div className="mt-20 pt-12 border-t border-white/[0.04]">
+              {/* Email Newsletter Subscribe */}
+              <div className="mt-16 pt-12 border-t border-white/[0.04]">
+                <RevealOnScroll delay={100}>
+                  <div className="text-center max-w-lg mx-auto">
+                    <span className="text-cyan-400 tracking-[0.4em] text-[9px] sm:text-[10px] uppercase block mb-4 font-bold">Stay in the loop</span>
+                    <h3 className="text-2xl md:text-3xl font-black uppercase text-white mb-2" style={{ fontFamily: "'Michroma', sans-serif" }}>
+                      Subscribe
+                    </h3>
+                    <p className="text-zinc-400 text-sm font-light mb-6">
+                      Early access + <span className="text-cyan-400 font-semibold">20% off</span> when the merch store opens
+                    </p>
+                    {connectEmailSubmitted ? (
+                      <p className="text-cyan-400 text-sm font-semibold tracking-wide py-3 animate-in fade-in duration-500">
+                        ✓ You're on the list — see you in April!
+                      </p>
+                    ) : (
+                      <form
+                        onSubmit={handleEmailSubmit(connectEmail, setConnectEmailSubmitted, setConnectEmail)}
+                        className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+                      >
+                        <input
+                          type="email"
+                          value={connectEmail}
+                          onChange={(e) => setConnectEmail(e.target.value)}
+                          placeholder="your@email.com"
+                          required
+                          className="flex-1 px-5 py-3 rounded-full bg-white/[0.05] backdrop-blur-sm border border-white/[0.1] text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
+                        />
+                        <button
+                          type="submit"
+                          className="px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all whitespace-nowrap"
+                        >
+                          Subscribe
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                </RevealOnScroll>
+              </div>
+
+              <div className="mt-12 pt-12 border-t border-white/[0.04]">
                 <RevealOnScroll delay={200}>
                   <div className="text-center max-w-2xl mx-auto">
                     <div className="flex items-center justify-center gap-3 mb-6">

@@ -17,7 +17,12 @@
       "Bash(curl -s http://localhost:5180)",
       "Bash(curl -s http://localhost:5180/src/App.jsx)",
       "Bash(node -e \"console.log\\(process.execPath\\)\")",
-      "Bash(ls \"C:/Users/aravi/suhas-website/.claude/worktrees/blissful-mclaren/node_modules/.bin/vite\"*)"
+      "Bash(ls \"C:/Users/aravi/suhas-website/.claude/worktrees/blissful-mclaren/node_modules/.bin/vite\"*)",
+      "Bash(git rebase --continue)",
+      "Bash(GIT_EDITOR=true git rebase --continue)",
+      "Bash(git rebase:*)",
+      "Bash(EDITOR=\"cat\" git rebase --continue)",
+      "Bash(git add -u)"
     ]
   }
 }
