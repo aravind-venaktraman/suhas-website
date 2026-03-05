@@ -176,7 +176,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
           ═══════════════════════════════════════════════════════════════════ */}
       <div
         className="relative"
-        style={{ minHeight: '500vh', marginBottom: isMobileLayout ? 0 : '-100vh' }}
+        style={{ minHeight: isMobileLayout ? '550vh' : '500vh', marginBottom: '-100vh' }}
       >
         {/* Sticky Shards video background — stays pinned for all chapters */}
         <div

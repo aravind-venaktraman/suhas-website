@@ -585,7 +585,7 @@ const SuhasWebsite = () => {
 
               <div className="md:hidden flex items-center gap-3 z-50 relative">
                 <span
-                  className="px-4 py-2 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-[10px] font-bold uppercase tracking-[0.12em] cursor-not-allowed select-none"
+                  className="px-3 py-2 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-[8px] font-bold uppercase tracking-[0.08em] cursor-not-allowed select-none whitespace-nowrap"
                   style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                   title="Fundraiser launching soon"
                 >
@@ -889,7 +889,7 @@ const SuhasWebsite = () => {
           </section>
 
           {/* CONNECT */}
-          <section id="connect" className="min-h-screen flex items-center py-28 relative overflow-hidden bg-[#030306] border-t border-zinc-900">
+          <section id="connect" className="min-h-screen flex items-center py-28 relative z-10 overflow-hidden bg-[#030306] border-t border-zinc-900">
             {/* suhas6 photo background */}
             <div className="absolute inset-0 z-0">
               <img
@@ -1034,7 +1034,7 @@ const SuhasWebsite = () => {
                     </p>
                     <a
                       href="mailto:management@suhasmusic.com"
-                      className="relative inline-block text-xl md:text-2xl font-bold tracking-tight text-white hover:text-cyan-400 transition-colors py-2 group"
+                      className="relative inline-block text-sm md:text-2xl font-bold tracking-tight text-white hover:text-cyan-400 transition-colors py-2 group"
                     >
                       management@suhasmusic.com
                       <span className="absolute bottom-0 left-0 w-0 h-1 bg-cyan-500 transition-all duration-300 group-hover:w-full" />
