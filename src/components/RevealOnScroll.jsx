@@ -18,7 +18,9 @@ const writeCache = (set) => {
   if (typeof window === "undefined") return;
   try {
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(set)));
-  } catch {}
+  } catch {
+    // ignore storage write errors
+  }
 };
 
 const memoryCache = readCache();
