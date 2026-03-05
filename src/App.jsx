@@ -589,7 +589,7 @@ const SuhasWebsite = () => {
                   style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                   title="Fundraiser launching soon"
                 >
-                  Coming Soon
+                  Fundraiser Coming Soon
                 </span>
                 <button onClick={() => setIsMenuOpen(true)} className="text-white hover:text-cyan-400">
                   <Menu size={28} />
@@ -608,19 +608,19 @@ const SuhasWebsite = () => {
                 >
                   <X size={32} />
                 </button>
-                <div className="flex flex-col items-center space-y-8">
+                <div className="flex flex-col items-center space-y-6">
                   {navLinks.map((link) => (
                     <a
                       key={link.name}
                       href={link.href}
-                      className="text-4xl font-bold uppercase hover:text-cyan-400 transition-colors tracking-tighter"
+                      className="text-2xl font-bold uppercase hover:text-cyan-400 transition-colors tracking-tighter"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {link.name}
                     </a>
                   ))}
                   <span
-                    className="mt-4 px-8 py-4 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-lg font-bold uppercase tracking-wider cursor-not-allowed select-none"
+                    className="px-8 py-3 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-sm font-bold uppercase tracking-wider cursor-not-allowed select-none text-center"
                     style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                   >
                     Fundraiser Coming Soon
@@ -657,10 +657,10 @@ const SuhasWebsite = () => {
             <div className={`absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-black/20 z-0 pointer-events-none transition-opacity duration-1000 ${showVisualizer ? 'opacity-80' : 'opacity-100'}`} />
 
             <div className={`relative z-10 max-w-6xl mx-auto px-4 md:px-8 space-y-8 flex flex-col items-center transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-8 md:pb-12 pt-20 md:pt-32' : 'justify-center pt-0'}`}>
-              <div className={`transition-all duration-700 flex flex-col items-center gap-8 ${showVisualizer ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
+              <div className={`transition-all duration-700 flex flex-col items-center gap-4 md:gap-8 ${showVisualizer ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
                 <RevealOnScroll>
                   <div className="flex flex-col items-center gap-4">
-                    <h2 className="text-cyan-400 tracking-[0.3em] text-sm md:text-base font-bold uppercase shadow-black drop-shadow-lg">
+                    <h2 className="text-cyan-400 tracking-[0.3em] text-xs md:text-base font-bold uppercase shadow-black drop-shadow-lg whitespace-nowrap">
                       Coming Soon — April 2026
                     </h2>
                   </div>
@@ -680,7 +680,7 @@ const SuhasWebsite = () => {
                       FRACTALS
                     </span>
                   </h1>
-                  <p className="mt-4 text-zinc-300 text-lg md:text-xl max-w-2xl mx-auto font-light tracking-wide shadow-black drop-shadow-md">
+                  <p className="mt-2 md:mt-4 text-zinc-300 text-sm md:text-xl max-w-2xl mx-auto font-light tracking-wide shadow-black drop-shadow-md">
                     A journey into the chaotic symmetry of Jazz.
                   </p>
                 </RevealOnScroll>
