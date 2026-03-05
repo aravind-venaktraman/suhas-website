@@ -122,7 +122,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
 
           <RevealOnScroll delay={100} cacheKey="music:hero-title">
             <h2
-              className="text-[2.6rem] sm:text-7xl md:text-9xl font-black tracking-tighter leading-none mb-8"
+              className="text-[clamp(2rem,11vw,2.6rem)] sm:text-7xl md:text-9xl font-black tracking-tighter leading-none mb-8"
               style={michroma()}
             >
               FRACTALS

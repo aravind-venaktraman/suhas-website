@@ -668,7 +668,7 @@ const SuhasWebsite = () => {
 
                 <RevealOnScroll delay={100}>
                   <h1
-                    className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none drop-shadow-2xl"
+                    className="text-[clamp(2rem,13vw,3.75rem)] md:text-8xl lg:text-9xl font-black tracking-tighter leading-none drop-shadow-2xl"
                     onMouseMove={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
                       e.currentTarget.style.setProperty('--mouse-x', `${((e.clientX - rect.left) / rect.width) * 100}%`);
