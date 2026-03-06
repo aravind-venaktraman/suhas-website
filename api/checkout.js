@@ -11,6 +11,27 @@ const thawaniBase =
     ? "https://checkout.thawani.om"
     : "https://uatcheckout.thawani.om";
 
+function createThawaniVerifyState(sessionId) {
+  const secret = process.env.THAWANI_VERIFY_STATE_SECRET;
+  if (!secret || !sessionId) {
+    return null;
+  }
+
+  const crypto = require("crypto");
+  const payload = {
+    sid: sessionId,
+    exp: Date.now() + 30 * 60 * 1000,
+  };
+
+  const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = crypto
+    .createHmac("sha256", secret)
+    .update(payloadB64)
+    .digest("base64url");
+
+  return `${payloadB64}.${signature}`;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -119,8 +140,12 @@ export default async function handler(req, res) {
 
       const sid = thawaniData.data.session_id;
       const checkoutUrl = `${thawaniBase}/pay/${sid}?key=${process.env.THAWANI_PUBLISHABLE_KEY}`;
+      const verifyState = createThawaniVerifyState(sid);
 
-      return res.status(200).json({ checkoutUrl });
+      return res.status(200).json({
+        checkoutUrl,
+        verifyState,
+      });
     }
 
     // ─── UPI (India) ────────────────────────────────────────
