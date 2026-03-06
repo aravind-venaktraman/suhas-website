@@ -3,6 +3,13 @@
 // Deploy: just push to Vercel. It auto-detects /api/*.js as serverless functions.
 
 import Stripe from "stripe";
+import {
+  enforceBrowserOrigin,
+  enforceJsonRequest,
+  enforceRateLimit,
+  jsonError,
+  logSecurityEvent,
+} from "./_security.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -11,9 +18,34 @@ const thawaniBase =
     ? "https://checkout.thawani.om"
     : "https://uatcheckout.thawani.om";
 
+const CHECKOUT_BODY_LIMIT_BYTES = 12 * 1024;
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return jsonError(res, 405, "METHOD_NOT_ALLOWED", "Method not allowed");
+  }
+
+  if (!enforceJsonRequest(req, res, { maxBytes: CHECKOUT_BODY_LIMIT_BYTES })) {
+    return;
+  }
+
+  if (!enforceBrowserOrigin(req, res)) {
+    return;
+  }
+
+  const rateLimit = await enforceRateLimit(req, res, {
+    routeKey: "checkout",
+    maxRequests: 12,
+    windowMs: 60_000,
+  });
+
+  if (!rateLimit.allowed) {
+    logSecurityEvent("rate_limited", {
+      route: "checkout",
+      ip: rateLimit.ip,
+      status: 429,
+    });
+    return;
   }
 
   try {
@@ -28,7 +60,7 @@ export default async function handler(req, res) {
     } = req.body;
 
     if (!amount || amount <= 0) {
-      return res.status(400).json({ error: "Invalid amount" });
+      return jsonError(res, 400, "INVALID_AMOUNT", "Invalid amount");
     }
 
     const base = process.env.BASE_URL || "https://yourdomain.com";
@@ -38,7 +70,6 @@ export default async function handler(req, res) {
       ? `Fractals — ${tierName} Tier`
       : "Fractals — Custom Contribution";
 
-    // ─── STRIPE (international cards) ───────────────────────
     if (paymentMethod === "card") {
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
@@ -53,7 +84,7 @@ export default async function handler(req, res) {
                 name: productName,
                 description: "Contribution to the Fractals album project",
               },
-              unit_amount: Math.round(amount * 100), // cents
+              unit_amount: Math.round(amount * 100),
             },
             quantity: 1,
           },
@@ -67,13 +98,10 @@ export default async function handler(req, res) {
         },
       });
 
-      return res.status(200).json({ checkoutUrl: session.url });
+      return res.status(200).json({ ok: true, checkoutUrl: session.url });
     }
 
-    // ─── THAWANI (Oman) ─────────────────────────────────────
     if (paymentMethod === "thawani") {
-      // Thawani amounts are in baisa (1 OMR = 1000 baisa), must be integers.
-      // Adjust the multiplier if you're converting from USD to OMR.
       const unitAmount = Math.round(amount * 1000);
 
       const payload = {
@@ -105,45 +133,57 @@ export default async function handler(req, res) {
       });
 
       if (!thawaniRes.ok) {
-        const errText = await thawaniRes.text();
-        console.error("Thawani error:", thawaniRes.status, errText);
-        return res.status(502).json({ error: "Thawani session creation failed" });
+        logSecurityEvent("provider_error", {
+          route: "checkout",
+          ip: rateLimit.ip,
+          status: thawaniRes.status,
+          reason: "thawani_session_creation_failed",
+        });
+        return jsonError(res, 502, "THAWANI_ERROR", "Thawani session creation failed");
       }
 
       const thawaniData = await thawaniRes.json();
 
       if (!thawaniData.success || !thawaniData.data?.session_id) {
-        console.error("Thawani bad response:", thawaniData);
-        return res.status(502).json({ error: "No session from Thawani" });
+        logSecurityEvent("provider_error", {
+          route: "checkout",
+          ip: rateLimit.ip,
+          status: 502,
+          reason: "thawani_missing_session",
+        });
+        return jsonError(res, 502, "THAWANI_ERROR", "No session from Thawani");
       }
 
       const sid = thawaniData.data.session_id;
       const checkoutUrl = `${thawaniBase}/pay/${sid}?key=${process.env.THAWANI_PUBLISHABLE_KEY}`;
 
-      return res.status(200).json({ checkoutUrl });
+      return res.status(200).json({ ok: true, checkoutUrl });
     }
 
-    // ─── UPI (India) ────────────────────────────────────────
     if (paymentMethod === "upi") {
-      // UPI deep link -- opens the user's UPI app directly on mobile.
-      // On desktop, frontend shows a QR code generated client-side.
       const upiLink = [
         `upi://pay?pa=${encodeURIComponent(process.env.UPI_PAYEE_VPA)}`,
         `pn=${encodeURIComponent(process.env.UPI_PAYEE_NAME)}`,
         `am=${amount}`,
-        `cu=INR`,
+        "cu=INR",
         `tn=${encodeURIComponent(productName)}`,
       ].join("&");
 
       return res.status(200).json({
+        ok: true,
         upiLink,
         payeeVpa: process.env.UPI_PAYEE_VPA,
       });
     }
 
-    return res.status(400).json({ error: `Unknown paymentMethod: ${paymentMethod}` });
+    return jsonError(res, 400, "INVALID_PAYMENT_METHOD", `Unknown paymentMethod: ${paymentMethod}`);
   } catch (err) {
-    console.error("Checkout error:", err);
-    return res.status(500).json({ error: "Internal server error" });
+    logSecurityEvent("handler_error", {
+      route: "checkout",
+      ip: "unknown",
+      status: 500,
+      reason: err?.name || "internal_error",
+    });
+    return jsonError(res, 500, "INTERNAL_ERROR", "Internal server error");
   }
 }
