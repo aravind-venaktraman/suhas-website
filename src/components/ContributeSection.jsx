@@ -91,9 +91,11 @@ export default function ContributeSection({
     setIsProcessing(true);
     try {
       const payload = {
-        amount, currency: campaign.currency || "USD",
-        tierId: selectedTier?.id || null, tierName: selectedTier?.name || null,
-        paymentMethod, donorName: donorName || null, donorEmail: donorEmail || null,
+        tierId: selectedTier?.id || null,
+        customAmount: selectedTier ? null : amount,
+        paymentMethod,
+        donorName: donorName || null,
+        donorEmail: donorEmail || null,
       };
       if (onCheckout) await onCheckout(payload);
       else alert("Wire onCheckout() to start a real payment flow.");

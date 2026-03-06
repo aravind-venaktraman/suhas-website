@@ -238,10 +238,8 @@ export default function ContributePage({ success = false, cancelled = false }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount,
-          currency: campaign.currency,
           tierId: selectedTier?.id || null,
-          tierName: selectedTier?.name || null,
+          customAmount: selectedTier ? null : amount,
           paymentMethod,
           donorName: donorName || null,
           donorEmail: donorEmail || null,
@@ -252,10 +250,22 @@ export default function ContributePage({ success = false, cancelled = false }) {
         return;
       }
       const data = await res.json();
-      if (data.checkoutUrl) { window.location.href = data.checkoutUrl; return; }
+      const pricingLabel = data.pricing
+        ? `${data.pricing.currency} ${data.pricing.amount} (${data.pricing.tierName})`
+        : null;
+      if (data.checkoutUrl) {
+        if (pricingLabel && !window.confirm(`You will be redirected to pay ${pricingLabel}. Continue?`)) {
+          return;
+        }
+        window.location.href = data.checkoutUrl;
+        return;
+      }
       if (data.upiLink) {
         if (/Android|iPhone|iPad/i.test(navigator.userAgent)) window.location.href = data.upiLink;
-        else alert('Pay via UPI to: ' + data.payeeVpa);
+        else {
+          const summary = pricingLabel ? ` for ${pricingLabel}` : '';
+          alert('Pay via UPI to: ' + data.payeeVpa + summary);
+        }
         return;
       }
       alert('Unexpected response.');
