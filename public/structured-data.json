@@ -1,0 +1,31 @@
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "@id": "https://suhasmusic.com/#artist",
+      "name": "Suhas",
+      "alternateName": ["SUHAS", "Suhas Music"],
+      "url": "https://suhasmusic.com",
+      "description": "Progressive jazz fusion pianist and composer. Creator of Fractals — an exploration of polyrhythms, melodic improvisation, and modern jazz.",
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://suhasmusic.com/images/album-art.PNG",
+        "width": 1200,
+        "height": 1200
+      },
+      "jobTitle": "Pianist and Composer",
+      "knowsAbout": [
+        "Jazz Fusion",
+        "Progressive Jazz",
+        "Piano Improvisation",
+        "Music Composition",
+        "Polyrhythms",
+        "Modern Jazz"
+      ],
+      "genre": ["Progressive Jazz Fusion", "Jazz Fusion", "Modern Jazz", "Contemporary Jazz"],
+      "sameAs": [
+        "https://www.youtube.com/@Suhasmusicofficial",
+        "https://www.instagram.com/suhas.als",
+        "https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K",
+        "https://music.apple.com/us/artist/suhas/1768715441"
+      ]
+    }

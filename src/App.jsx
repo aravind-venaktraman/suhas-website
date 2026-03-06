@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Instagram, Youtube, Music, ArrowRight, ExternalLink, Headphones, ChevronRight } from 'lucide-react';
+import * as Tone from 'tone';
+import * as THREE from 'three';
 
 import RevealOnScroll from './components/RevealOnScroll';
 import MusicSection from './components/MusicSection';
@@ -93,7 +95,6 @@ const LoadingScreen = ({ onComplete }) => {
 // --- Advanced Interactive Music Keyboard with Effects ---
 const AbstractPiano = ({ isExpanded }) => {
   const samplerRef = useRef(null);
-  const [Tone, setTone] = useState(null);
   const [activeNotes, setActiveNotes] = useState(new Set());
   const [recording, setRecording] = useState(false);
   const [recordedNotes, setRecordedNotes] = useState([]);
@@ -107,49 +108,41 @@ const AbstractPiano = ({ isExpanded }) => {
   const [octaveShift, setOctaveShift] = useState(0);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js';
-    script.async = true;
-    script.onload = () => {
-      setTone(window.Tone);
-      const sampler = new window.Tone.Sampler({
-        urls: {
-          C4: 'https://tonejs.github.io/audio/salamander/C4.mp3',
-          'D#4': 'https://tonejs.github.io/audio/salamander/Ds4.mp3',
-          'F#4': 'https://tonejs.github.io/audio/salamander/Fs4.mp3',
-          A4: 'https://tonejs.github.io/audio/salamander/A4.mp3',
-          C5: 'https://tonejs.github.io/audio/salamander/C5.mp3',
-          'D#5': 'https://tonejs.github.io/audio/salamander/Ds5.mp3',
-          'F#5': 'https://tonejs.github.io/audio/salamander/Fs5.mp3',
-          A5: 'https://tonejs.github.io/audio/salamander/A5.mp3',
-        },
-        release: 1,
-      });
+    const sampler = new Tone.Sampler({
+      urls: {
+        C4: 'https://tonejs.github.io/audio/salamander/C4.mp3',
+        'D#4': 'https://tonejs.github.io/audio/salamander/Ds4.mp3',
+        'F#4': 'https://tonejs.github.io/audio/salamander/Fs4.mp3',
+        A4: 'https://tonejs.github.io/audio/salamander/A4.mp3',
+        C5: 'https://tonejs.github.io/audio/salamander/C5.mp3',
+        'D#5': 'https://tonejs.github.io/audio/salamander/Ds5.mp3',
+        'F#5': 'https://tonejs.github.io/audio/salamander/Fs5.mp3',
+        A5: 'https://tonejs.github.io/audio/salamander/A5.mp3',
+      },
+      release: 1,
+    });
 
-      const reverb = new window.Tone.Reverb({ decay: 2.5, wet: reverbMix }).toDestination();
-      const delay = new window.Tone.FeedbackDelay({ delayTime: '8n', feedback: 0.4, wet: delayMix });
-      const filter = new window.Tone.Filter({ frequency: filterFreq, type: 'lowpass', rolloff: -24 });
-      const distortionEffect = new window.Tone.Distortion({ distortion, wet: distortion > 0 ? 0.5 : 0 });
+    const reverb = new Tone.Reverb({ decay: 2.5, wet: reverbMix }).toDestination();
+    const delay = new Tone.FeedbackDelay({ delayTime: '8n', feedback: 0.4, wet: delayMix });
+    const filter = new Tone.Filter({ frequency: filterFreq, type: 'lowpass', rolloff: -24 });
+    const distortionEffect = new Tone.Distortion({ distortion, wet: distortion > 0 ? 0.5 : 0 });
 
-      sampler.connect(distortionEffect);
-      distortionEffect.connect(filter);
-      filter.connect(delay);
-      delay.connect(reverb);
+    sampler.connect(distortionEffect);
+    distortionEffect.connect(filter);
+    filter.connect(delay);
+    delay.connect(reverb);
 
-      samplerRef.current = sampler;
-      effectsRef.current = { reverb, delay, filter, distortionEffect };
-    };
+    samplerRef.current = sampler;
+    effectsRef.current = { reverb, delay, filter, distortionEffect };
 
-    document.body.appendChild(script);
     return () => {
       samplerRef.current?.dispose();
       Object.values(effectsRef.current).forEach((e) => e?.dispose?.());
-      if (script.parentNode) document.body.removeChild(script);
     };
   }, []);
 
   const playNote = async (index, velocity = 0.8, release = true) => {
-    if (!samplerRef.current || !Tone) return;
+    if (!samplerRef.current) return;
 
     try {
       await Tone.start();
@@ -186,7 +179,7 @@ const AbstractPiano = ({ isExpanded }) => {
   };
 
   const playRecording = () => {
-    if (!recordedNotes.length || !samplerRef.current || !Tone) return;
+    if (!recordedNotes.length || !samplerRef.current) return;
     setIsPlaying(true);
     const startTime = Tone.now();
     const firstNoteTime = recordedNotes[0].time;
@@ -316,22 +309,17 @@ const GeometricVisualizer = () => {
   const mountRef = useRef(null);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-    script.async = true;
+    const mountElement = mountRef.current;
+    if (!mountElement) return;
 
-    script.onload = () => {
-      if (!mountRef.current) return;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
 
-      const THREE = window.THREE;
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.z = 5;
-
-      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      mountRef.current.appendChild(renderer.domElement);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    mountElement.appendChild(renderer.domElement);
 
       const coreMesh = new THREE.Mesh(
         new THREE.IcosahedronGeometry(1.2, 1),
@@ -370,10 +358,11 @@ const GeometricVisualizer = () => {
       );
       scene.add(particlesMesh);
 
-      let time = 0;
-      const animate = () => {
-        requestAnimationFrame(animate);
-        time += 0.01;
+    let animationFrameId;
+    let time = 0;
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+      time += 0.01;
 
         coreMesh.rotation.x += 0.005;
         coreMesh.rotation.y += 0.008;
@@ -402,30 +391,32 @@ const GeometricVisualizer = () => {
         camera.position.y = Math.cos(time * 0.2) * 0.3;
         camera.lookAt(0, 0, 0);
 
-        renderer.render(scene, camera);
-      };
-
-      animate();
-
-      const handleResize = () => {
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-      };
-
-      window.addEventListener('resize', handleResize);
-
-      return () => {
-        window.removeEventListener('resize', handleResize);
-        if (mountRef.current && renderer.domElement.parentNode) {
-          mountRef.current.removeChild(renderer.domElement);
-        }
-      };
+      renderer.render(scene, camera);
     };
 
-    document.body.appendChild(script);
+    animate();
+
+    const handleResize = () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    };
+
+    window.addEventListener('resize', handleResize);
+
     return () => {
-      if (script.parentNode) document.body.removeChild(script);
+      window.removeEventListener('resize', handleResize);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      particlesGeo.dispose();
+      particlesMesh.material.dispose();
+      coreMesh.geometry.dispose();
+      coreMesh.material.dispose();
+      outerMesh.geometry.dispose();
+      outerMesh.material.dispose();
+      renderer.dispose();
+      if (renderer.domElement.parentNode) {
+        mountElement.removeChild(renderer.domElement);
+      }
     };
   }, []);
 

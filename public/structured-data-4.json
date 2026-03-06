@@ -1,0 +1,47 @@
+    {
+      "@context": "https://schema.org",
+      "@type": "MusicRecording",
+      "name": "Fractals by Suhas",
+      "byArtist": {
+        "@type": "Person",
+        "@id": "https://suhasmusic.com/#artist"
+      },
+      "potentialAction": [
+        {
+          "@type": "ListenAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K",
+            "actionPlatform": [
+              "http://schema.org/DesktopWebPlatform",
+              "http://schema.org/MobileWebPlatform"
+            ]
+          },
+          "name": "Listen on Spotify"
+        },
+        {
+          "@type": "ListenAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://music.apple.com/us/artist/suhas/1768715441",
+            "actionPlatform": [
+              "http://schema.org/DesktopWebPlatform",
+              "http://schema.org/MobileWebPlatform"
+            ]
+          },
+          "name": "Listen on Apple Music"
+        },
+        {
+          "@type": "ListenAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://www.youtube.com/@Suhasmusicofficial",
+            "actionPlatform": [
+              "http://schema.org/DesktopWebPlatform",
+              "http://schema.org/MobileWebPlatform"
+            ]
+          },
+          "name": "Listen on YouTube"
+        }
+      ]
+    }

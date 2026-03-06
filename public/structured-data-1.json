@@ -1,0 +1,31 @@
+    {
+      "@context": "https://schema.org",
+      "@type": "MusicAlbum",
+      "@id": "https://suhasmusic.com/#fractals",
+      "name": "Fractals",
+      "description": "An exploration of polyrhythms and melodic improvisation. Suhas channels live interaction and rhythmic nuance into a modern jazz fusion sound.",
+      "url": "https://suhasmusic.com/#music",
+      "image": "https://suhasmusic.com/images/album-art.PNG",
+      "genre": ["Progressive Jazz Fusion", "Jazz Fusion", "Modern Jazz"],
+      "numTracks": 1,
+      "albumProductionType": "https://schema.org/StudioAlbum",
+      "albumReleaseType": "https://schema.org/SingleRelease",
+      "byArtist": {
+        "@type": "Person",
+        "@id": "https://suhasmusic.com/#artist"
+      },
+      "track": {
+        "@type": "MusicRecording",
+        "name": "Fractals",
+        "duration": "PT5M",
+        "url": "https://suhasmusic.com/#music",
+        "byArtist": {
+          "@type": "Person",
+          "@id": "https://suhasmusic.com/#artist"
+        },
+        "inAlbum": {
+          "@type": "MusicAlbum",
+          "@id": "https://suhasmusic.com/#fractals"
+        }
+      }
+    }

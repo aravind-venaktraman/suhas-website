@@ -78,39 +78,7 @@
       Added @id for entity linking, knowsAbout for topic authority,
       and performerIn for event discoverability.
     -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "@id": "https://suhasmusic.com/#artist",
-      "name": "Suhas",
-      "alternateName": ["SUHAS", "Suhas Music"],
-      "url": "https://suhasmusic.com",
-      "description": "Progressive jazz fusion pianist and composer. Creator of Fractals — an exploration of polyrhythms, melodic improvisation, and modern jazz.",
-      "image": {
-        "@type": "ImageObject",
-        "url": "https://suhasmusic.com/images/album-art.PNG",
-        "width": 1200,
-        "height": 1200
-      },
-      "jobTitle": "Pianist and Composer",
-      "knowsAbout": [
-        "Jazz Fusion",
-        "Progressive Jazz",
-        "Piano Improvisation",
-        "Music Composition",
-        "Polyrhythms",
-        "Modern Jazz"
-      ],
-      "genre": ["Progressive Jazz Fusion", "Jazz Fusion", "Modern Jazz", "Contemporary Jazz"],
-      "sameAs": [
-        "https://www.youtube.com/@Suhasmusicofficial",
-        "https://www.instagram.com/suhas.als",
-        "https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K",
-        "https://music.apple.com/us/artist/suhas/1768715441"
-      ]
-    }
-    </script>
+    <script type="application/ld+json" src="/structured-data.json" crossorigin="anonymous"></script>
 
     <!-- ─── Structured Data — MusicAlbum + MusicRecording (fixed) ── -->
     <!--
@@ -121,147 +89,20 @@
       - Fixed datePublished format
       - Added streaming URLs as potentialAction
     -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "MusicAlbum",
-      "@id": "https://suhasmusic.com/#fractals",
-      "name": "Fractals",
-      "description": "An exploration of polyrhythms and melodic improvisation. Suhas channels live interaction and rhythmic nuance into a modern jazz fusion sound.",
-      "url": "https://suhasmusic.com/#music",
-      "image": "https://suhasmusic.com/images/album-art.PNG",
-      "genre": ["Progressive Jazz Fusion", "Jazz Fusion", "Modern Jazz"],
-      "numTracks": 1,
-      "albumProductionType": "https://schema.org/StudioAlbum",
-      "albumReleaseType": "https://schema.org/SingleRelease",
-      "byArtist": {
-        "@type": "Person",
-        "@id": "https://suhasmusic.com/#artist"
-      },
-      "track": {
-        "@type": "MusicRecording",
-        "name": "Fractals",
-        "duration": "PT5M",
-        "url": "https://suhasmusic.com/#music",
-        "byArtist": {
-          "@type": "Person",
-          "@id": "https://suhasmusic.com/#artist"
-        },
-        "inAlbum": {
-          "@type": "MusicAlbum",
-          "@id": "https://suhasmusic.com/#fractals"
-        }
-      }
-    }
-    </script>
+    <script type="application/ld+json" src="/structured-data-1.json" crossorigin="anonymous"></script>
 
     <!-- ─── Structured Data — WebSite with SearchAction ─── -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Suhas Music",
-      "alternateName": "Suhas — Progressive Jazz Fusion",
-      "url": "https://suhasmusic.com",
-      "description": "Official website for Suhas — progressive jazz fusion pianist and composer. Stream Fractals on Spotify, Apple Music & YouTube.",
-      "publisher": {
-        "@type": "Person",
-        "@id": "https://suhasmusic.com/#artist"
-      }
-    }
-    </script>
+    <script type="application/ld+json" src="/structured-data-2.json" crossorigin="anonymous"></script>
 
     <!-- ─── Structured Data — BreadcrumbList (helps Google understand site structure) ── -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://suhasmusic.com"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Music",
-          "item": "https://suhasmusic.com/#music"
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": "About",
-          "item": "https://suhasmusic.com/#about"
-        }
-      ]
-    }
-    </script>
+    <script type="application/ld+json" src="/structured-data-3.json" crossorigin="anonymous"></script>
 
     <!-- ─── Structured Data — ListenAction for Streaming ─── -->
     <!--
       NEW: This tells Google to show "Listen on Spotify / Apple Music" links
       directly in search results (rich snippet)
     -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "MusicRecording",
-      "name": "Fractals by Suhas",
-      "byArtist": {
-        "@type": "Person",
-        "@id": "https://suhasmusic.com/#artist"
-      },
-      "potentialAction": [
-        {
-          "@type": "ListenAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K",
-            "actionPlatform": [
-              "http://schema.org/DesktopWebPlatform",
-              "http://schema.org/MobileWebPlatform"
-            ]
-          },
-          "name": "Listen on Spotify"
-        },
-        {
-          "@type": "ListenAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://music.apple.com/us/artist/suhas/1768715441",
-            "actionPlatform": [
-              "http://schema.org/DesktopWebPlatform",
-              "http://schema.org/MobileWebPlatform"
-            ]
-          },
-          "name": "Listen on Apple Music"
-        },
-        {
-          "@type": "ListenAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://www.youtube.com/@Suhasmusicofficial",
-            "actionPlatform": [
-              "http://schema.org/DesktopWebPlatform",
-              "http://schema.org/MobileWebPlatform"
-            ]
-          },
-          "name": "Listen on YouTube"
-        }
-      ]
-    }
-    </script>
-
-    <!-- ─── Google Analytics ────────────────────────────── -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DVESW6VFSJ"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-DVESW6VFSJ');
-    </script>
+    <script type="application/ld+json" src="/structured-data-4.json" crossorigin="anonymous"></script>
 
     <!-- ─── Preconnects (speed) ──────────────────────────── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -270,7 +111,6 @@
     <link rel="preconnect" href="https://open.spotify.com" />
     <link rel="preconnect" href="https://music.apple.com" />
     <link rel="preconnect" href="https://www.youtube.com" />
-    <link rel="preconnect" href="https://www.googletagmanager.com" />
 
     <!-- ─── DNS Prefetch (secondary domains) ─────────────── -->
     <link rel="dns-prefetch" href="https://www.instagram.com" />

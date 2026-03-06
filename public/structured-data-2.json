@@ -1,0 +1,12 @@
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Suhas Music",
+      "alternateName": "Suhas — Progressive Jazz Fusion",
+      "url": "https://suhasmusic.com",
+      "description": "Official website for Suhas — progressive jazz fusion pianist and composer. Stream Fractals on Spotify, Apple Music & YouTube.",
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://suhasmusic.com/#artist"
+      }
+    }
