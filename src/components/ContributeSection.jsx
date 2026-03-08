@@ -118,7 +118,7 @@ export default function ContributeSection({
           className="w-full h-full object-cover"
           style={{ opacity: 0.2 }}
         >
-          <source src="/images/Shards_Video_Loop.mp4" type="video/mp4" />
+          <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
         </video>
         {/* Gradient overlays for depth and readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/85 to-black" />

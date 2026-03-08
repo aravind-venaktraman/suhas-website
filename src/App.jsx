@@ -665,7 +665,7 @@ const SuhasWebsite = () => {
                     className="w-full h-full object-cover fixed top-0 left-0"
                     style={{ opacity: 0.85 }}
                   >
-                    <source src="/images/Shards_Video_Loop.mp4" type="video/mp4" />
+                    <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
                   </video>
                   <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/70" />
                 </div>

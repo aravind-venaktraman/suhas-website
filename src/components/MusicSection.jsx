@@ -193,7 +193,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
             className="w-full h-full object-cover"
             style={{ opacity: 0.4 }}
           >
-            <source src="/images/Shards_Video_Loop.mp4" type="video/mp4" />
+            <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
           </video>
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
         </div>
