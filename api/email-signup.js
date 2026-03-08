@@ -1,5 +1,4 @@
-import { mkdir, appendFile } from "node:fs/promises";
-import path from "node:path";
+import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -18,13 +17,24 @@ export default async function handler(req, res) {
 
   const safeSource = String(source).replaceAll(",", "-");
   const timestamp = new Date().toISOString();
-  const logLine = `${timestamp},${normalizedEmail},${safeSource}\n`;
 
   try {
-    const dir = path.join(process.cwd(), ".tmp");
-    await mkdir(dir, { recursive: true });
-    await appendFile(path.join(dir, "email-signups.csv"), logLine, "utf8");
+    // ── Supabase insert ──────────────────────────────────────────
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
 
+    const { error: dbError } = await supabase
+      .from("email_signups")
+      .insert({ email: normalizedEmail, source: safeSource });
+
+    if (dbError && dbError.code !== "23505") {
+      // 23505 = unique_violation (duplicate email) — treat as success
+      throw new Error(dbError.message);
+    }
+
+    // ── Optional Resend notification ─────────────────────────────
     if (process.env.RESEND_API_KEY && process.env.EMAIL_COLLECTION_TO) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
