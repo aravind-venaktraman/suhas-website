@@ -26,8 +26,33 @@ const InstagramIcon = () => (
   </svg>
 );
 
+const TikTokIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.17 8.17 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
+  </svg>
+);
+
+const GlobeIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-5 h-5">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+  </svg>
+);
+
 // ── Link data ─────────────────────────────────────────────────────────────────
 const LINK_GROUPS = [
+  {
+    label: 'Website',
+    links: [
+      {
+        title: 'suhasmusic.com',
+        subtitle: 'Official website',
+        href: 'https://suhasmusic.com',
+        icon: <GlobeIcon />,
+        accent: '#06b6d4',
+      },
+    ],
+  },
   {
     label: 'Latest Release — Fractals',
     links: [
@@ -51,18 +76,25 @@ const LINK_GROUPS = [
     label: 'Follow',
     links: [
       {
-        title: 'YouTube',
-        subtitle: '@Suhasmusicofficial',
-        href: 'https://www.youtube.com/@Suhasmusicofficial',
-        icon: <YoutubeIcon />,
-        accent: '#FF0000',
-      },
-      {
         title: 'Instagram',
         subtitle: '@suhas.als',
         href: 'https://www.instagram.com/suhas.als?igsh=MTVjaTR2a2YwaDFhOQ%3D%3D&utm_source=qr',
         icon: <InstagramIcon />,
         accent: '#E1306C',
+      },
+      {
+        title: 'TikTok',
+        subtitle: '@suhasmusic',
+        href: 'https://www.tiktok.com/@suhasmusic',
+        icon: <TikTokIcon />,
+        accent: '#ffffff',
+      },
+      {
+        title: 'YouTube',
+        subtitle: '@Suhasmusicofficial',
+        href: 'https://www.youtube.com/@Suhasmusicofficial',
+        icon: <YoutubeIcon />,
+        accent: '#FF0000',
       },
     ],
   },
