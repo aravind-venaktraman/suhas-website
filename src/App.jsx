@@ -696,7 +696,7 @@ const SuhasWebsite = () => {
                     }}
                     style={{ '--mouse-x': '50%', '--mouse-y': '50%' }}
                   >
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-indigo-500 animate-gradient-x gradient-mouse">
+                    <span className="liquid-glass-text animate-gradient-x gradient-mouse" data-text="FRACTALS">
                       FRACTALS
                     </span>
                   </h1>
@@ -1142,8 +1142,45 @@ const SuhasWebsite = () => {
               padding: 0 0.25em;
               display: inline-block;
               transition: background-position 0.3s ease;
+              position: relative;
             }
             .gradient-mouse:hover { animation: none; }
+            .liquid-glass-text {
+              mix-blend-mode: screen;
+              filter: saturate(1.2) contrast(1.15);
+              text-shadow:
+                0 0 24px rgba(103, 232, 249, 0.25),
+                0 0 60px rgba(129, 140, 248, 0.2);
+              -webkit-text-stroke: 1px rgba(255, 255, 255, 0.35);
+            }
+            .liquid-glass-text::before {
+              content: attr(data-text);
+              position: absolute;
+              inset: 0;
+              background: linear-gradient(120deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.15) 35%, rgba(34,211,238,0.1) 60%, rgba(255,255,255,0.65) 100%);
+              background-size: 200% 100%;
+              -webkit-background-clip: text;
+              background-clip: text;
+              color: transparent;
+              -webkit-text-fill-color: transparent;
+              mix-blend-mode: plus-lighter;
+              opacity: 0.65;
+              animation: liquid-sheen 5s linear infinite;
+              pointer-events: none;
+            }
+            .liquid-glass-text::after {
+              content: attr(data-text);
+              position: absolute;
+              inset: 0;
+              color: rgba(255,255,255,0.3);
+              filter: blur(6px);
+              mix-blend-mode: soft-light;
+              pointer-events: none;
+            }
+            @keyframes liquid-sheen {
+              0% { background-position: 0% 50%; }
+              100% { background-position: 200% 50%; }
+            }
             @keyframes gradient-shift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
             @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
             .animate-spin-slow { animation: spin-slow 20s linear infinite; }
