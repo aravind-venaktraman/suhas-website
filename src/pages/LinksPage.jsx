@@ -103,69 +103,106 @@ export default function LinksPage() {
   return (
     <div
       style={{ fontFamily: "'Michroma', sans-serif", background: '#09090b', minHeight: '100dvh' }}
-      className="flex flex-col items-center px-4 py-12 text-white"
+      className="relative flex flex-col items-center px-4 py-12 text-white overflow-hidden"
     >
-      {/* Avatar + name */}
-      <div className="flex flex-col items-center gap-4 mb-10">
-        <img
-          src="/images/suhas.png"
-          alt="Suhas"
-          className="w-24 h-24 rounded-full object-cover border-2 border-zinc-700 shadow-lg"
-          style={{ boxShadow: '0 0 24px rgba(6,182,212,0.18)' }}
+      {/* ── Shards video background (rotated for portrait) ── */}
+      <div className="fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            /* swap dimensions so landscape video fills portrait screen */
+            width: '100vh',
+            height: '100vw',
+            transform: 'translate(-50%, -50%) rotate(90deg)',
+            objectFit: 'cover',
+            opacity: 0.35,
+          }}
+        >
+          <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
+        </video>
+        {/* dark gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, rgba(9,9,11,0.55) 0%, rgba(9,9,11,0.3) 50%, rgba(9,9,11,0.7) 100%)' }}
         />
-        <div className="text-center">
-          <h1 className="text-2xl tracking-widest text-white" style={{ fontFamily: "'Michroma', sans-serif" }}>
-            SUHAS
-          </h1>
-          <p className="text-zinc-400 text-xs tracking-widest mt-1 uppercase">Music · Artist</p>
-        </div>
       </div>
 
-      {/* Link groups */}
-      <div className="w-full max-w-sm flex flex-col gap-8">
-        {LINK_GROUPS.map((group) => (
-          <div key={group.label} className="flex flex-col gap-2">
-            <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase px-1 mb-1">
-              {group.label}
-            </p>
-            {group.links.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-4 transition-all duration-200 hover:border-zinc-600 hover:bg-zinc-800/80 active:scale-[0.98]"
-                style={{ backdropFilter: 'blur(8px)' }}
-              >
-                {/* Icon bubble */}
-                <span
-                  className="flex items-center justify-center w-10 h-10 rounded-lg shrink-0 transition-colors duration-200"
-                  style={{ background: `${link.accent}18`, color: link.accent }}
-                >
-                  {link.icon}
-                </span>
-
-                {/* Text */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white tracking-wide truncate">{link.title}</p>
-                  <p className="text-xs text-zinc-500 tracking-wide truncate mt-0.5">{link.subtitle}</p>
-                </div>
-
-                {/* Arrow */}
-                <ExternalLink className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors shrink-0" />
-              </a>
-            ))}
+      {/* ── Content (above video) ── */}
+      <div className="relative flex flex-col items-center w-full" style={{ zIndex: 1 }}>
+        {/* Avatar + name */}
+        <div className="flex flex-col items-center gap-4 mb-10">
+          <img
+            src="/images/suhas.png"
+            alt="Suhas"
+            className="w-24 h-24 rounded-full object-cover border-2 border-white/20 shadow-lg"
+            style={{ boxShadow: '0 0 32px rgba(6,182,212,0.25)' }}
+          />
+          <div className="text-center">
+            <h1 className="text-2xl tracking-widest text-white" style={{ fontFamily: "'Michroma', sans-serif" }}>
+              SUHAS
+            </h1>
+            <p className="text-white/50 text-xs tracking-widest mt-1 uppercase">Music · Artist</p>
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Footer */}
-      <a
-        href="/"
-        className="mt-14 text-[10px] tracking-[0.2em] text-zinc-600 hover:text-zinc-400 transition-colors uppercase"
-      >
-        suhasmusic.com
-      </a>
+        {/* Link groups */}
+        <div className="w-full max-w-sm flex flex-col gap-8">
+          {LINK_GROUPS.map((group) => (
+            <div key={group.label} className="flex flex-col gap-2">
+              <p className="text-white/30 text-[10px] tracking-[0.2em] uppercase px-1 mb-1">
+                {group.label}
+              </p>
+              {group.links.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-4 rounded-xl px-4 py-4 transition-all duration-200 active:scale-[0.98]"
+                  style={{
+                    backdropFilter: 'blur(12px)',
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.border = '1px solid rgba(255,255,255,0.2)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)'; }}
+                >
+                  {/* Icon bubble */}
+                  <span
+                    className="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
+                    style={{ background: `${link.accent}22`, color: link.accent }}
+                  >
+                    {link.icon}
+                  </span>
+
+                  {/* Text */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white tracking-wide truncate">{link.title}</p>
+                    <p className="text-xs text-white/40 tracking-wide truncate mt-0.5">{link.subtitle}</p>
+                  </div>
+
+                  {/* Arrow */}
+                  <ExternalLink className="w-4 h-4 text-white/30 group-hover:text-white/60 transition-colors shrink-0" />
+                </a>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <a
+          href="/"
+          className="mt-14 text-[10px] tracking-[0.2em] text-zinc-500 hover:text-zinc-300 transition-colors uppercase"
+        >
+          suhasmusic.com
+        </a>
+      </div>
     </div>
   );
 }
