@@ -84,8 +84,8 @@ const LINK_GROUPS = [
       },
       {
         title: 'TikTok',
-        subtitle: '@suhasmusic',
-        href: 'https://www.tiktok.com/@suhasmusic',
+        subtitle: '@suhasmusicofficial',
+        href: 'https://www.tiktok.com/@suhasmusicofficial',
         icon: <TikTokIcon />,
         accent: '#ffffff',
       },
@@ -135,10 +135,10 @@ export default function LinksPage() {
   return (
     <div
       style={{ fontFamily: "'Michroma', sans-serif", background: '#09090b', minHeight: '100dvh' }}
-      className="relative flex flex-col items-center px-4 py-12 text-white overflow-hidden"
+      className="relative flex flex-col items-center px-4 py-12 text-white overflow-x-hidden"
     >
       {/* ── Shards video background (rotated for portrait) ── */}
-      <div className="fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
+      <div className="fixed inset-0" style={{ zIndex: 0, overflow: 'hidden' }}>
         <video
           autoPlay
           loop
@@ -148,12 +148,12 @@ export default function LinksPage() {
             position: 'absolute',
             top: '50%',
             left: '50%',
-            /* swap dimensions so landscape video fills portrait screen */
-            width: '100vh',
-            height: '100vw',
-            transform: 'translate(-50%, -50%) rotate(90deg)',
+            /* rotate landscape video to fill portrait — scale(1.4) ensures no gaps on any mobile size */
+            width: '100dvh',
+            height: '100dvw',
+            transform: 'translate(-50%, -50%) rotate(90deg) scale(1.4)',
             objectFit: 'cover',
-            opacity: 0.35,
+            opacity: 0.4,
           }}
         >
           <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
@@ -161,7 +161,7 @@ export default function LinksPage() {
         {/* dark gradient overlay */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(9,9,11,0.55) 0%, rgba(9,9,11,0.3) 50%, rgba(9,9,11,0.7) 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, rgba(9,9,11,0.5) 0%, rgba(9,9,11,0.25) 50%, rgba(9,9,11,0.65) 100%)' }}
         />
       </div>
 
