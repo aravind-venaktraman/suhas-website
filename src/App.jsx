@@ -572,12 +572,14 @@ const SuhasWebsite = () => {
 
           {/* Navigation */}
           <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-black/80 backdrop-blur-md py-4' : 'bg-transparent py-6'}`}>
-            <div className="container mx-auto px-6 flex justify-between items-center">
+            <div className="container mx-auto px-6 flex items-center relative">
+              {/* Left: Logo */}
               <a href="#" className="z-50 relative flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-16 md:h-20 w-auto" />
               </a>
 
-              <div className="hidden md:flex items-center space-x-10">
+              {/* Center: Nav links (absolutely centered in the bar) */}
+              <div className="hidden md:flex items-center space-x-10 absolute left-1/2 -translate-x-1/2">
                 {navLinks.map((link) => (
                   <a
                     key={link.name}
@@ -594,19 +596,23 @@ const SuhasWebsite = () => {
                     />
                   </a>
                 ))}
+              </div>
+
+              {/* Right: Fundraiser button + mobile menu */}
+              <div className="ml-auto flex items-center gap-3">
                 <span
-                  className="ml-2 px-5 py-2.5 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-[11px] font-bold uppercase tracking-[0.15em] cursor-not-allowed select-none"
+                  className="hidden md:inline-flex px-5 py-2.5 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-[11px] font-bold uppercase tracking-[0.15em] cursor-not-allowed select-none"
                   style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                   title="Fundraiser launching soon"
                 >
                   Fundraiser Coming Soon
                 </span>
-              </div>
 
-              <div className="md:hidden flex items-center gap-3 z-50 relative">
-                <button onClick={() => setIsMenuOpen(true)} className="text-white hover:text-cyan-400">
-                  <Menu size={28} />
-                </button>
+                <div className="md:hidden flex items-center gap-3 z-50 relative">
+                  <button onClick={() => setIsMenuOpen(true)} className="text-white hover:text-cyan-400">
+                    <Menu size={28} />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -671,16 +677,11 @@ const SuhasWebsite = () => {
 
             <div className={`relative z-10 max-w-6xl mx-auto px-4 md:px-8 space-y-8 flex flex-col items-center transition-all duration-1000 ${showVisualizer ? 'justify-end h-full pb-8 md:pb-12 pt-20 md:pt-32' : 'justify-center pt-0'}`}>
               <div className={`transition-all duration-700 flex flex-col items-center gap-4 md:gap-8 ${showVisualizer ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
-                <RevealOnScroll>
-                  <div className="flex flex-col items-center gap-4">
+                <RevealOnScroll delay={100}>
+                  <div className="flex flex-col items-center gap-1 md:gap-2">
                     <h2 className="text-cyan-400 tracking-[0.3em] text-xs md:text-base font-bold uppercase shadow-black drop-shadow-lg whitespace-nowrap">
                       Coming Soon — April 2026
                     </h2>
-                  </div>
-                </RevealOnScroll>
-
-                <RevealOnScroll delay={100}>
-                  <div>
                     <img
                       src="/images/Fractals_Liquid_Glass.png"
                       alt="FRACTALS"
