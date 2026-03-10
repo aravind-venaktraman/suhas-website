@@ -688,15 +688,9 @@ const SuhasWebsite = () => {
 
                 <RevealOnScroll delay={100}>
                   <h1
-                    className="text-[clamp(1.8rem,11vw,3.75rem)] md:text-8xl lg:text-9xl font-black tracking-tighter leading-none drop-shadow-2xl"
-                    onMouseMove={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      e.currentTarget.style.setProperty('--mouse-x', `${((e.clientX - rect.left) / rect.width) * 100}%`);
-                      e.currentTarget.style.setProperty('--mouse-y', `${((e.clientY - rect.top) / rect.height) * 100}%`);
-                    }}
-                    style={{ '--mouse-x': '50%', '--mouse-y': '50%' }}
+                    className="text-[clamp(1.8rem,11vw,3.75rem)] md:text-8xl lg:text-9xl font-black tracking-tighter leading-none"
                   >
-                    <span className="liquid-glass-text animate-gradient-x gradient-mouse" data-text="FRACTALS">
+                    <span className="liquid-glass-text">
                       FRACTALS
                     </span>
                   </h1>
@@ -1146,40 +1140,11 @@ const SuhasWebsite = () => {
             }
             .gradient-mouse:hover { animation: none; }
             .liquid-glass-text {
-              mix-blend-mode: screen;
-              filter: saturate(1.2) contrast(1.15);
+              color: rgba(255, 255, 255, 0.07);
+              -webkit-text-stroke: 1px rgba(255, 255, 255, 0.42);
               text-shadow:
-                0 0 24px rgba(103, 232, 249, 0.25),
-                0 0 60px rgba(129, 140, 248, 0.2);
-              -webkit-text-stroke: 1px rgba(255, 255, 255, 0.35);
-            }
-            .liquid-glass-text::before {
-              content: attr(data-text);
-              position: absolute;
-              inset: 0;
-              background: linear-gradient(120deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.15) 35%, rgba(34,211,238,0.1) 60%, rgba(255,255,255,0.65) 100%);
-              background-size: 200% 100%;
-              -webkit-background-clip: text;
-              background-clip: text;
-              color: transparent;
-              -webkit-text-fill-color: transparent;
-              mix-blend-mode: plus-lighter;
-              opacity: 0.65;
-              animation: liquid-sheen 5s linear infinite;
-              pointer-events: none;
-            }
-            .liquid-glass-text::after {
-              content: attr(data-text);
-              position: absolute;
-              inset: 0;
-              color: rgba(255,255,255,0.3);
-              filter: blur(6px);
-              mix-blend-mode: soft-light;
-              pointer-events: none;
-            }
-            @keyframes liquid-sheen {
-              0% { background-position: 0% 50%; }
-              100% { background-position: 200% 50%; }
+                0 2px 12px rgba(200, 180, 255, 0.12),
+                0 0 40px rgba(180, 140, 255, 0.08);
             }
             @keyframes gradient-shift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
             @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

@@ -137,7 +137,7 @@ export default function LinksPage() {
       style={{ fontFamily: "'Michroma', sans-serif", background: '#09090b', minHeight: '100dvh' }}
       className="relative flex flex-col items-center px-4 py-12 text-white overflow-x-hidden"
     >
-      {/* ── Shards video background (rotated for portrait) ── */}
+      {/* ── Shards video background ── */}
       <div className="fixed inset-0" style={{ zIndex: 0, overflow: 'hidden' }}>
         <video
           autoPlay
@@ -146,12 +146,10 @@ export default function LinksPage() {
           playsInline
           style={{
             position: 'absolute',
-            top: '50%',
-            left: '50%',
-            /* rotate landscape video to fill portrait — scale(1.4) ensures no gaps on any mobile size */
-            width: '100dvh',
-            height: '100dvw',
-            transform: 'translate(-50%, -50%) rotate(90deg) scale(1.4)',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
             objectFit: 'cover',
             opacity: 0.4,
           }}
