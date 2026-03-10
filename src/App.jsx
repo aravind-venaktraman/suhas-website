@@ -604,13 +604,6 @@ const SuhasWebsite = () => {
               </div>
 
               <div className="md:hidden flex items-center gap-3 z-50 relative">
-                <span
-                  className="px-3 py-2 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-[8px] font-bold uppercase tracking-[0.08em] cursor-not-allowed select-none whitespace-nowrap"
-                  style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
-                  title="Fundraiser launching soon"
-                >
-                  Fundraiser Coming Soon
-                </span>
                 <button onClick={() => setIsMenuOpen(true)} className="text-white hover:text-cyan-400">
                   <Menu size={28} />
                 </button>
@@ -700,7 +693,7 @@ const SuhasWebsite = () => {
                 </RevealOnScroll>
               </div>
 
-              <RevealOnScroll delay={200}>
+              <RevealOnScroll delay={200} className="w-full">
                 <div className={`flex flex-col gap-6 md:gap-8 justify-center items-center w-full ${showVisualizer ? 'max-w-full' : ''}`}>
                   <AbstractPiano isExpanded={showVisualizer} />
                   <div className="flex flex-col gap-4 items-center w-full">
@@ -721,7 +714,8 @@ const SuhasWebsite = () => {
                       </div>
 
                       {/* Hero email subscribe */}
-                      <div className="mt-2 w-full max-w-sm mx-auto">
+                      <div className="mt-2 w-full flex justify-center">
+                      <div className="w-full max-w-xs">
                         {heroEmailSubmitted ? (
                           <p className="text-center text-cyan-400 text-sm font-semibold tracking-wide py-3 animate-in fade-in duration-500">
                             ✓ You're in — we'll be in touch!
@@ -736,7 +730,7 @@ const SuhasWebsite = () => {
                               setError: setHeroEmailError,
                               setSubmitting: setHeroSubmitting,
                             })}
-                            className="flex flex-col sm:flex-row gap-2"
+                            className="flex flex-col gap-2"
                           >
                             <input
                               type="email"
@@ -745,12 +739,12 @@ const SuhasWebsite = () => {
                               placeholder="your@email.com"
                               required
                               disabled={heroSubmitting}
-                              className="flex-1 px-4 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-cyan-500/60 transition-colors"
+                              className="w-full px-4 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-cyan-500/60 transition-colors"
                             />
                             <button
                               type="submit"
                               disabled={heroSubmitting}
-                              className="px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all whitespace-nowrap"
+                              className="w-full px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all"
                             >
                               {heroSubmitting ? 'Submitting...' : 'Get Early Access'}
                             </button>
@@ -760,6 +754,7 @@ const SuhasWebsite = () => {
                         <p className="text-center text-zinc-600 text-[10px] tracking-widest uppercase mt-2">
                           Early access + 20% off when the merch store opens
                         </p>
+                      </div>
                       </div>
                       </>
                     ) : (

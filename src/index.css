@@ -4,6 +4,12 @@
 
 html {
   font-size: 90%;
+  overscroll-behavior-y: none;
+  scrollbar-gutter: stable both-edges;
+}
+
+body {
+  overscroll-behavior-y: none;
 }
 
 * {
