@@ -687,13 +687,13 @@ const SuhasWebsite = () => {
                 </RevealOnScroll>
 
                 <RevealOnScroll delay={100}>
-                  <h1
-                    className="text-[clamp(1.8rem,11vw,3.75rem)] md:text-8xl lg:text-9xl font-black tracking-tighter leading-none"
-                  >
-                    <span className="liquid-glass-text">
-                      FRACTALS
-                    </span>
-                  </h1>
+                  <div>
+                    <img
+                      src="/images/Fractals_Liquid_Glass.png"
+                      alt="FRACTALS"
+                      className="w-full max-w-[clamp(280px,88vw,720px)] md:max-w-3xl lg:max-w-5xl mx-auto drop-shadow-2xl"
+                    />
+                  </div>
                   <p className="mt-2 md:mt-4 text-zinc-300 text-sm md:text-xl max-w-2xl mx-auto font-light tracking-wide shadow-black drop-shadow-md">
                     A journey into the chaotic symmetry of Jazz.
                   </p>
@@ -1139,13 +1139,6 @@ const SuhasWebsite = () => {
               position: relative;
             }
             .gradient-mouse:hover { animation: none; }
-            .liquid-glass-text {
-              color: rgba(255, 255, 255, 0.07);
-              -webkit-text-stroke: 1px rgba(255, 255, 255, 0.42);
-              text-shadow:
-                0 2px 12px rgba(200, 180, 255, 0.12),
-                0 0 40px rgba(180, 140, 255, 0.08);
-            }
             @keyframes gradient-shift { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
             @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
             .animate-spin-slow { animation: spin-slow 20s linear infinite; }
