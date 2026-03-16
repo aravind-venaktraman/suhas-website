@@ -8,7 +8,6 @@ import {
   Lock,
   ChevronDown,
   Check,
-  Music,
   ExternalLink,
   Play,
   Users,
@@ -16,7 +15,6 @@ import {
   Quote,
   Disc3,
   Mic2,
-  Headphones,
   ArrowRight,
   Sparkles,
   Globe,
@@ -375,11 +373,11 @@ export default function ContributePage({ success = false, cancelled = false }) {
                     <div className="flex gap-2 flex-shrink-0">
                       <a href={spotifyLink} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-900 text-white text-[11px] font-bold hover:bg-zinc-700 transition-colors" style={dm(700)}>
-                        <Play size={12} className="fill-current" /> Spotify
+                        <img src="/images/spotify-icon.svg" alt="Spotify" className="w-3 h-3 rounded-full" /> Spotify
                       </a>
                       <a href={appleMusicLink} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-zinc-200 text-zinc-700 text-[11px] font-bold hover:border-zinc-400 transition-colors" style={dm(700)}>
-                        <Music size={12} /> Apple
+                        <img src="/images/applemusic-icon.svg" alt="Apple Music" className="w-3 h-3 rounded-[2px]" /> Apple
                       </a>
                     </div>
                   </div>

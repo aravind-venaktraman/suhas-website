@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Instagram, Youtube, Music, ArrowRight, ExternalLink, Headphones, ChevronRight } from 'lucide-react';
+import { Menu, X, ArrowRight, ExternalLink, ChevronRight } from 'lucide-react';
+import './App.css';
 
 import RevealOnScroll from './components/RevealOnScroll';
 import MusicSection from './components/MusicSection';
@@ -702,15 +703,13 @@ const SuhasWebsite = () => {
                       <>
                       <div className="flex gap-4 items-center flex-wrap justify-center">
                         <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
-                          <Music size={20} className="text-white" />
+                          <img src="/images/applemusic-icon.svg" alt="Apple Music" className="w-5 h-5 rounded-[3px]" />
                         </a>
                         <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
-                          <Youtube size={20} className="text-white" />
+                          <img src="/images/youtube-icon.svg" alt="YouTube" className="w-5 h-5 rounded-[3px]" />
                         </a>
                         <a href={spotifyLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
-                          <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                          </svg>
+                          <img src="/images/spotify-icon.svg" alt="Spotify" className="w-5 h-5 rounded-full" />
                         </a>
                       </div>
 
@@ -795,23 +794,60 @@ const SuhasWebsite = () => {
           )}
 
           {/* ABOUT */}
-          <section id="about" className="min-h-screen flex items-center relative overflow-hidden bg-black border-t border-zinc-900" style={{ scrollMarginTop: '80px' }}>
-            <div className="w-full grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+          {/* Mobile: scroll-over-image parallax | Desktop: side-by-side */}
+          <section id="about" className="relative bg-black border-t border-zinc-900" style={{ scrollMarginTop: '80px' }}>
+
+            {/* ── MOBILE layout (scroll over sticky image) ── */}
+            <div className="lg:hidden relative">
+              <div className="sticky top-0 h-screen w-full overflow-hidden z-0">
+                <img
+                  src="/images/suhas4.jpg"
+                  alt="Suhas"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ filter: 'brightness(0.7)', objectPosition: 'center top' }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+              </div>
+
+              <div className="relative z-10 -mt-[100vh]">
+                <div className="h-[80vh]" />
+                <div className="px-8 md:px-16 pb-32">
+                  <RevealOnScroll delay={0}>
+                    <div className="space-y-6 mb-10">
+                      <h2 className="text-5xl md:text-6xl uppercase tracking-tighter text-white" style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 800 }}>
+                        About
+                      </h2>
+                      <div className="w-16 h-[2px] bg-cyan-500" />
+                    </div>
+                  </RevealOnScroll>
+                  <RevealOnScroll delay={40}>
+                    <div className="space-y-6 text-zinc-200 text-base md:text-lg leading-relaxed max-w-xl backdrop-blur-sm bg-black/30 p-8 rounded-xl">
+                      <p>Suhas is a pianist and composer exploring music that sits at the intersection of progressive jazz and fusion.</p>
+                      <p>He learned to play by ear before he could read, and spent years committing to writing music entirely on his own terms.</p>
+                      <p>His music is open to interpretation. Listeners hear the same track and walk away with completely different experiences. The music is melodic but complex — always leading somewhere you do not expect.</p>
+                    </div>
+                  </RevealOnScroll>
+                </div>
+              </div>
+            </div>
+
+            {/* ── DESKTOP layout (side-by-side, original) ── */}
+            <div className="hidden lg:grid grid-cols-2" style={{ minHeight: '110vh' }}>
               {/* Left: Image */}
               <RevealOnScroll>
-                <div className="relative w-full h-[70vh] lg:h-full lg:min-h-screen overflow-hidden">
+                <div className="relative w-full h-full overflow-hidden" style={{ minHeight: '110vh' }}>
                   <img
                     src="/images/suhas4.jpg"
                     alt="Suhas"
                     className="absolute inset-0 w-full h-full object-cover"
-                    style={{ filter: 'brightness(0.92)', objectPosition: 'center top' }}
+                    style={{ filter: 'brightness(0.92)', objectPosition: 'center 15%' }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/40" />
                 </div>
               </RevealOnScroll>
 
               {/* Right: Text */}
-              <div className="flex flex-col justify-center px-8 md:px-16 lg:px-20 py-20 lg:py-32 relative z-10">
+              <div className="flex flex-col justify-center px-20 py-32 relative z-10">
                 <RevealOnScroll delay={100}>
                   <div className="space-y-6 mb-10">
                     <h2 className="text-5xl md:text-6xl uppercase tracking-tighter" style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 800 }}>
@@ -820,18 +856,11 @@ const SuhasWebsite = () => {
                     <div className="w-16 h-[2px] bg-cyan-500" />
                   </div>
                 </RevealOnScroll>
-
                 <RevealOnScroll delay={200}>
                   <div className="space-y-6 text-zinc-300 text-base md:text-lg leading-relaxed max-w-xl">
-                    <p>
-                      Suhas is a pianist and composer exploring music that sits at the intersection of progressive jazz and fusion.
-                    </p>
-                    <p>
-                      He learned to play by ear before he could read, and spent years committing to writing music entirely on his own terms.
-                    </p>
-                    <p>
-                      His music is open to interpretation. Listeners hear the same track and walk away with completely different experiences. The music is melodic but complex — always leading somewhere you do not expect.
-                    </p>
+                    <p>Suhas is a pianist and composer exploring music that sits at the intersection of progressive jazz and fusion.</p>
+                    <p>He learned to play by ear before he could read, and spent years committing to writing music entirely on his own terms.</p>
+                    <p>His music is open to interpretation. Listeners hear the same track and walk away with completely different experiences. The music is melodic but complex — always leading somewhere you do not expect.</p>
                   </div>
                 </RevealOnScroll>
               </div>
@@ -910,15 +939,17 @@ const SuhasWebsite = () => {
 
           {/* CONNECT */}
           <section id="connect" className="min-h-screen flex items-center py-28 relative z-10 overflow-hidden bg-[#030306] border-t border-zinc-900">
-            {/* suhas6 photo background */}
-            <div className="absolute inset-0 z-0">
-              <img
-                src="/images/suhas6.JPG"
-                alt=""
-                className="absolute inset-0 w-full h-full connect-suhas-img"
-                style={{ opacity: 0.4, objectFit: 'contain', objectPosition: 'right center' }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80 connect-gradient" />
+            {/* suhas6 photo background - sticky so it stays in view while scrolling */}
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <div className="sticky top-0 h-screen w-full pointer-events-none">
+                <img
+                  src="/images/suhas6.jpg"
+                  alt=""
+                  className="absolute inset-0 w-full h-full connect-suhas-img"
+                  style={{ opacity: 0.65 }}
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60 connect-gradient" />
             </div>
             <div className="absolute inset-0 pointer-events-none opacity-15">
               <div className="absolute top-1/4 left-1/4 w-[350px] h-[350px] bg-cyan-500/10 rounded-full blur-[130px]" />
@@ -944,7 +975,7 @@ const SuhasWebsite = () => {
                 {[
                   {
                     href: instagramLink,
-                    icon: <Instagram size={26} />,
+                    icon: <img src="/images/instagram-icon.svg" alt="Instagram" className="w-[26px] h-[26px] rounded-lg" />,
                     name: 'Instagram',
                     handle: '@suhas.als',
                     hoverBorder: 'hover:border-purple-500/50',
@@ -955,7 +986,7 @@ const SuhasWebsite = () => {
                   },
                   {
                     href: youtubeLink,
-                    icon: <Youtube size={26} />,
+                    icon: <img src="/images/youtube-icon.svg" alt="YouTube" className="w-[26px] h-[26px] rounded-md" />,
                     name: 'YouTube',
                     handle: '@suhasmusicofficial',
                     hoverBorder: 'hover:border-red-500/50',
@@ -966,7 +997,7 @@ const SuhasWebsite = () => {
                   },
                   {
                     href: appleMusicLink,
-                    icon: <Headphones size={26} />,
+                    icon: <img src="/images/applemusic-icon.svg" alt="Apple Music" className="w-[26px] h-[26px] rounded-lg" />,
                     name: 'Music',
                     handle: 'Stream now',
                     hoverBorder: 'hover:border-rose-500/50',
@@ -1084,19 +1115,17 @@ const SuhasWebsite = () => {
                   <p className="text-zinc-500 text-xs uppercase tracking-widest">© 2026 Suhas Music. All Rights Reserved.</p>
                 </div>
                 <div className="flex gap-4">
-                  <a href={instagramLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-cyan-400 hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Instagram">
-                    <Instagram size={18} />
+                  <a href={instagramLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Instagram">
+                    <img src="/images/instagram-icon.svg" alt="Instagram" className="w-[18px] h-[18px] rounded-[4px]" />
                   </a>
-                  <a href={youtubeCreatorLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-cyan-400 hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="YouTube">
-                    <Youtube size={18} />
+                  <a href={youtubeCreatorLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="YouTube">
+                    <img src="/images/youtube-icon.svg" alt="YouTube" className="w-[18px] h-[18px] rounded-[3px]" />
                   </a>
-                  <a href={appleMusicArtistLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-cyan-400 hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Apple Music">
-                    <Music size={18} />
+                  <a href={appleMusicArtistLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Apple Music">
+                    <img src="/images/applemusic-icon.svg" alt="Apple Music" className="w-[18px] h-[18px] rounded-[4px]" />
                   </a>
-                  <a href={spotifyArtistLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-cyan-400 hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Spotify">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                    </svg>
+                  <a href={spotifyArtistLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Spotify">
+                    <img src="/images/spotify-icon.svg" alt="Spotify" className="w-4 h-4 rounded-full" />
                   </a>
                 </div>
               </div>

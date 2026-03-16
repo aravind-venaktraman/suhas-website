@@ -2,6 +2,29 @@
   margin: 0 auto;
 }
 
+/* Connect section - suhas6 image */
+/* Mobile: fill the sticky viewport, show right side */
+.connect-suhas-img {
+  object-fit: cover;
+  object-position: right center;
+}
+
+/* Desktop: shrink to right-side accent */
+@media (min-width: 1024px) {
+  .connect-suhas-img {
+    position: absolute !important;
+    inset: auto !important;
+    width: 22% !important;
+    height: 80% !important;
+    right: 2% !important;
+    left: auto !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    object-fit: contain !important;
+    object-position: right center !important;
+  }
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;

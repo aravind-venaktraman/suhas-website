@@ -30,8 +30,8 @@ export default function RevealOnScroll({
   delay = 0,
   className = "",
   cacheKey,
-  threshold = 0.15,
-  rootMargin = "0px 0px -10% 0px",
+  threshold = 0.05,
+  rootMargin = "0px 0px -2% 0px",
   once = true,
 }) {
   const ref = useRef(null);
@@ -77,11 +77,11 @@ export default function RevealOnScroll({
     <div
       ref={ref}
       className={[
-        "transition-all duration-700 ease-out will-change-transform will-change-opacity",
-        shown ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+        "transition-all duration-150 ease-out will-change-transform will-change-opacity",
+        shown ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1",
         className,
       ].join(" ")}
-      style={{ transitionDelay: `${delay}ms` }}
+      style={{ transitionDelay: `${Math.round(delay * 0.2)}ms` }}
     >
       {children}
     </div>
