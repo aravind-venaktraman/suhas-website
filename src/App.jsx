@@ -943,7 +943,7 @@ const SuhasWebsite = () => {
             <div className="absolute inset-0 z-0 overflow-hidden">
               <div className="sticky top-0 h-screen w-full pointer-events-none">
                 <img
-                  src="/images/suhas6.jpg"
+                  src="/images/suhas6.JPG"
                   alt=""
                   className="absolute inset-0 w-full h-full connect-suhas-img"
                   style={{ opacity: 0.65 }}
