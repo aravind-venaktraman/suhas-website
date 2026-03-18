@@ -298,7 +298,7 @@ export default function ContributePage({ success = false, cancelled = false }) {
                 onClick={(e) => { e.preventDefault(); navigate('/'); }}
                 className="flex items-center gap-2.5 hover:opacity-70 transition-opacity"
               >
-                <img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-10 md:h-12 w-auto" />
+                <img src="/images/suhas-productions-new-logo.webp" alt="SUHAS" className="h-10 md:h-12 w-auto" />
               </a>
               <div className="flex items-center gap-4 md:gap-6">
                 <a href={appleMusicLink} target="_blank" rel="noopener noreferrer"
@@ -363,7 +363,7 @@ export default function ContributePage({ success = false, cancelled = false }) {
                 <div className="rounded-2xl border border-zinc-200 bg-white p-4 md:p-5 mb-8">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-zinc-100">
-                      <img src="/images/album-art.PNG" alt="Fractals" className="w-full h-full object-cover" />
+                      <img src="/images/album-art.webp" alt="Fractals" className="w-full h-full object-cover" loading="lazy" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="text-zinc-900 text-[15px] font-bold" style={syne(700)}>Fractals</div>
@@ -452,7 +452,8 @@ export default function ContributePage({ success = false, cancelled = false }) {
             <div className="lg:col-span-2 order-1 lg:order-2 lg:sticky lg:top-24" ref={donateRef}>
               <Reveal delay={50}>
                 <div className="rounded-2xl overflow-hidden mb-5 bg-zinc-200 aspect-[4/3] relative">
-                  <img src="/images/suhas.png" alt="Suhas at the piano"
+                  <img src="/images/suhas.webp" alt="Suhas at the piano"
+                    loading="lazy"
                     className="w-full h-full object-cover object-top" style={{ objectPosition: '50% 20%' }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                   <div className="absolute bottom-3 left-3 right-3">
@@ -612,7 +613,7 @@ export default function ContributePage({ success = false, cancelled = false }) {
                 {
                   name: 'Suhas Padav',
                   role: 'Piano & Composition',
-                  img: '/images/suhas.png',
+                  img: '/images/suhas.webp',
                   fallback: '🎹',
                   bio: 'Pianist and composer from Oman. Self-taught ear player since age four, conservatory-trained, writing music that lives at the intersection of jazz, progressive composition, and cinematic melody. The creative architect behind Fractals.',
                   detail: 'Wrote Fractals over six years through three lost versions',
@@ -628,7 +629,7 @@ export default function ContributePage({ success = false, cancelled = false }) {
                 {
                   name: 'Marco Minnemann',
                   role: 'Drums',
-                  img: '/images/marco.jpg',
+                  img: '/images/marco.webp',
                   fallback: '🥁',
                   bio: 'World-renowned drummer known for The Aristocrats, Steven Wilson, and Joe Satriani. Brings dynamic range, impossible independence between limbs, and a taste for knowing exactly when not to play.',
                   detail: 'Delivered his interpretation in a single session',
@@ -638,6 +639,7 @@ export default function ContributePage({ success = false, cancelled = false }) {
                   <div className="rounded-2xl border border-zinc-200 overflow-hidden hover:border-zinc-300 hover:shadow-md transition-all bg-white group">
                     <div className="aspect-[4/3] bg-zinc-100 relative overflow-hidden">
                       <img src={m.img} alt={m.name}
+                        loading="lazy"
                         className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
                         onError={(e) => {
                           e.target.style.display = 'none';
@@ -884,7 +886,7 @@ export default function ContributePage({ success = false, cancelled = false }) {
           <div className="max-w-6xl mx-auto px-5 md:px-8 py-10">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-4">
-                <img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-8 w-auto opacity-50" />
+                <img src="/images/suhas-productions-new-logo.webp" alt="SUHAS" className="h-8 w-auto opacity-50" />
                 <span className="text-zinc-400 text-[11px]" style={dm(500)}>&copy; 2026 Suhas Music. All Rights Reserved.</span>
               </div>
               <div className="flex items-center gap-5">

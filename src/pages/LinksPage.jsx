@@ -148,8 +148,9 @@ export default function LinksPage() {
         {/* Avatar + name */}
         <div className="flex flex-col items-center gap-4 mb-10">
           <img
-            src="/images/suhas.png"
+            src="/images/suhas.webp"
             alt="Suhas"
+            loading="lazy"
             className="w-24 h-24 rounded-full object-cover border-2 border-white/20 shadow-lg"
             style={{ boxShadow: '0 0 32px rgba(6,182,212,0.25)' }}
           />

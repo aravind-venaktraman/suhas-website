@@ -68,7 +68,7 @@ const LoadingScreen = ({ onComplete }) => {
     >
       <div className="flex flex-col items-center gap-8">
         <img
-          src="/images/suhas-productions-new-logo.PNG"
+          src="/images/suhas-productions-new-logo.webp"
           alt="SUHAS"
           className="h-20 md:h-28 w-auto"
           style={{
@@ -315,6 +315,7 @@ const AbstractPiano = ({ isExpanded }) => {
 // --- Three.js Visualizer ---
 const GeometricVisualizer = () => {
   const mountRef = useRef(null);
+  const cleanupRef = useRef(null);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -334,16 +335,14 @@ const GeometricVisualizer = () => {
       renderer.setPixelRatio(window.devicePixelRatio);
       mountRef.current.appendChild(renderer.domElement);
 
-      const coreMesh = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(1.2, 1),
-        new THREE.MeshBasicMaterial({ color: 0x22d3ee, wireframe: true, transparent: true, opacity: 0.8 })
-      );
+      const coreGeo = new THREE.IcosahedronGeometry(1.2, 1);
+      const coreMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, wireframe: true, transparent: true, opacity: 0.8 });
+      const coreMesh = new THREE.Mesh(coreGeo, coreMat);
       scene.add(coreMesh);
 
-      const outerMesh = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(2.5, 1),
-        new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.15 })
-      );
+      const outerGeo = new THREE.IcosahedronGeometry(2.5, 1);
+      const outerMat = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.15 });
+      const outerMesh = new THREE.Mesh(outerGeo, outerMat);
       scene.add(outerMesh);
 
       const particlesCount = 1000;
@@ -359,21 +358,20 @@ const GeometricVisualizer = () => {
       particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
       particlesGeo.setAttribute('velocity', new THREE.BufferAttribute(velocityArray, 3));
 
-      const particlesMesh = new THREE.Points(
-        particlesGeo,
-        new THREE.PointsMaterial({
-          size: 0.03,
-          color: 0xffffff,
-          transparent: true,
-          opacity: 0.6,
-          blending: THREE.AdditiveBlending,
-        })
-      );
+      const particlesMat = new THREE.PointsMaterial({
+        size: 0.03,
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending,
+      });
+      const particlesMesh = new THREE.Points(particlesGeo, particlesMat);
       scene.add(particlesMesh);
 
       let time = 0;
+      let animFrameId = null;
       const animate = () => {
-        requestAnimationFrame(animate);
+        animFrameId = requestAnimationFrame(animate);
         time += 0.01;
 
         coreMesh.rotation.x += 0.005;
@@ -416,8 +414,18 @@ const GeometricVisualizer = () => {
 
       window.addEventListener('resize', handleResize);
 
-      return () => {
+      cleanupRef.current = () => {
+        cancelAnimationFrame(animFrameId);
         window.removeEventListener('resize', handleResize);
+
+        coreGeo.dispose();
+        coreMat.dispose();
+        outerGeo.dispose();
+        outerMat.dispose();
+        particlesGeo.dispose();
+        particlesMat.dispose();
+
+        renderer.dispose();
         if (mountRef.current && renderer.domElement.parentNode) {
           mountRef.current.removeChild(renderer.domElement);
         }
@@ -426,6 +434,7 @@ const GeometricVisualizer = () => {
 
     document.body.appendChild(script);
     return () => {
+      if (cleanupRef.current) cleanupRef.current();
       if (script.parentNode) document.body.removeChild(script);
     };
   }, []);
@@ -553,7 +562,7 @@ const SuhasWebsite = () => {
   const spotifyArtistLink = 'https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K';
   const youtubeCreatorLink = 'https://www.youtube.com/@Suhasmusicofficial';
 
-  const imgMap = { 'Digital Download': '/images/album-art.PNG', CD: '/images/cd-art.png', Apparel: '/images/tshirt.png' };
+  const imgMap = { 'Digital Download': '/images/album-art.webp', CD: '/images/cd-art.webp', Apparel: '/images/tshirt.webp' };
 
   return (
     <>
@@ -576,7 +585,7 @@ const SuhasWebsite = () => {
             <div className="container mx-auto px-6 flex items-center relative">
               {/* Left: Logo */}
               <a href="#" className="z-50 relative flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-16 md:h-20 w-auto" />
+                <img src="/images/suhas-productions-new-logo.webp" alt="SUHAS" className="h-16 md:h-20 w-auto" />
               </a>
 
               {/* Center: Nav links (absolutely centered in the bar) */}
@@ -620,7 +629,7 @@ const SuhasWebsite = () => {
             {isMenuOpen && (
               <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex flex-col items-center justify-center overflow-hidden" style={{ animation: 'fadeIn 0.3s ease' }}>
                 <div className="absolute top-6 left-6">
-                  <img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-16 w-auto" />
+                  <img src="/images/suhas-productions-new-logo.webp" alt="SUHAS" className="h-16 w-auto" />
                 </div>
                 <button
                   onClick={() => setIsMenuOpen(false)}
@@ -686,6 +695,7 @@ const SuhasWebsite = () => {
                     <img
                       src="/images/Fractals_Liquid_Glass.png"
                       alt="FRACTALS"
+                      loading="lazy"
                       className="w-full max-w-[clamp(280px,88vw,720px)] md:max-w-3xl lg:max-w-5xl mx-auto drop-shadow-2xl"
                     />
                   </div>
@@ -801,8 +811,9 @@ const SuhasWebsite = () => {
             <div className="lg:hidden relative">
               <div className="sticky top-0 h-screen w-full overflow-hidden z-0">
                 <img
-                  src="/images/suhas4.jpg"
+                  src="/images/suhas4.webp"
                   alt="Suhas"
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover"
                   style={{ filter: 'brightness(0.7)', objectPosition: 'center top' }}
                 />
@@ -837,8 +848,9 @@ const SuhasWebsite = () => {
               <RevealOnScroll>
                 <div className="relative w-full h-full overflow-hidden" style={{ minHeight: '110vh' }}>
                   <img
-                    src="/images/suhas4.jpg"
+                    src="/images/suhas4.webp"
                     alt="Suhas"
+                    loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{ filter: 'brightness(0.92)', objectPosition: 'center 15%' }}
                   />
@@ -902,6 +914,7 @@ const SuhasWebsite = () => {
                             <img
                               src={imgMap[item.type]}
                               alt={item.name}
+                              loading="lazy"
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                           )}
@@ -943,8 +956,9 @@ const SuhasWebsite = () => {
             <div className="absolute inset-0 z-0 overflow-hidden">
               <div className="sticky top-0 h-screen w-full pointer-events-none">
                 <img
-                  src="/images/suhas6.jpg"
+                  src="/images/suhas6.webp"
                   alt=""
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full connect-suhas-img"
                   style={{ opacity: 0.65 }}
                 />
@@ -1111,7 +1125,7 @@ const SuhasWebsite = () => {
             <div className="container mx-auto px-6">
               <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
                 <div className="text-center md:text-left">
-                  <img src="/images/suhas-productions-new-logo.PNG" alt="SUHAS" className="h-14 md:h-16 w-auto mb-2 mx-auto md:mx-0" />
+                  <img src="/images/suhas-productions-new-logo.webp" alt="SUHAS" className="h-14 md:h-16 w-auto mb-2 mx-auto md:mx-0" />
                   <p className="text-zinc-500 text-xs uppercase tracking-widest">© 2026 Suhas Music. All Rights Reserved.</p>
                 </div>
                 <div className="flex gap-4">

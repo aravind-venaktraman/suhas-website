@@ -14,6 +14,7 @@ function MusicianCard({ name, role, imgSrc, bio }) {
           <img
             src={imgSrc}
             alt={name}
+            loading="lazy"
             className="w-full h-full object-cover"
             onError={() => setImgFailed(true)}
           />
@@ -252,8 +253,9 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
               <RevealOnScroll delay={150} cacheKey="music:studio-img">
                 <div className="rounded-xl overflow-hidden border border-white/[0.06]">
                   <img
-                    src="/images/ableton.png"
+                    src="/images/ableton.webp"
                     alt="Fractals — Production Session"
+                    loading="lazy"
                     className="w-full h-auto object-cover"
                   />
                 </div>
@@ -295,7 +297,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
                   {
                     name: 'Marco Minnemann',
                     role: 'Drums',
-                    imgSrc: '/images/marco.jpg',
+                    imgSrc: '/images/marco.webp',
                     bio: 'World-renowned drummer who has recorded and toured with Steven Wilson, Joe Satriani, The Aristocrats, and Guthrie Govan. A master of polyrhythmic expression.',
                   },
                 ].map((musician, i) => (
