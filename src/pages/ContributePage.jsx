@@ -157,9 +157,19 @@ export default function ContributePage({ success = false, cancelled = false }) {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
   useEffect(() => {
-    const h = () => setNavShadow(window.scrollY > 20);
+    let rafId = 0;
+    const h = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        setNavShadow(window.scrollY > 20);
+      });
+    };
     window.addEventListener('scroll', h, { passive: true });
-    return () => window.removeEventListener('scroll', h);
+    return () => {
+      window.removeEventListener('scroll', h);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   /* ── Campaign data ─────────────────────────────────────────── */
