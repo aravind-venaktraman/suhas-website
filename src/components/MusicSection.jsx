@@ -36,22 +36,10 @@ function MusicianCard({ name, role, imgSrc, bio }) {
 }
 
 export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink }) {
-  const [isMobileLayout, setIsMobileLayout] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
-  );
-
   const marcoBgRef = useRef(null);
   const shardsBgRef = useRef(null);
   const marcoSectionRef = useRef(null);
   const shardsSectionRef = useRef(null);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 767px)');
-    const handleChange = (event) => setIsMobileLayout(event.matches);
-    handleChange(mediaQuery);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
 
   // Play/pause videos based on viewport visibility to conserve GPU memory
   useEffect(() => {
@@ -211,7 +199,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
 
         {/* Chapter content — overlaid on sticky via CSS Grid (both in same cell).
             zIndex: 1 renders content above the video (zIndex: 0). */}
-        <div className="relative" style={{ gridRow: '1 / -1', gridColumn: '1 / -1', zIndex: 1, paddingBottom: isMobileLayout ? '80vh' : '100vh' }}>
+        <div className="relative" style={{ gridRow: '1 / -1', gridColumn: '1 / -1', zIndex: 1 }}>
 
           {/* ── Chapter 01: The Story Behind The Track ── */}
           <div className="min-h-screen flex items-center justify-center px-6">
