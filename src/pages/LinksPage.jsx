@@ -124,6 +124,7 @@ export default function LinksPage() {
           loop
           muted
           playsInline
+          preload="none"
           style={{
             position: 'absolute',
             top: 0,

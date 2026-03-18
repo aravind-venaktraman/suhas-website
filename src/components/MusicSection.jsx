@@ -42,6 +42,8 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
 
   const marcoBgRef = useRef(null);
   const shardsBgRef = useRef(null);
+  const marcoSectionRef = useRef(null);
+  const shardsSectionRef = useRef(null);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 767px)');
@@ -51,13 +53,33 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+  // Play/pause videos based on viewport visibility to conserve GPU memory
   useEffect(() => {
-    [marcoBgRef, shardsBgRef].forEach((ref) => {
-      if (ref.current) {
-        ref.current.muted = true;
-        ref.current.play().catch(() => {});
-      }
+    const pairs = [
+      { video: marcoBgRef, section: marcoSectionRef },
+      { video: shardsBgRef, section: shardsSectionRef },
+    ];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const pair = pairs.find((p) => p.section.current === entry.target);
+          if (!pair?.video.current) return;
+          if (entry.isIntersecting) {
+            pair.video.current.play().catch(() => {});
+          } else {
+            pair.video.current.pause();
+          }
+        });
+      },
+      { rootMargin: '200px' }
+    );
+
+    pairs.forEach(({ section }) => {
+      if (section.current) observer.observe(section.current);
     });
+
+    return () => observer.disconnect();
   }, []);
 
   const streamLinks = [
@@ -84,7 +106,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
       {/* ═══════════════════════════════════════════════════════════════════
           PART 1: Landing Hero — marco.mp4 background
           ═══════════════════════════════════════════════════════════════════ */}
-      <div className="relative min-h-screen overflow-hidden">
+      <div ref={marcoSectionRef} className="relative min-h-screen overflow-hidden">
         {/* marco.mp4 video background */}
         <video
           ref={marcoBgRef}
@@ -92,7 +114,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
           loop
           muted
           playsInline
-          preload="metadata"
+          preload="none"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.4 }}
         >
@@ -157,20 +179,20 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          PART 2: Chapters — Shards_Video_Loop.mp4 sticky background
-          minHeight: 500vh ensures sticky covers all 4 chapters (needs
-          parent height > 4×100vh + 100vh for sticky to hold through Ch4).
-          marginBottom: -100vh collapses the extra space so Connect
-          section starts immediately after Ch4 with no gap.
+          PART 2: Chapters — Shards_Video_Loop sticky background
+          CSS Grid overlay: both children in the same cell so they overlap.
+          Content paddingBottom provides enough scroll room for the sticky
+          video to pin through all 4 chapters.
           ═══════════════════════════════════════════════════════════════════ */}
       <div
-        className="relative"
-        style={{ minHeight: isMobileLayout ? '550vh' : '500vh', marginBottom: isMobileLayout ? '-80vh' : '-100vh' }}
+        ref={shardsSectionRef}
+        className="relative grid"
+        style={{ gridTemplateColumns: '1fr' }}
       >
         {/* Sticky Shards video background — stays pinned for all chapters */}
         <div
           className="sticky top-0 h-screen w-full overflow-hidden"
-          style={{ zIndex: 0 }}
+          style={{ gridRow: '1 / -1', gridColumn: '1 / -1', zIndex: 0 }}
         >
           <video
             ref={shardsBgRef}
@@ -178,7 +200,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="none"
             className="w-full h-full object-cover"
             style={{ opacity: 0.4 }}
           >
@@ -187,10 +209,9 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
         </div>
 
-        {/* Chapter content — overlaid on sticky via negative margin.
-            zIndex: 1 renders content above the video (zIndex: 0).
-            Parent minHeight: 500vh gives sticky enough room to pin all 4 chapters. */}
-        <div className="relative" style={{ zIndex: 1, marginTop: '-100vh' }}>
+        {/* Chapter content — overlaid on sticky via CSS Grid (both in same cell).
+            zIndex: 1 renders content above the video (zIndex: 0). */}
+        <div className="relative" style={{ gridRow: '1 / -1', gridColumn: '1 / -1', zIndex: 1, paddingBottom: isMobileLayout ? '80vh' : '100vh' }}>
 
           {/* ── Chapter 01: The Story Behind The Track ── */}
           <div className="min-h-screen flex items-center justify-center px-6">
@@ -362,11 +383,6 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
         }
         .music-scroll-indicator {
           animation: music-bounce 2s ease-in-out infinite;
-        }
-        @media (max-width: 767px) {
-          .music-chapters-container {
-            margin-bottom: 0 !important;
-          }
         }
       `}</style>
     </section>

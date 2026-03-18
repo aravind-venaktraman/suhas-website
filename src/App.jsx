@@ -217,9 +217,8 @@ const AbstractPiano = ({ isExpanded }) => {
             <button
               key={i}
               onMouseDown={(e) => playNote(i, 0.5 + (e.clientY / window.innerHeight) * 0.5)}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                playNote(i, 0.5 + (e.touches[0].clientY / window.innerHeight) * 0.5);
+              onTouchStart={() => {
+                playNote(i, 0.7);
               }}
               className={`transition-all duration-100 ease-out cursor-pointer active:scale-95 relative ${
                 isBlackKey
@@ -453,6 +452,8 @@ const SuhasWebsite = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState('home');
 
+  const heroVideoRef = useRef(null);
+
   const [heroEmail, setHeroEmail] = useState('');
   const [heroEmailSubmitted, setHeroEmailSubmitted] = useState(false);
   const [heroEmailError, setHeroEmailError] = useState('');
@@ -533,6 +534,29 @@ const SuhasWebsite = () => {
       window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
   }, [isMenuOpen]);
+
+  // Pause hero video when off-screen to save GPU memory
+  useEffect(() => {
+    if (!loaded) return;
+    const heroSection = document.getElementById('home');
+    if (!heroSection) return;
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        const video = heroVideoRef.current;
+        if (!video) return;
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    obs.observe(heroSection);
+    return () => obs.disconnect();
+  }, [loaded]);
 
   const navLinks = [
     { name: 'About', href: '#about' },
@@ -666,11 +690,15 @@ const SuhasWebsite = () => {
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0">
                   <video
-                    ref={(el) => { if (el) { el.muted = true; el.play().catch(() => {}); } }}
+                    ref={(el) => {
+                      heroVideoRef.current = el;
+                      if (el) { el.muted = true; el.play().catch(() => {}); }
+                    }}
                     autoPlay
                     loop
                     muted
                     playsInline
+                    preload="auto"
                     className="w-full h-full object-cover fixed top-0 left-0"
                     style={{ opacity: 0.85 }}
                   >
@@ -808,8 +836,8 @@ const SuhasWebsite = () => {
           <section id="about" className="relative bg-black border-t border-zinc-900" style={{ scrollMarginTop: '80px' }}>
 
             {/* ── MOBILE layout (scroll over sticky image) ── */}
-            <div className="lg:hidden relative">
-              <div className="sticky top-0 h-screen w-full overflow-hidden z-0">
+            <div className="lg:hidden grid" style={{ gridTemplateColumns: '1fr' }}>
+              <div className="sticky top-0 h-screen w-full overflow-hidden" style={{ gridRow: '1 / -1', gridColumn: '1 / -1', zIndex: 0 }}>
                 <img
                   src="/images/suhas4.webp"
                   alt="Suhas"
@@ -820,7 +848,7 @@ const SuhasWebsite = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
               </div>
 
-              <div className="relative z-10 -mt-[100vh]">
+              <div className="relative" style={{ gridRow: '1 / -1', gridColumn: '1 / -1', zIndex: 10 }}>
                 <div className="h-[80vh]" />
                 <div className="px-8 md:px-16 pb-32">
                   <RevealOnScroll delay={0}>
