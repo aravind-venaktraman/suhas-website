@@ -9,13 +9,13 @@ function MusicianCard({ name, role, imgSrc, bio }) {
 
   return (
     <div className="bg-black/60 backdrop-blur-md rounded-2xl border border-white/[0.06] overflow-hidden">
-      <div className="aspect-[4/3] bg-zinc-900 flex items-center justify-center relative">
+      <div className="aspect-[4/5] md:aspect-square bg-zinc-900 flex items-center justify-center relative">
         {!imgFailed ? (
           <img
             src={imgSrc}
             alt={name}
             loading="lazy"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
             onError={() => setImgFailed(true)}
           />
         ) : (
@@ -24,18 +24,18 @@ function MusicianCard({ name, role, imgSrc, bio }) {
           </div>
         )}
       </div>
-      <div className="p-6">
-        <div className="flex items-baseline justify-between mb-2">
-          <h4 className="text-white text-xl font-bold" style={michroma()}>{name}</h4>
-          <span className="text-cyan-400 text-xs uppercase tracking-wider font-bold">{role}</span>
+      <div className="p-8">
+        <div className="flex items-baseline justify-between mb-3">
+          <h4 className="text-white text-2xl font-bold" style={michroma()}>{name}</h4>
+          <span className="text-cyan-400 text-sm uppercase tracking-wider font-bold">{role}</span>
         </div>
-        <p className="text-zinc-400 text-base leading-relaxed font-light">{bio}</p>
+        <p className="text-zinc-400 text-lg leading-relaxed font-light">{bio}</p>
       </div>
     </div>
   );
 }
 
-export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink }) {
+export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink, presaveLink }) {
   const marcoBgRef = useRef(null);
   const shardsBgRef = useRef(null);
   const marcoSectionRef = useRef(null);
@@ -115,7 +115,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 text-center">
           <RevealOnScroll cacheKey="music:hero-tag">
             <span className="text-cyan-400 font-bold tracking-[0.3em] uppercase text-sm mb-4 block">
-              Single &middot; 2024
+              Single &middot; 2026
             </span>
           </RevealOnScroll>
 
@@ -128,18 +128,18 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
             </h2>
           </RevealOnScroll>
 
-          <RevealOnScroll delay={150} cacheKey="music:hero-spotify">
-            <div className="w-full max-w-lg mx-auto mb-10">
-              <iframe
-                style={{ borderRadius: '12px' }}
-                src="https://open.spotify.com/embed/track/4Udyb9Ijofesgz8YcmrsB6?utm_source=generator&theme=0"
-                width="100%"
-                height="152"
-                frameBorder="0"
-                allowFullScreen=""
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-              />
+          <RevealOnScroll delay={150} cacheKey="music:hero-presave">
+            <div className="w-full max-w-lg mx-auto mb-10 flex justify-center">
+              <a
+                href={presaveLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 active:scale-[0.97] transition-all text-white text-sm font-bold uppercase tracking-wider"
+                style={{ fontFamily: "'Michroma', sans-serif" }}
+              >
+                Pre-Save Now
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </a>
             </div>
           </RevealOnScroll>
 
@@ -272,7 +272,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
 
               <RevealOnScroll delay={300} cacheKey="music:studio-text">
                 <p className="text-zinc-400 text-lg leading-relaxed max-w-3xl mx-auto mt-10 font-light text-center">
-                  Recorded and produced in 2024, the track was built from the ground up,
+                  Recorded and produced in 2026, the track was built from the ground up,
                   layering piano improvisation with programmed rhythmic foundations before bringing in
                   the live session recordings from Ric and Marco.
                 </p>
@@ -282,7 +282,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
 
           {/* ── Chapter 03: The Collaborators ── */}
           <div className="min-h-screen flex items-center justify-center px-6 pt-24">
-            <div className="max-w-5xl mx-auto w-full text-center">
+            <div className="max-w-7xl mx-auto w-full text-center">
               <RevealOnScroll cacheKey="music:legends-tag">
                 <span className="text-cyan-400 tracking-[0.3em] text-[10px] uppercase block mb-4 font-bold">
                   Chapter 03
@@ -295,7 +295,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
                 </h3>
               </RevealOnScroll>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-7xl mx-auto">
                 {[
                   {
                     name: 'Ric Fierabracci',
