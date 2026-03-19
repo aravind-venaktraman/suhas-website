@@ -580,7 +580,7 @@ const SuhasWebsite = () => {
       price: '$1.29',
       desc: 'Digital Copy of Fractals (Single)',
       type: 'Digital Download',
-      link: 'https://music.apple.com/us/album/fractals-single/1768715442',
+      link: 'https://music.apple.com/us/artist/suhas/1768357304',
       soldOut: false,
     },
     { id: 2, name: 'Fractals CD', price: '$5.00', desc: 'Limited Digipak Edition', type: 'CD', link: null, soldOut: true },
@@ -588,13 +588,13 @@ const SuhasWebsite = () => {
   ];
 
   const presaveLink = 'https://distrokid.com/hyperfollow/suhas/fractals-feat-ric-fierabracci--marco-minnemann';
-  const appleMusicLink = 'https://music.apple.com/us/album/fractals-single/1768715442';
-  const spotifyLink = 'https://open.spotify.com/track/4Udyb9Ijofesgz8YcmrsB6?si=KcFSYSf9Q2SwzGrJjKejNg';
-  const youtubeLink = 'https://www.youtube.com/@Suhasmusicofficial';
+  const appleMusicLink = 'https://music.apple.com/us/artist/suhas/1768357304';
+  const spotifyLink = 'https://open.spotify.com/artist/0gpg0s6TLPgxLYckYxYNHD?si=jHV33SpTSCWamY_K7-LthQ';
+  const youtubeLink = 'https://music.youtube.com/channel/UCtjh3rgL6KUUZrJHP6w8F0A?si=wVU-_0jGZjgzGBiR';
   const instagramLink = 'https://www.instagram.com/suhas.als?igsh=MTVjaTR2a2YwaDFhOQ%3D%3D&utm_source=qr';
-  const appleMusicArtistLink = 'https://music.apple.com/us/artist/suhas/1768715441';
-  const spotifyArtistLink = 'https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K';
-  const youtubeCreatorLink = 'https://www.youtube.com/@Suhasmusicofficial';
+  const appleMusicArtistLink = 'https://music.apple.com/us/artist/suhas/1768357304';
+  const spotifyArtistLink = 'https://open.spotify.com/artist/0gpg0s6TLPgxLYckYxYNHD?si=jHV33SpTSCWamY_K7-LthQ';
+  const youtubeCreatorLink = 'https://music.youtube.com/channel/UCtjh3rgL6KUUZrJHP6w8F0A?si=wVU-_0jGZjgzGBiR';
 
   const imgMap = { 'Digital Download': '/images/album-art.webp', CD: '/images/cd-art.webp', Apparel: '/images/tshirt.webp' };
 
