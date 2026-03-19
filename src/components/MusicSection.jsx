@@ -317,11 +317,16 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink 
               </div>
 
               <RevealOnScroll delay={300} cacheKey="music:legends-text">
-                <p className="text-zinc-400 text-lg leading-relaxed max-w-3xl mx-auto mt-10 font-light">
-                  When Ric and Marco came on board, the track transformed. Their live performances
-                  brought a raw energy and conversational interplay that elevated Fractals from a
-                  composition into a living, breathing piece of music.
-                </p>
+                <blockquote className="max-w-3xl mx-auto mt-10 pl-6 border-l-2 border-cyan-500/50">
+                  <p className="text-zinc-300 text-lg leading-relaxed font-light italic">
+                    "Having Ric and Marco on this was unreal — they brought exactly the kind of energy
+                    and conversation I was hoping for. Their live performances brought a raw interplay
+                    that elevated Fractals from a composition into a living, breathing piece of music."
+                  </p>
+                  <footer className="mt-3 text-cyan-400 text-xs tracking-[0.2em] uppercase font-bold">
+                    — Suhas
+                  </footer>
+                </blockquote>
               </RevealOnScroll>
             </div>
           </div>
