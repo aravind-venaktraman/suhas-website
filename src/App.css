@@ -16,8 +16,8 @@
     inset: auto !important;
     width: 30% !important;
     height: 90% !important;
-    right: 5% !important;
-    left: auto !important;
+    right: auto !important;
+    left: 5% !important;
     top: 40% !important;
     transform: translateY(-50%) !important;
     object-fit: contain !important;
