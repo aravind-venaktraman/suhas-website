@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       throw new Error(dbError.message);
     }
 
-    // ── Optional Resend notification ─────────────────────────────
+    // ── Optional Resend notification (non-fatal) ─────────────────
     if (process.env.RESEND_API_KEY && process.env.EMAIL_COLLECTION_TO) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
@@ -42,6 +42,8 @@ export default async function handler(req, res) {
         to: process.env.EMAIL_COLLECTION_TO,
         subject: `New signup from ${safeSource}`,
         text: `Email: ${normalizedEmail}\nSource: ${safeSource}\nTime: ${timestamp}`,
+      }).catch((resendErr) => {
+        console.error("Resend notification failed (non-fatal):", resendErr);
       });
     }
 
