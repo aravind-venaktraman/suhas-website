@@ -587,6 +587,7 @@ const SuhasWebsite = () => {
     { id: 3, name: 'Fractals Tee', price: '$30.00', desc: 'Heavyweight Cotton - Black', type: 'Apparel', link: null, soldOut: true },
   ];
 
+  const presaveLink = 'https://distrokid.com/hyperfollow/suhas/fractals-feat-ric-fierabracci--marco-minnemann';
   const appleMusicLink = 'https://music.apple.com/us/album/fractals-single/1768715442';
   const spotifyLink = 'https://open.spotify.com/track/4Udyb9Ijofesgz8YcmrsB6?si=KcFSYSf9Q2SwzGrJjKejNg';
   const youtubeLink = 'https://www.youtube.com/@Suhasmusicofficial';
@@ -643,13 +644,15 @@ const SuhasWebsite = () => {
 
               {/* Right: Fundraiser button + mobile menu */}
               <div className="ml-auto flex items-center gap-3">
-                <span
-                  className="hidden md:inline-flex px-5 py-2.5 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-[11px] font-bold uppercase tracking-[0.15em] cursor-not-allowed select-none"
+                <a
+                  href={presaveLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden md:inline-flex px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[11px] font-bold uppercase tracking-[0.15em] hover:brightness-110 hover:scale-105 active:scale-[0.97] transition-all duration-300 shadow-md shadow-cyan-500/20"
                   style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
-                  title="Fundraiser launching soon"
                 >
-                  Fundraiser Coming Soon
-                </span>
+                  Pre-Save
+                </a>
 
                 <div className="md:hidden flex items-center gap-3 z-50 relative">
                   <button onClick={() => setIsMenuOpen(true)} className="text-white hover:text-cyan-400">
@@ -681,12 +684,16 @@ const SuhasWebsite = () => {
                       {link.name}
                     </a>
                   ))}
-                  <span
-                    className="px-8 py-3 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-400 text-sm font-bold uppercase tracking-wider cursor-not-allowed select-none text-center"
+                  <a
+                    href={presaveLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all duration-300 text-center shadow-md shadow-cyan-500/20"
                     style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
+                    onClick={() => setIsMenuOpen(false)}
                   >
-                    Fundraiser Coming Soon
-                  </span>
+                    Pre-Save
+                  </a>
                 </div>
               </div>
             )}
@@ -726,9 +733,6 @@ const SuhasWebsite = () => {
               <div className={`transition-all duration-700 flex flex-col items-center gap-4 md:gap-8 ${showVisualizer ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
                 <RevealOnScroll delay={100}>
                   <div className="flex flex-col items-center gap-1 md:gap-2">
-                    <h2 className="text-cyan-400 tracking-[0.3em] text-xs md:text-base font-bold uppercase shadow-black drop-shadow-lg whitespace-nowrap">
-                      Coming Soon — April 2026
-                    </h2>
                     <img
                       src="/images/Fractals_Liquid_Glass.png"
                       alt="FRACTALS"
@@ -748,60 +752,29 @@ const SuhasWebsite = () => {
                   <div className="flex flex-col gap-4 items-center w-full">
                     {!showVisualizer ? (
                       <>
+                      <a
+                        href={presaveLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-3 px-10 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm md:text-base font-bold uppercase tracking-[0.15em] hover:brightness-110 hover:scale-105 active:scale-[0.98] transition-all duration-300 shadow-lg shadow-cyan-500/25"
+                        style={{ fontFamily: "'Michroma', sans-serif" }}
+                      >
+                        Pre-Save Now
+                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      </a>
+                      <p className="text-zinc-500 text-[10px] tracking-[0.3em] uppercase">
+                        Available April 2026
+                      </p>
                       <div className="flex gap-4 items-center flex-wrap justify-center">
-                        <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
-                          <img src="/images/applemusic-icon.svg" alt="Apple Music" className="w-5 h-5 rounded-[3px]" />
+                        <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                          <img src="/images/applemusic-icon.svg" alt="Apple Music" className="w-4 h-4 rounded-[3px]" />
                         </a>
-                        <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
-                          <img src="/images/youtube-icon.svg" alt="YouTube" className="w-5 h-5 rounded-[3px]" />
+                        <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                          <img src="/images/youtube-icon.svg" alt="YouTube" className="w-4 h-4 rounded-[3px]" />
                         </a>
-                        <a href={spotifyLink} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
-                          <img src="/images/spotify-icon.svg" alt="Spotify" className="w-5 h-5 rounded-full" />
+                        <a href={spotifyLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                          <img src="/images/spotify-icon.svg" alt="Spotify" className="w-4 h-4 rounded-full" />
                         </a>
-                      </div>
-
-                      {/* Hero email subscribe */}
-                      <div className="mt-2 w-full flex justify-center">
-                      <div className="w-full max-w-xs">
-                        {heroEmailSubmitted ? (
-                          <p className="text-center text-cyan-400 text-sm font-semibold tracking-wide py-3 animate-in fade-in duration-500">
-                            ✓ You're in — we'll be in touch!
-                          </p>
-                        ) : (
-                          <form
-                            onSubmit={handleEmailSubmit({
-                              email: heroEmail,
-                              source: 'hero',
-                              setSubmitted: setHeroEmailSubmitted,
-                              setEmail: setHeroEmail,
-                              setError: setHeroEmailError,
-                              setSubmitting: setHeroSubmitting,
-                            })}
-                            className="flex flex-col gap-2"
-                          >
-                            <input
-                              type="email"
-                              value={heroEmail}
-                              onChange={(e) => setHeroEmail(e.target.value)}
-                              placeholder="your@email.com"
-                              required
-                              disabled={heroSubmitting}
-                              className="w-full px-4 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-zinc-500 text-sm focus:outline-none focus:border-cyan-500/60 transition-colors"
-                            />
-                            <button
-                              type="submit"
-                              disabled={heroSubmitting}
-                              className="w-full px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all"
-                            >
-                              {heroSubmitting ? 'Submitting...' : 'Get Early Access'}
-                            </button>
-                          </form>
-                        )}
-                        {heroEmailError && <p className="text-center text-red-400 text-xs mt-2">{heroEmailError}</p>}
-                        <p className="text-center text-zinc-600 text-[10px] tracking-widest uppercase mt-2">
-                          Early access + 20% off when the merch store opens
-                        </p>
-                      </div>
                       </div>
                       </>
                     ) : (
@@ -832,7 +805,7 @@ const SuhasWebsite = () => {
                 <div className="inline-block" style={{ animation: 'marquee 60s linear infinite' }}>
                   {[...Array(10)].map((_, i) => (
                     <span key={i} className="text-white font-black text-xl md:text-3xl mx-8 uppercase tracking-widest italic">
-                      FRACTALS — COMING SOON • APRIL 2026 • PRESAVE NOW • PROGRESSIVE JAZZ FUSION •
+                      FRACTALS — PRE-SAVE NOW • APRIL 2026 • PROGRESSIVE JAZZ FUSION • FEAT. RIC FIERABRACCI & MARCO MINNEMANN •
                     </span>
                   ))}
                 </div>
@@ -1182,6 +1155,9 @@ const SuhasWebsite = () => {
               </div>
 
               <div className="flex gap-8 text-xs font-bold uppercase text-zinc-500 justify-center md:justify-end">
+                <a href="/press" className="hover:text-white transition-colors">
+                  Press
+                </a>
                 <a href="mailto:management@suhasmusic.com" className="hover:text-white transition-colors">
                   Privacy
                 </a>

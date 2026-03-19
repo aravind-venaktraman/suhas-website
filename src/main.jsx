@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App.jsx';
 import ContributePage from './pages/ContributePage.jsx';
 import LinksPage from './pages/LinksPage.jsx';
+import PressPage from './pages/PressPage.jsx';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -12,6 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/links" element={<LinksPage />} />
+        <Route path="/press" element={<PressPage />} />
         <Route path="/contribute" element={<ContributePage />} />
         <Route path="/contribute/success" element={<ContributePage success />} />
         <Route path="/contribute/cancel" element={<ContributePage cancelled />} />
