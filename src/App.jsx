@@ -843,9 +843,9 @@ const SuhasWebsite = () => {
                   </RevealOnScroll>
                   <RevealOnScroll delay={40}>
                     <div className="space-y-6 text-zinc-200 text-base md:text-lg leading-relaxed max-w-xl backdrop-blur-sm bg-black/30 p-8 rounded-xl">
-                      <p>Suhas is a pianist and composer exploring music that sits at the intersection of progressive jazz and fusion.</p>
-                      <p>He learned to play by ear before he could read, and spent years committing to writing music entirely on his own terms.</p>
-                      <p>His music is open to interpretation. Listeners hear the same track and walk away with completely different experiences. The music is melodic but complex — always leading somewhere you do not expect.</p>
+                      <p>Suhas is a pianist and composer in the progressive jazz fusion space.</p>
+                      <p>He has been playing and studying music from a young age, and spent years building a compositional voice from the ground up. His writing pairs composed structure with improvisation — shaped by jazz harmony, classical form, and progressive rock.</p>
+                      <p><em>Fractals</em> is the first single from a larger project currently in production. More music and collaborations are coming in 2026.</p>
                     </div>
                   </RevealOnScroll>
                 </div>
@@ -880,9 +880,9 @@ const SuhasWebsite = () => {
                 </RevealOnScroll>
                 <RevealOnScroll delay={200}>
                   <div className="space-y-6 text-zinc-300 text-base md:text-lg leading-relaxed max-w-xl">
-                    <p>Suhas is a pianist and composer exploring music that sits at the intersection of progressive jazz and fusion.</p>
-                    <p>He learned to play by ear before he could read, and spent years committing to writing music entirely on his own terms.</p>
-                    <p>His music is open to interpretation. Listeners hear the same track and walk away with completely different experiences. The music is melodic but complex — always leading somewhere you do not expect.</p>
+                    <p>Suhas is a pianist and composer in the progressive jazz fusion space.</p>
+                    <p>He has been playing and studying music from a young age, and spent years building a compositional voice from the ground up. His writing pairs composed structure with improvisation — shaped by jazz harmony, classical form, and progressive rock.</p>
+                    <p><em>Fractals</em> is the first single from a larger project currently in production. More music and collaborations are coming in 2026.</p>
                   </div>
                 </RevealOnScroll>
               </div>
