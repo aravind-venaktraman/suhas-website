@@ -843,9 +843,9 @@ const SuhasWebsite = () => {
                   </RevealOnScroll>
                   <RevealOnScroll delay={40}>
                     <div className="space-y-6 text-zinc-200 text-base md:text-lg leading-relaxed max-w-xl backdrop-blur-sm bg-black/30 p-8 rounded-xl">
-                      <p>Suhas is a pianist and composer exploring music that sits at the intersection of progressive jazz and fusion.</p>
-                      <p>He learned to play by ear before he could read, and spent years committing to writing music entirely on his own terms.</p>
-                      <p>His music is open to interpretation. Listeners hear the same track and walk away with completely different experiences. The music is melodic but complex — always leading somewhere you do not expect.</p>
+                      <p>Suhas writes music that lives between jazz harmony, classical structure, and progressive fusion. His compositions balance precision with spontaneity — built to reward close listening.</p>
+                      <p>He learned to play by ear before any formal training, spending years developing his own compositional language on his own terms. For him, the piano is both a melodic voice and a structural tool.</p>
+                      <p>His debut single <em>Fractals</em> features three-time Grammy-nominated bassist Ric Fierabracci and drummer Marco Minnemann — the first release from a larger body of work currently in production.</p>
                     </div>
                   </RevealOnScroll>
                 </div>
@@ -880,9 +880,9 @@ const SuhasWebsite = () => {
                 </RevealOnScroll>
                 <RevealOnScroll delay={200}>
                   <div className="space-y-6 text-zinc-300 text-base md:text-lg leading-relaxed max-w-xl">
-                    <p>Suhas is a pianist and composer exploring music that sits at the intersection of progressive jazz and fusion.</p>
-                    <p>He learned to play by ear before he could read, and spent years committing to writing music entirely on his own terms.</p>
-                    <p>His music is open to interpretation. Listeners hear the same track and walk away with completely different experiences. The music is melodic but complex — always leading somewhere you do not expect.</p>
+                    <p>Suhas writes music that lives between jazz harmony, classical structure, and progressive fusion. His compositions balance precision with spontaneity — built to reward close listening.</p>
+                    <p>He learned to play by ear before any formal training, spending years developing his own compositional language on his own terms. For him, the piano is both a melodic voice and a structural tool.</p>
+                    <p>His debut single <em>Fractals</em> features three-time Grammy-nominated bassist Ric Fierabracci and drummer Marco Minnemann — the first release from a larger body of work currently in production.</p>
                   </div>
                 </RevealOnScroll>
               </div>
