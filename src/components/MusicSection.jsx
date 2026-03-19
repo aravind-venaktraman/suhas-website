@@ -202,10 +202,10 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
         <div className="relative" style={{ gridRow: '1 / -1', gridColumn: '1 / -1', zIndex: 1 }}>
 
           {/* ── Chapter 01: The Story Behind The Track ── */}
-          <div className="min-h-screen flex items-center justify-center px-6">
+          <div className="min-h-screen flex items-center justify-center px-6 py-24">
             <div className="max-w-4xl mx-auto text-center">
               <RevealOnScroll cacheKey="music:story-tag">
-                <span className="text-cyan-400 tracking-[0.3em] text-[10px] uppercase block mb-4 font-bold">
+                <span className="invisible tracking-[0.3em] text-[10px] uppercase block mb-4 font-bold">
                   Chapter 01
                 </span>
               </RevealOnScroll>
@@ -245,10 +245,10 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
           </div>
 
           {/* ── Chapter 02: In The Studio ── */}
-          <div className="min-h-screen flex items-center justify-center px-6">
+          <div className="min-h-screen flex items-center justify-center px-6 py-24">
             <div className="max-w-5xl mx-auto w-full text-center">
               <RevealOnScroll cacheKey="music:studio-tag">
-                <span className="text-cyan-400 tracking-[0.3em] text-[10px] uppercase block mb-4 font-bold">
+                <span className="invisible tracking-[0.3em] text-[10px] uppercase block mb-4 font-bold">
                   Chapter 02
                 </span>
               </RevealOnScroll>
@@ -281,10 +281,10 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
           </div>
 
           {/* ── Chapter 03: The Collaborators ── */}
-          <div className="min-h-screen flex items-center justify-center px-6 pt-24">
+          <div className="min-h-screen flex items-center justify-center px-6 py-24">
             <div className="max-w-7xl mx-auto w-full text-center">
               <RevealOnScroll cacheKey="music:legends-tag">
-                <span className="text-cyan-400 tracking-[0.3em] text-[10px] uppercase block mb-4 font-bold">
+                <span className="invisible tracking-[0.3em] text-[10px] uppercase block mb-4 font-bold">
                   Chapter 03
                 </span>
               </RevealOnScroll>
@@ -332,10 +332,10 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
           </div>
 
           {/* ── Chapter 04: Beyond The Single ── */}
-          <div className="min-h-screen flex items-center justify-center px-6">
+          <div className="min-h-screen flex items-center justify-center px-6 py-24">
             <div className="max-w-4xl mx-auto text-center">
               <RevealOnScroll cacheKey="music:vision-tag">
-                <span className="text-cyan-400 tracking-[0.3em] text-[10px] uppercase block mb-4 font-bold">
+                <span className="invisible tracking-[0.3em] text-[10px] uppercase block mb-4 font-bold">
                   Chapter 04
                 </span>
               </RevealOnScroll>
