@@ -9,12 +9,12 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/images/favicon-png.png",
+      "src": "/images/suhas-favicon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/images/favicon-png.png",
+      "src": "/images/suhas-favicon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
