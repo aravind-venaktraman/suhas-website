@@ -278,7 +278,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
                     virtual instruments. That demo became the blueprint for everything that followed.
                   </p>
                   <p className="text-zinc-400 text-lg leading-relaxed font-light">
-                    In 2025, the track was reimagined from the ground up with live musicians.
+                    In 2026, the track was reimagined from the ground up with live musicians.
                     Ric and Marco each recorded their parts remotely, interpreting the
                     original composition through their own playing styles — turning a
                     programmed sketch into a living, breathing performance.
