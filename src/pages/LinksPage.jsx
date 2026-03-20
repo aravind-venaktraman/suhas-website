@@ -58,7 +58,7 @@ const LINK_GROUPS = [
       {
         title: 'Instagram',
         subtitle: '@suhas.als',
-        href: 'https://www.instagram.com/suhas.als?igsh=MTVjaTR2a2YwaDFhOQ%3D%3D&utm_source=qr',
+        href: 'https://www.instagram.com/suhas.als',
         icon: <InstagramIcon />,
         accent: '#E1306C',
       },

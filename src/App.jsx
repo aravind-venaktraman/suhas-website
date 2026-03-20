@@ -580,7 +580,7 @@ const SuhasWebsite = () => {
       price: '$1.29',
       desc: 'Digital Copy of Fractals (Single)',
       type: 'Digital Download',
-      link: 'https://music.apple.com/us/artist/suhas/1768357304',
+      link: 'https://music.apple.com/us/artist/suhas/1768715441',
       soldOut: false,
     },
     { id: 2, name: 'Fractals CD', price: '$5.00', desc: 'Limited Digipak Edition', type: 'CD', link: null, soldOut: true },
@@ -588,13 +588,10 @@ const SuhasWebsite = () => {
   ];
 
   const presaveLink = 'https://distrokid.com/hyperfollow/suhas/fractals-feat-ric-fierabracci--marco-minnemann';
-  const appleMusicLink = 'https://music.apple.com/us/artist/suhas/1768357304';
-  const spotifyLink = 'https://open.spotify.com/artist/0gpg0s6TLPgxLYckYxYNHD?si=jHV33SpTSCWamY_K7-LthQ';
-  const youtubeLink = 'https://music.youtube.com/channel/UCtjh3rgL6KUUZrJHP6w8F0A?si=wVU-_0jGZjgzGBiR';
-  const instagramLink = 'https://www.instagram.com/suhas.als?igsh=MTVjaTR2a2YwaDFhOQ%3D%3D&utm_source=qr';
-  const appleMusicArtistLink = 'https://music.apple.com/us/artist/suhas/1768357304';
-  const spotifyArtistLink = 'https://open.spotify.com/artist/0gpg0s6TLPgxLYckYxYNHD?si=jHV33SpTSCWamY_K7-LthQ';
-  const youtubeCreatorLink = 'https://music.youtube.com/channel/UCtjh3rgL6KUUZrJHP6w8F0A?si=wVU-_0jGZjgzGBiR';
+  const appleMusicLink = 'https://music.apple.com/us/artist/suhas/1768715441';
+  const spotifyLink = 'https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K';
+  const youtubeLink = 'https://www.youtube.com/@Suhasmusicofficial';
+  const instagramLink = 'https://www.instagram.com/suhas.als';
 
   const imgMap = { 'Digital Download': '/images/album-art.webp', CD: '/images/cd-art.webp', Apparel: '/images/tshirt.webp' };
 
@@ -715,7 +712,7 @@ const SuhasWebsite = () => {
                     muted
                     playsInline
                     preload="auto"
-                    className="w-full h-full object-cover fixed top-0 left-0"
+                    className="w-full h-full object-cover absolute top-0 left-0"
                     style={{ opacity: 0.85 }}
                   >
                     <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
@@ -961,7 +958,7 @@ const SuhasWebsite = () => {
           </section>
 
           {/* CONNECT */}
-          <section id="connect" className="min-h-screen flex items-center py-28 relative z-10 overflow-hidden bg-[#030306] border-t border-zinc-900">
+          <section id="connect" className="min-h-screen flex items-center py-28 relative z-10 overflow-hidden bg-black border-t border-zinc-900">
             {/* suhas6 photo background - sticky so it stays in view while scrolling */}
             <div className="absolute inset-0 z-0 overflow-hidden">
               <div className="sticky top-0 h-screen w-full pointer-events-none">
@@ -1142,13 +1139,13 @@ const SuhasWebsite = () => {
                   <a href={instagramLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Instagram">
                     <img src="/images/instagram-icon.svg" alt="Instagram" className="w-[18px] h-[18px] rounded-[4px]" />
                   </a>
-                  <a href={youtubeCreatorLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="YouTube">
+                  <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="YouTube">
                     <img src="/images/youtube-icon.svg" alt="YouTube" className="w-[18px] h-[18px] rounded-[3px]" />
                   </a>
-                  <a href={appleMusicArtistLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Apple Music">
+                  <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Apple Music">
                     <img src="/images/applemusic-icon.svg" alt="Apple Music" className="w-[18px] h-[18px] rounded-[4px]" />
                   </a>
-                  <a href={spotifyArtistLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Spotify">
+                  <a href={spotifyLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-cyan-500 hover:bg-zinc-800 transition-all" aria-label="Spotify">
                     <img src="/images/spotify-icon.svg" alt="Spotify" className="w-4 h-4 rounded-full" />
                   </a>
                 </div>
