@@ -271,11 +271,19 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
               </RevealOnScroll>
 
               <RevealOnScroll delay={300} cacheKey="music:studio-text">
-                <p className="text-zinc-400 text-lg leading-relaxed max-w-3xl mx-auto mt-10 font-light text-center">
-                  Recorded and produced in 2026, the track was built from the ground up,
-                  layering piano improvisation with programmed rhythmic foundations before bringing in
-                  the live session recordings from Ric and Marco.
-                </p>
+                <div className="space-y-6 max-w-3xl mx-auto mt-10 text-center">
+                  <p className="text-zinc-400 text-lg leading-relaxed font-light">
+                    The first version of Fractals was written and produced in 2024 — a solo
+                    piano composition built entirely with MIDI, programmed rhythms, and
+                    virtual instruments. That demo became the blueprint for everything that followed.
+                  </p>
+                  <p className="text-zinc-400 text-lg leading-relaxed font-light">
+                    In 2025, the track was reimagined from the ground up with live musicians.
+                    Ric and Marco each recorded their parts remotely, interpreting the
+                    original composition through their own playing styles — turning a
+                    programmed sketch into a living, breathing performance.
+                  </p>
+                </div>
               </RevealOnScroll>
             </div>
           </div>
