@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { ExternalLink } from 'lucide-react';
+import usePageMeta from '../hooks/usePageMeta';
 
 // ── Icon components using original brand SVG files ───────────────────────────
 const BrandIcon = ({ src, alt }) => (
@@ -101,8 +102,15 @@ const LINK_GROUPS = [
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function LinksPage() {
+  usePageMeta({
+    path: '/links',
+    title: 'Suhas — Links',
+    description: 'All links for Suhas Padav — Spotify, Apple Music, YouTube, Instagram, TikTok. Stream Fractals and follow for new releases.',
+    ogTitle: 'Suhas Padav — Links',
+    ogDescription: 'Stream Fractals on Spotify & Apple Music. Follow Suhas on Instagram, TikTok & YouTube.',
+  });
+
   useEffect(() => {
-    document.title = 'Suhas — Links';
     if (!document.querySelector('link[data-suhas-fonts]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
