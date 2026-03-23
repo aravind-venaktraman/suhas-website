@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { ArrowLeft, ExternalLink, Download, Mail } from 'lucide-react';
 import usePageMeta from '../hooks/usePageMeta';
 
-const PRESS_KIT_URL = 'https://drive.google.com/drive/folders/1if5KyWLhKNXJ76BTgyUAIapijTAIXBXV?usp=share_link';
+const PRESS_KIT_URL = 'https://drive.google.com/drive/folders/10Q4ToRwhJQQegIUp2W2O8gzj2bZ_vwx1?usp=drive_link';
 
 const FACTS = [
   { label: 'Genre', value: 'Progressive Jazz Fusion' },
