@@ -1,4 +1,7 @@
 {
+  "redirects": [
+    { "source": "/epk", "destination": "/epk.pdf", "statusCode": 302 }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import usePageMeta from '../hooks/usePageMeta';
 import {
   ArrowLeft,
   CheckCircle,
@@ -154,6 +155,14 @@ const CancelBanner = () => (
 export default function ContributePage({ success = false, cancelled = false }) {
   const navigate = useNavigate();
   const [navShadow, setNavShadow] = useState(false);
+
+  usePageMeta({
+    path: '/contribute',
+    title: 'Suhas — Contribute',
+    description: 'Support Suhas Padav\'s debut album Fractals. Back the project and help bring progressive jazz fusion to life.',
+    ogTitle: 'Support Fractals — Suhas Padav',
+    ogDescription: 'Help fund the debut album by progressive jazz fusion pianist Suhas Padav. Exclusive rewards for backers.',
+  });
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
   useEffect(() => {

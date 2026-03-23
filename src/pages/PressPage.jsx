@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { ArrowLeft, ExternalLink, Download, Mail } from 'lucide-react';
+import usePageMeta from '../hooks/usePageMeta';
 
-const PRESS_KIT_URL = 'https://drive.google.com/drive/folders/placeholder';
+const PRESS_KIT_URL = 'https://drive.google.com/drive/folders/1if5KyWLhKNXJ76BTgyUAIapijTAIXBXV?usp=share_link';
 
 const FACTS = [
   { label: 'Genre', value: 'Progressive Jazz Fusion' },
@@ -36,8 +37,15 @@ const COVERAGE_ANGLES = [
 ];
 
 export default function PressPage() {
+  usePageMeta({
+    path: '/press',
+    title: 'Suhas — Press',
+    description: 'Press resources for Suhas Padav — progressive jazz fusion pianist and composer. Download the press kit, high-res photos, and one-sheet.',
+    ogTitle: 'Suhas Padav — Press & Media Resources',
+    ogDescription: 'Press kit, high-res photos, bio, and media resources for Suhas Padav. Debut single Fractals featuring Ric Fierabracci and Marco Minnemann.',
+  });
+
   useEffect(() => {
-    document.title = 'Suhas — Press';
     if (!document.querySelector('link[data-suhas-fonts]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';

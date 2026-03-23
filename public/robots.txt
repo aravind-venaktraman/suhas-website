@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /epk
 Sitemap: https://suhasmusic.com/sitemap.xml
 
 # Suhas Music — Progressive Jazz Fusion Pianist & Composer
