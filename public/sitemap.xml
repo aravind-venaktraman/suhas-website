@@ -3,18 +3,18 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://suhasmusic.com</loc>
-    <lastmod>2026-03-20</lastmod>
+    <lastmod>2026-03-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://suhasmusic.com/images/album-art-final.png</image:loc>
-      <image:title>Fractals — debut release by Suhas Padav</image:title>
-      <image:caption>Album artwork for Fractals by Suhas Padav, progressive jazz fusion pianist and composer</image:caption>
+      <image:title>Fractals — debut single by Suhas Padav ft. Ric Fierabracci and Marco Minnemann</image:title>
+      <image:caption>Album artwork for Fractals by Suhas Padav, progressive jazz fusion pianist and composer, featuring bassist Ric Fierabracci and drummer Marco Minnemann</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://suhasmusic.com/images/suhas1.jpeg</image:loc>
-      <image:title>Suhas Padav — Progressive Jazz Fusion Pianist</image:title>
-      <image:caption>Suhas Padav performing piano</image:caption>
+      <image:title>Suhas Padav — Progressive Jazz Fusion Pianist and Composer</image:title>
+      <image:caption>Suhas Padav, progressive jazz fusion pianist and composer, creator of Fractals</image:caption>
     </image:image>
   </url>
   <!--
