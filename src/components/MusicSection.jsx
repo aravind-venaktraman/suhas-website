@@ -92,10 +92,10 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
     <section className="relative bg-black">
 
       {/* ═══════════════════════════════════════════════════════════════════
-          PART 1: Landing Hero — marco.mp4 background
+          PART 1: Landing Hero — Fractals video background
           ═══════════════════════════════════════════════════════════════════ */}
       <div ref={marcoSectionRef} className="relative min-h-screen overflow-hidden">
-        {/* marco.mp4 video background */}
+        {/* Fractals video background */}
         <video
           ref={marcoBgRef}
           autoPlay
@@ -104,12 +104,12 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
           playsInline
           preload="none"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ opacity: 0.4 }}
+          style={{ opacity: 1 }}
         >
-          <source src="/images/marco.mp4" type="video/mp4" />
+          <source src="/images/Fractals Video for Website BG.webm" type="video/webm" />
         </video>
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70" />
+        <div className="absolute inset-0 bg-black/[0.37]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
 
         {/* Landing content */}
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 text-center">
