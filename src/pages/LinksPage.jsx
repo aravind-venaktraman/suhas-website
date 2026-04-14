@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { ExternalLink } from 'lucide-react';
 import usePageMeta from '../hooks/usePageMeta';
+import useIsMobile from '../hooks/useIsMobile';
 
 // ── Icon components using original brand SVG files ───────────────────────────
 const BrandIcon = ({ src, alt }) => (
@@ -102,6 +103,7 @@ const LINK_GROUPS = [
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function LinksPage() {
+  const isMobile = useIsMobile();
   usePageMeta({
     path: '/links',
     title: 'Suhas — Links',
@@ -125,14 +127,16 @@ export default function LinksPage() {
       style={{ fontFamily: "'Michroma', sans-serif", background: '#09090b', minHeight: '100dvh' }}
       className="relative flex flex-col items-center px-4 py-12 text-white overflow-x-hidden"
     >
-      {/* ── Shards video background ── */}
+      {/* ── Shards video background — compressed 720p on mobile ── */}
       <div className="fixed inset-0" style={{ zIndex: 0, overflow: 'hidden' }}>
         <video
+          key={isMobile ? 'links-mobile' : 'links-desktop'}
           autoPlay
           loop
           muted
           playsInline
           preload="none"
+          src={isMobile ? "/images/Shards_Video_Loop_mobile.webm" : "/images/Shards_Video_Loop.webm"}
           style={{
             position: 'absolute',
             top: 0,
@@ -142,9 +146,7 @@ export default function LinksPage() {
             objectFit: 'cover',
             opacity: 0.4,
           }}
-        >
-          <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
-        </video>
+        />
         {/* dark gradient overlay */}
         <div
           className="absolute inset-0"

@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { Check, Lock, ArrowRight, Users, Calendar, TrendingUp } from "lucide-react";
 import RevealOnScroll from "./RevealOnScroll";
+import useIsMobile from "../hooks/useIsMobile";
 
 const syne = (w = 800) => ({ fontFamily: "'Michroma', sans-serif", fontWeight: w });
 const cx = (...c) => c.filter(Boolean).join(" ");
@@ -40,6 +41,7 @@ export default function ContributeSection({
   campaign = { goal: 15000, raised: 2340, backers: 47, daysLeft: 58, currency: "USD" },
   onCheckout,
 }) {
+  const isMobile = useIsMobile();
   const c = cur(campaign.currency);
   const pct = Math.min((campaign.raised / campaign.goal) * 100, 100);
 
@@ -111,15 +113,15 @@ export default function ContributeSection({
   return (
     <section id="contribute" className="relative border-t border-zinc-900 overflow-hidden">
       {/* ── Dynamic background ─────────────────────────────────────────── */}
-      {/* Video bg matching the rest of the site */}
+      {/* Video bg matching the rest of the site — compressed 720p on mobile */}
       <div className="absolute inset-0 z-0">
         <video
+          key={isMobile ? 'contribute-mobile' : 'contribute-desktop'}
           autoPlay loop muted playsInline
           className="w-full h-full object-cover"
           style={{ opacity: 0.2 }}
-        >
-          <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
-        </video>
+          src={isMobile ? "/images/Shards_Video_Loop_mobile.webm" : "/images/Shards_Video_Loop.webm"}
+        />
         {/* Gradient overlays for depth and readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/85 to-black" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60" />

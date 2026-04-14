@@ -4,6 +4,7 @@ import './App.css';
 
 import RevealOnScroll from './components/RevealOnScroll';
 import MusicSection from './components/MusicSection';
+import useIsMobile from './hooks/useIsMobile';
 
 // ─── FEATURE 1: Font Loader (Michroma) ───────────────────────────────────────
 const FontLoader = () => {
@@ -443,6 +444,7 @@ const GeometricVisualizer = () => {
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 const SuhasWebsite = () => {
+  const isMobile = useIsMobile();
   const [loaded, setLoaded] = useState(false);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -587,8 +589,8 @@ const SuhasWebsite = () => {
     { id: 3, name: 'Fractals Tee', price: '$30.00', desc: 'Heavyweight Cotton - Black', type: 'Apparel', link: null, soldOut: true },
   ];
 
-  const presaveLink = 'https://distrokid.com/hyperfollow/suhas/fractals-feat-ric-fierabracci--marco-minnemann';
-  const appleMusicLink = 'https://music.apple.com/us/artist/suhas/1768715441';
+  const streamLink = 'https://www.youtube.com/watch?v=QAzLqs3s8ic';
+  const appleMusicLink = 'https://music.apple.com/us/album/fractals-feat-ric-fierabracci-marco-minnemann-single/1886637156';
   const spotifyLink = 'https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K';
   const youtubeLink = 'https://www.youtube.com/@Suhasmusicofficial';
   const instagramLink = 'https://www.instagram.com/suhas.als';
@@ -642,13 +644,13 @@ const SuhasWebsite = () => {
               {/* Right: Fundraiser button + mobile menu */}
               <div className="ml-auto flex items-center gap-3">
                 <a
-                  href={presaveLink}
+                  href={streamLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hidden md:inline-flex px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[11px] font-bold uppercase tracking-[0.15em] hover:brightness-110 hover:scale-105 active:scale-[0.97] transition-all duration-300 shadow-md shadow-cyan-500/20"
                   style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                 >
-                  Pre-Save
+                  Stream Now
                 </a>
 
                 <div className="md:hidden flex items-center gap-3 z-50 relative">
@@ -682,14 +684,14 @@ const SuhasWebsite = () => {
                     </a>
                   ))}
                   <a
-                    href={presaveLink}
+                    href={streamLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-8 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all duration-300 text-center shadow-md shadow-cyan-500/20"
                     style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Pre-Save
+                    Stream Now
                   </a>
                 </div>
               </div>
@@ -703,6 +705,7 @@ const SuhasWebsite = () => {
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0">
                   <video
+                    key={isMobile ? 'hero-mobile' : 'hero-desktop'}
                     ref={(el) => {
                       heroVideoRef.current = el;
                       if (el) { el.muted = true; el.play().catch(() => {}); }
@@ -714,9 +717,8 @@ const SuhasWebsite = () => {
                     preload="auto"
                     className="w-full h-full object-cover absolute top-0 left-0"
                     style={{ opacity: 0.85 }}
-                  >
-                    <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
-                  </video>
+                    src={isMobile ? "/images/Shards_Video_Loop_mobile.webm" : "/images/Shards_Video_Loop.webm"}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/70" />
                 </div>
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-900/20 rounded-full blur-[100px]" />
@@ -750,17 +752,17 @@ const SuhasWebsite = () => {
                     {!showVisualizer ? (
                       <>
                       <a
-                        href={presaveLink}
+                        href={streamLink}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group inline-flex items-center gap-3 px-10 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm md:text-base font-bold uppercase tracking-[0.15em] hover:brightness-110 hover:scale-105 active:scale-[0.98] transition-all duration-300 shadow-lg shadow-cyan-500/25"
                         style={{ fontFamily: "'Michroma', sans-serif" }}
                       >
-                        Pre-Save Now
+                        Stream Now
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                       </a>
                       <p className="text-zinc-500 text-[10px] tracking-[0.3em] uppercase">
-                        Available April 2026
+                        Out Now
                       </p>
                       <div className="flex gap-4 items-center flex-wrap justify-center">
                         <a href={appleMusicLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-300 hover:scale-110">
@@ -802,7 +804,7 @@ const SuhasWebsite = () => {
                 <div className="inline-block" style={{ animation: 'marquee 60s linear infinite' }}>
                   {[...Array(10)].map((_, i) => (
                     <span key={i} className="text-white font-black text-xl md:text-3xl mx-8 uppercase tracking-widest italic">
-                      FRACTALS — PRE-SAVE NOW • APRIL 2026 • PROGRESSIVE JAZZ FUSION • FEAT. RIC FIERABRACCI & MARCO MINNEMANN •
+                      FRACTALS — OUT NOW • STREAM NOW • PROGRESSIVE JAZZ FUSION • FEAT. RIC FIERABRACCI & MARCO MINNEMANN •
                     </span>
                   ))}
                 </div>
@@ -888,7 +890,7 @@ const SuhasWebsite = () => {
 
           {/* Music */}
           <section id="music" className="relative z-0">
-            <MusicSection appleMusicLink={appleMusicLink} spotifyLink={spotifyLink} youtubeLink={youtubeLink} presaveLink={presaveLink} />
+            <MusicSection appleMusicLink={appleMusicLink} spotifyLink={spotifyLink} youtubeLink={youtubeLink} streamLink={streamLink} />
           </section>
 
           {/* STORE (hidden for now) */}

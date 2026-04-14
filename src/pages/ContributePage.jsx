@@ -280,7 +280,7 @@ export default function ContributePage({ success = false, cancelled = false }) {
     finally { setIsProcessing(false); }
   };
 
-  const appleMusicLink = 'https://music.apple.com/us/album/fractals-single/1768715442';
+  const appleMusicLink = 'https://music.apple.com/us/album/fractals-feat-ric-fierabracci-marco-minnemann-single/1886637156';
   const spotifyLink = 'https://open.spotify.com/track/4Udyb9Ijofesgz8YcmrsB6';
   const instagramLink = 'https://www.instagram.com/suhas.als';
 

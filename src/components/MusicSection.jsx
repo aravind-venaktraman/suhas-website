@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ExternalLink, ArrowRight, ChevronDown } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
+import useIsMobile from '../hooks/useIsMobile';
 
 const michroma = () => ({ fontFamily: "'Michroma', sans-serif" });
 
@@ -35,14 +36,19 @@ function MusicianCard({ name, role, imgSrc, bio }) {
   );
 }
 
-export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink, presaveLink }) {
+export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink, streamLink }) {
   const marcoBgRef = useRef(null);
   const shardsBgRef = useRef(null);
   const marcoSectionRef = useRef(null);
   const shardsSectionRef = useRef(null);
 
+  // Skip heavy video backgrounds on mobile to prevent crashes
+  const isMobile = useIsMobile();
+
   // Play/pause videos based on viewport visibility to conserve GPU memory
   useEffect(() => {
+    if (isMobile) return;
+
     const pairs = [
       { video: marcoBgRef, section: marcoSectionRef },
       { video: shardsBgRef, section: shardsSectionRef },
@@ -68,7 +74,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   const streamLinks = [
     {
@@ -95,8 +101,9 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
           PART 1: Landing Hero — Fractals video background
           ═══════════════════════════════════════════════════════════════════ */}
       <div ref={marcoSectionRef} className="relative min-h-screen overflow-hidden">
-        {/* Fractals video background */}
+        {/* Fractals video background — compressed 720p version on mobile */}
         <video
+          key={isMobile ? 'fractals-mobile' : 'fractals-desktop'}
           ref={marcoBgRef}
           autoPlay
           loop
@@ -105,9 +112,8 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
           preload="none"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 1 }}
-        >
-          <source src="/images/Fractals Video for Website BG.webm" type="video/webm" />
-        </video>
+          src={isMobile ? "/images/Fractals_BG_mobile.webm" : "/images/Fractals Video for Website BG.webm"}
+        />
         <div className="absolute inset-0 bg-black/[0.37]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
 
@@ -115,7 +121,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 text-center">
           <RevealOnScroll cacheKey="music:hero-tag">
             <span className="text-cyan-400 font-bold tracking-[0.3em] uppercase text-sm mb-4 block">
-              Single &middot; 2026
+              Out Now
             </span>
           </RevealOnScroll>
 
@@ -131,13 +137,13 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
           <RevealOnScroll delay={150} cacheKey="music:hero-presave">
             <div className="w-full max-w-lg mx-auto mb-10 flex justify-center">
               <a
-                href={presaveLink}
+                href={streamLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 active:scale-[0.97] transition-all text-white text-sm font-bold uppercase tracking-wider"
                 style={{ fontFamily: "'Michroma', sans-serif" }}
               >
-                Pre-Save Now
+                Stream Now
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
@@ -183,6 +189,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
           style={{ gridRow: '1 / -1', gridColumn: '1 / -1', zIndex: 0 }}
         >
           <video
+            key={isMobile ? 'shards-mobile' : 'shards-desktop'}
             ref={shardsBgRef}
             autoPlay
             loop
@@ -191,9 +198,8 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
             preload="none"
             className="w-full h-full object-cover"
             style={{ opacity: 0.4 }}
-          >
-            <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
-          </video>
+            src={isMobile ? "/images/Shards_Video_Loop_mobile.webm" : "/images/Shards_Video_Loop.webm"}
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
         </div>
 
