@@ -143,7 +143,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
                 className="group inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 active:scale-[0.97] transition-all text-white text-sm font-bold uppercase tracking-wider"
                 style={{ fontFamily: "'Michroma', sans-serif" }}
               >
-                Stream Now
+                Watch Now
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </a>
             </div>

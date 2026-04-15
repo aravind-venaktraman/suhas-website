@@ -582,7 +582,7 @@ const SuhasWebsite = () => {
       price: '$1.29',
       desc: 'Digital Copy of Fractals (Single)',
       type: 'Digital Download',
-      link: 'https://music.apple.com/us/artist/suhas/1768715441',
+      link: 'https://music.apple.com/us/song/fractals-feat-ric-fierabracci-marco-minnemann/1886637157',
       soldOut: false,
     },
     { id: 2, name: 'Fractals CD', price: '$5.00', desc: 'Limited Digipak Edition', type: 'CD', link: null, soldOut: true },
@@ -590,9 +590,9 @@ const SuhasWebsite = () => {
   ];
 
   const streamLink = 'https://www.youtube.com/watch?v=QAzLqs3s8ic';
-  const appleMusicLink = 'https://music.apple.com/us/album/fractals-feat-ric-fierabracci-marco-minnemann-single/1886637156';
-  const spotifyLink = 'https://open.spotify.com/artist/7jrJXlWGH3Z1L3r7q4qY8K';
-  const youtubeLink = 'https://www.youtube.com/@Suhasmusicofficial';
+  const appleMusicLink = 'https://music.apple.com/us/song/fractals-feat-ric-fierabracci-marco-minnemann/1886637157';
+  const spotifyLink = 'https://open.spotify.com/album/6spsOE6k5yIjDihEc8ni6O?si=oJk1KLEpRyWNH0Tn_kRFqQ';
+  const youtubeLink = 'https://music.youtube.com/watch?v=RA1Zhh74EiM&si=qvOXb4jcIk_cQ9Zv';
   const instagramLink = 'https://www.instagram.com/suhas.als';
 
   const imgMap = { 'Digital Download': '/images/album-art.webp', CD: '/images/cd-art.webp', Apparel: '/images/tshirt.webp' };
@@ -650,7 +650,7 @@ const SuhasWebsite = () => {
                   className="hidden md:inline-flex px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[11px] font-bold uppercase tracking-[0.15em] hover:brightness-110 hover:scale-105 active:scale-[0.97] transition-all duration-300 shadow-md shadow-cyan-500/20"
                   style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                 >
-                  Stream Now
+                  Watch Now
                 </a>
 
                 <div className="md:hidden flex items-center gap-3 z-50 relative">
@@ -691,7 +691,7 @@ const SuhasWebsite = () => {
                     style={{ fontFamily: "'Michroma', sans-serif", fontWeight: 700 }}
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Stream Now
+                    Watch Now
                   </a>
                 </div>
               </div>
@@ -758,7 +758,7 @@ const SuhasWebsite = () => {
                         className="group inline-flex items-center gap-3 px-10 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm md:text-base font-bold uppercase tracking-[0.15em] hover:brightness-110 hover:scale-105 active:scale-[0.98] transition-all duration-300 shadow-lg shadow-cyan-500/25"
                         style={{ fontFamily: "'Michroma', sans-serif" }}
                       >
-                        Stream Now
+                        Watch Now
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                       </a>
                       <p className="text-zinc-500 text-[10px] tracking-[0.3em] uppercase">

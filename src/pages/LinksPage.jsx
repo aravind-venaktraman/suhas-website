@@ -41,14 +41,14 @@ const LINK_GROUPS = [
       {
         title: 'Listen on Spotify',
         subtitle: 'Fractals · Single',
-        href: 'https://open.spotify.com/track/4Udyb9Ijofesgz8YcmrsB6?si=KcFSYSf9Q2SwzGrJjKejNg',
+        href: 'https://open.spotify.com/album/6spsOE6k5yIjDihEc8ni6O?si=oJk1KLEpRyWNH0Tn_kRFqQ',
         icon: <SpotifyIcon />,
         accent: '#1DB954',
       },
       {
         title: 'Listen on Apple Music',
         subtitle: 'Fractals · Single',
-        href: 'https://music.apple.com/us/album/fractals-single/1768715442',
+        href: 'https://music.apple.com/us/song/fractals-feat-ric-fierabracci-marco-minnemann/1886637157',
         icon: <AppleMusicIcon />,
         accent: '#fc3c44',
       },
