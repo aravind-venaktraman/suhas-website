@@ -5,6 +5,7 @@ import App from './App.jsx';
 import ContributePage from './pages/ContributePage.jsx';
 import LinksPage from './pages/LinksPage.jsx';
 import PressPage from './pages/PressPage.jsx';
+import FractalsPage from './pages/FractalsPage.jsx';
 import './index.css';
 
 function EpkRedirect() {
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
+        <Route path="/fractals" element={<FractalsPage />} />
         <Route path="/links" element={<LinksPage />} />
         <Route path="/press" element={<PressPage />} />
         <Route path="/epk" element={<EpkRedirect />} />

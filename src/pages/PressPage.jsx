@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { ArrowLeft, ExternalLink, Download, Mail } from 'lucide-react';
 import usePageMeta from '../hooks/usePageMeta';
+import useIsMobile from '../hooks/useIsMobile';
 
 const PRESS_KIT_URL = 'https://drive.google.com/drive/folders/10Q4ToRwhJQQegIUp2W2O8gzj2bZ_vwx1?usp=drive_link';
 
@@ -37,6 +38,7 @@ const COVERAGE_ANGLES = [
 ];
 
 export default function PressPage() {
+  const isMobile = useIsMobile();
   usePageMeta({
     path: '/press',
     title: 'Suhas — Press',
@@ -60,9 +62,10 @@ export default function PressPage() {
       style={{ fontFamily: "'Michroma', sans-serif", background: '#09090b', minHeight: '100dvh' }}
       className="relative text-white overflow-x-hidden"
     >
-      {/* Background video */}
+      {/* Background video — compressed 720p on mobile */}
       <div className="fixed inset-0" style={{ zIndex: 0, overflow: 'hidden' }}>
         <video
+          key={isMobile ? 'press-mobile' : 'press-desktop'}
           autoPlay
           loop
           muted
@@ -70,9 +73,8 @@ export default function PressPage() {
           preload="none"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: 0.25 }}
-        >
-          <source src="/images/Shards_Video_Loop.webm" type="video/webm" />
-        </video>
+          src={isMobile ? "/images/Shards_Video_Loop_mobile.webm" : "/images/Shards_Video_Loop.webm"}
+        />
         <div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to bottom, rgba(9,9,11,0.6) 0%, rgba(9,9,11,0.3) 50%, rgba(9,9,11,0.8) 100%)' }}
@@ -99,7 +101,7 @@ export default function PressPage() {
         <section className="container mx-auto px-6 pt-16 pb-12 max-w-4xl">
           <div className="text-center mb-16">
             <span className="text-cyan-400 tracking-[0.4em] text-[9px] sm:text-[10px] uppercase block mb-4 font-bold">
-              Progressive Jazz Fusion / Debut Single / April 2026
+              Progressive Jazz Fusion / Debut Single / Out Now
             </span>
             <h1
               className="text-4xl md:text-6xl uppercase tracking-tighter mb-4"

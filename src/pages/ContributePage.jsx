@@ -280,8 +280,8 @@ export default function ContributePage({ success = false, cancelled = false }) {
     finally { setIsProcessing(false); }
   };
 
-  const appleMusicLink = 'https://music.apple.com/us/album/fractals-single/1768715442';
-  const spotifyLink = 'https://open.spotify.com/track/4Udyb9Ijofesgz8YcmrsB6';
+  const appleMusicLink = 'https://music.apple.com/us/song/fractals-feat-ric-fierabracci-marco-minnemann/1886637157';
+  const spotifyLink = 'https://open.spotify.com/album/6spsOE6k5yIjDihEc8ni6O?si=oJk1KLEpRyWNH0Tn_kRFqQ';
   const instagramLink = 'https://www.instagram.com/suhas.als';
 
   const faqs = [
@@ -640,7 +640,7 @@ export default function ContributePage({ success = false, cancelled = false }) {
                 {
                   name: 'Ric Fierabracci',
                   role: 'Bass',
-                  img: '/images/ric.jpg',
+                  img: '/images/Ric.jpg',
                   fallback: '🎸',
                   bio: 'Grammy-nominated bassist with credits spanning Chick Corea, Jean-Luc Ponty, Yanni, and Planet X. Heard the Fractals demo, recognized something in it, and signed on within 24 hours. Stayed to help build the entire production.',
                   detail: 'Mentored the project from single to full album',
