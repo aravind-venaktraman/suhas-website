@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { ArrowLeft, ExternalLink, Download, Mail } from 'lucide-react';
 import usePageMeta from '../hooks/usePageMeta';
 import useIsMobile from '../hooks/useIsMobile';
+import useAutoplayVideo from '../hooks/useAutoplayVideo';
 
 const PRESS_KIT_URL = 'https://drive.google.com/drive/folders/10Q4ToRwhJQQegIUp2W2O8gzj2bZ_vwx1?usp=drive_link';
 
@@ -39,6 +40,7 @@ const COVERAGE_ANGLES = [
 
 export default function PressPage() {
   const isMobile = useIsMobile();
+  const autoplayRef = useAutoplayVideo();
   usePageMeta({
     path: '/press',
     title: 'Suhas — Press',
@@ -66,6 +68,7 @@ export default function PressPage() {
       <div className="fixed inset-0" style={{ zIndex: 0, overflow: 'hidden' }}>
         <video
           key={isMobile ? 'press-mobile' : 'press-desktop'}
+          ref={autoplayRef}
           autoPlay
           loop
           muted

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { ExternalLink } from 'lucide-react';
 import usePageMeta from '../hooks/usePageMeta';
 import useIsMobile from '../hooks/useIsMobile';
+import useAutoplayVideo from '../hooks/useAutoplayVideo';
 
 // ── Icon components using original brand SVG files ───────────────────────────
 const BrandIcon = ({ src, alt }) => (
@@ -104,6 +105,7 @@ const LINK_GROUPS = [
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function LinksPage() {
   const isMobile = useIsMobile();
+  const autoplayRef = useAutoplayVideo();
   usePageMeta({
     path: '/links',
     title: 'Suhas — Links',
@@ -131,6 +133,7 @@ export default function LinksPage() {
       <div className="fixed inset-0" style={{ zIndex: 0, overflow: 'hidden' }}>
         <video
           key={isMobile ? 'links-mobile' : 'links-desktop'}
+          ref={autoplayRef}
           autoPlay
           loop
           muted

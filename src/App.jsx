@@ -5,6 +5,7 @@ import './App.css';
 import RevealOnScroll from './components/RevealOnScroll';
 import MusicSection from './components/MusicSection';
 import useIsMobile from './hooks/useIsMobile';
+import useAutoplayVideo from './hooks/useAutoplayVideo';
 
 // ─── FEATURE 1: Font Loader (Michroma) ───────────────────────────────────────
 const FontLoader = () => {
@@ -455,6 +456,7 @@ const SuhasWebsite = () => {
   const [activeSection, setActiveSection] = useState('home');
 
   const heroVideoRef = useRef(null);
+  const autoplayRef = useAutoplayVideo();
 
   const [heroEmail, setHeroEmail] = useState('');
   const [heroEmailSubmitted, setHeroEmailSubmitted] = useState(false);
@@ -708,7 +710,7 @@ const SuhasWebsite = () => {
                     key={isMobile ? 'hero-mobile' : 'hero-desktop'}
                     ref={(el) => {
                       heroVideoRef.current = el;
-                      if (el) { el.muted = true; el.play().catch(() => {}); }
+                      autoplayRef(el);
                     }}
                     autoPlay
                     loop

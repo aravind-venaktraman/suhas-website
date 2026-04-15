@@ -2,6 +2,15 @@
   margin: 0 auto;
 }
 
+/* Hide native video controls on background videos — mobile browsers can show
+   an unreachable play button when autoplay gets suspended */
+video::-webkit-media-controls,
+video::-webkit-media-controls-enclosure,
+video::-webkit-media-controls-panel {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
 /* Connect section - suhas6 image */
 /* Mobile: fill the sticky viewport, show right side */
 .connect-suhas-img {
