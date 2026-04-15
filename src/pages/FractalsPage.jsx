@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ExternalLink, Link2, Check } from 'lucide-react';
 import usePageMeta from '../hooks/usePageMeta';
 import useIsMobile from '../hooks/useIsMobile';
+import useAutoplayVideo from '../hooks/useAutoplayVideo';
 
 // ── Brand icons ──────────────────────────────────────────────────────────────
 const BrandIcon = ({ src, alt }) => (
@@ -33,8 +34,7 @@ const STREAM_LINKS = [
     accent: '#FF0000',
   },
   {
-    title: 'YouTube',
-    subtitle: 'Video Premiere',
+    title: 'Music Video',
     href: 'https://www.youtube.com/watch?v=QAzLqs3s8ic',
     icon: <YoutubeIcon />,
     accent: '#FF0000',
@@ -78,6 +78,7 @@ function ShareButton() {
 // ── Component ────────────────────────────────────────────────────────────────
 export default function FractalsPage() {
   const isMobile = useIsMobile();
+  const autoplayRef = useAutoplayVideo();
 
   usePageMeta({
     path: '/fractals',
@@ -106,6 +107,7 @@ export default function FractalsPage() {
       <div className="fixed inset-0" style={{ zIndex: 0, overflow: 'hidden' }}>
         <video
           key={isMobile ? 'fractals-bg-mobile' : 'fractals-bg-desktop'}
+          ref={autoplayRef}
           autoPlay
           loop
           muted
@@ -137,7 +139,7 @@ export default function FractalsPage() {
         <p className="text-white/50 text-xs tracking-[0.25em] uppercase mb-1">
           Suhas
         </p>
-        <p className="text-white/30 text-[10px] tracking-[0.2em] uppercase mb-10">
+        <p className="text-white/30 text-[10px] tracking-[0.2em] uppercase mb-10 text-center">
           ft. Ric Fierabracci &amp; Marco Minnemann
         </p>
 

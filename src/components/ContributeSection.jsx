@@ -2,6 +2,7 @@ import React, { useMemo, useState, useRef, useEffect } from "react";
 import { Check, Lock, ArrowRight, Users, Calendar, TrendingUp } from "lucide-react";
 import RevealOnScroll from "./RevealOnScroll";
 import useIsMobile from "../hooks/useIsMobile";
+import useAutoplayVideo from "../hooks/useAutoplayVideo";
 
 const syne = (w = 800) => ({ fontFamily: "'Michroma', sans-serif", fontWeight: w });
 const cx = (...c) => c.filter(Boolean).join(" ");
@@ -42,6 +43,7 @@ export default function ContributeSection({
   onCheckout,
 }) {
   const isMobile = useIsMobile();
+  const autoplayRef = useAutoplayVideo();
   const c = cur(campaign.currency);
   const pct = Math.min((campaign.raised / campaign.goal) * 100, 100);
 
@@ -117,6 +119,7 @@ export default function ContributeSection({
       <div className="absolute inset-0 z-0">
         <video
           key={isMobile ? 'contribute-mobile' : 'contribute-desktop'}
+          ref={autoplayRef}
           autoPlay loop muted playsInline
           className="w-full h-full object-cover"
           style={{ opacity: 0.2 }}

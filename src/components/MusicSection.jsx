@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { ExternalLink, ArrowRight, ChevronDown } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
 import useIsMobile from '../hooks/useIsMobile';
+import useAutoplayVideo from '../hooks/useAutoplayVideo';
 
 const michroma = () => ({ fontFamily: "'Michroma', sans-serif" });
 
@@ -41,6 +42,8 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
   const shardsBgRef = useRef(null);
   const marcoSectionRef = useRef(null);
   const shardsSectionRef = useRef(null);
+  const autoplayFractals = useAutoplayVideo();
+  const autoplayShards = useAutoplayVideo();
 
   // Skip heavy video backgrounds on mobile to prevent crashes
   const isMobile = useIsMobile();
@@ -104,7 +107,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
         {/* Fractals video background — compressed 720p version on mobile */}
         <video
           key={isMobile ? 'fractals-mobile' : 'fractals-desktop'}
-          ref={marcoBgRef}
+          ref={(el) => { marcoBgRef.current = el; autoplayFractals(el); }}
           autoPlay
           loop
           muted
@@ -190,7 +193,7 @@ export default function MusicSection({ appleMusicLink, spotifyLink, youtubeLink,
         >
           <video
             key={isMobile ? 'shards-mobile' : 'shards-desktop'}
-            ref={shardsBgRef}
+            ref={(el) => { shardsBgRef.current = el; autoplayShards(el); }}
             autoPlay
             loop
             muted
