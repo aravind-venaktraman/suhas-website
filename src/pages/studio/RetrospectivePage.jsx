@@ -291,7 +291,7 @@ export default function RetrospectivePage() {
         >
           Full activity log ({activityLog.length} entries)
         </p>
-        <ActivityFeed entries={activityLog} userEmailMap={{}} />
+        <ActivityFeed entries={activityLog} />
       </div>
     </div>
   );

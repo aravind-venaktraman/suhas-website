@@ -1,77 +1,121 @@
 import React from 'react';
 import { formatRelativeTime, formatDualTimezone } from '../../lib/studio/analytics';
-import { colors } from './tokens';
+import { colors, fonts } from './tokens';
 
-const ACTION_LABELS = {
-  created:   { icon: '✦', label: 'created task',     color: colors.cyan },
-  completed: { icon: '✓', label: 'completed task',   color: '#4ADE80' },
-  reopened:  { icon: '↩', label: 'reopened task',    color: colors.amber },
-  moved:     { icon: '→', label: 'updated task',     color: colors.indigoDim },
-  blocked:   { icon: '⊘', label: 'marked blocked',   color: colors.red },
-  commented: { icon: '⌁', label: 'commented',        color: colors.textMuted },
-  archived:  { icon: '⊡', label: 'archived task',    color: colors.textDim },
+// ── Action metadata ────────────────────────────────────────────────────────────
+
+const ACTION_META = {
+  created:          { icon: '✦', verb: 'created task',            color: colors.cyan },
+  completed:        { icon: '✓', verb: 'completed task',          color: '#4ADE80' },
+  reopened:         { icon: '↩', verb: 'reopened task',           color: colors.amber },
+  moved:            { icon: '→', verb: 'updated task',            color: colors.indigoDim },
+  blocked:          { icon: '⊘', verb: 'marked blocked',          color: colors.red },
+  commented:        { icon: '⌁', verb: 'commented on task',       color: colors.textMuted },
+  archived:         { icon: '⊡', verb: 'archived task',           color: colors.textDim },
+  scope_cut_summary:{ icon: '↻', verb: 'archived batch of cuts',  color: colors.textDim },
+  historical_import:{ icon: '↻', verb: 'imported from Trello',    color: colors.textDim },
 };
 
-function displayName(email) {
-  if (email === 'arav@suhasmusic.com') return 'Arav';
-  if (email === 'management@suhasmusic.com') return 'Suhas';
-  return email?.split('@')[0] ?? 'Unknown';
-}
+// ── Component ──────────────────────────────────────────────────────────────────
 
-export default function ActivityFeed({ entries = [], userEmailMap = {} }) {
+export default function ActivityFeed({ entries = [] }) {
   if (entries.length === 0) {
     return (
-      <p className="text-[12px] text-center py-8" style={{ color: colors.textDim }}>
+      <p style={{ fontFamily: fonts.body, fontSize: 12, textAlign: 'center', padding: '32px 0', color: colors.textDim }}>
         No activity yet.
       </p>
     );
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
       {entries.map((entry) => {
-        const meta = ACTION_LABELS[entry.action] ?? ACTION_LABELS.moved;
-        const actorEmail = userEmailMap[entry.actor_id] ?? entry.actor_id;
-        const name = displayName(actorEmail);
-        const date = new Date(entry.created_at);
-        const taskTitle = entry.metadata?.title || entry.metadata?.preview || '';
+        const meta = ACTION_META[entry.action] ?? ACTION_META.moved;
+        const actor = entry.actor;
+
+        // Task title: prefer the joined task row, fall back to metadata
+        const taskTitle =
+          entry.task?.title ||
+          entry.metadata?.title ||
+          entry.metadata?.preview ||
+          null;
+
+        const avatarBg = actor
+          ? `linear-gradient(135deg, ${actor.avatar_color_from}, ${actor.avatar_color_to})`
+          : 'rgba(113,113,122,0.3)';
+
+        const displayName = actor?.display_name ?? 'Unknown';
 
         return (
           <div
             key={entry.id}
-            className="flex items-start gap-3 py-2.5 border-b"
-            style={{ borderColor: colors.border }}
+            style={{
+              display: 'flex', alignItems: 'flex-start', gap: 12,
+              padding: '10px 0',
+              borderBottom: `1px solid ${colors.border}`,
+            }}
           >
-            <span
-              className="text-[13px] mt-0.5 shrink-0 w-5 text-center"
-              style={{ color: meta.color }}
-            >
+            {/* Action icon */}
+            <span style={{
+              fontSize: 13, marginTop: 1, flexShrink: 0,
+              width: 20, textAlign: 'center',
+              color: meta.color,
+            }}>
               {meta.icon}
             </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px]" style={{ color: colors.textSecondary }}>
-                <span className="font-bold" style={{ fontFamily: "'Michroma', sans-serif" }}>
-                  {name}
-                </span>{' '}
-                <span style={{ color: colors.textMuted }}>{meta.label}</span>
+
+            {/* Body */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: 11, color: colors.textSecondary, margin: 0, lineHeight: 1.5 }}>
+
+                {/* Actor name pill */}
+                <span style={{
+                  display: 'inline-block',
+                  background: avatarBg,
+                  color: '#09090B',
+                  padding: '1px 8px',
+                  borderRadius: 10,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  fontFamily: fonts.display,
+                  letterSpacing: '0.05em',
+                  marginRight: 6,
+                  verticalAlign: 'middle',
+                }}>
+                  {displayName}
+                </span>
+
+                {/* Action verb */}
+                <span style={{ color: colors.textMuted }}>{meta.verb}</span>
+
+                {/* Task title */}
                 {taskTitle && (
                   <>
                     {' — '}
-                    <span
-                      className="italic truncate max-w-[200px] inline-block align-bottom"
-                      style={{ color: colors.textDim }}
-                    >
+                    <span style={{
+                      color: colors.textDim, fontStyle: 'italic',
+                      overflow: 'hidden', textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap', maxWidth: 220,
+                      display: 'inline-block', verticalAlign: 'bottom',
+                    }}>
                       {taskTitle}
                     </span>
                   </>
                 )}
+
+                {/* Blocked reason */}
+                {entry.action === 'blocked' && entry.metadata?.reason && (
+                  <span style={{ color: colors.red, fontSize: 10, marginLeft: 4 }}>
+                    · {entry.metadata.reason}
+                  </span>
+                )}
               </p>
-              <p
-                className="text-[10px] mt-0.5"
-                style={{ color: colors.textDim }}
-                title={formatDualTimezone(date)}
-              >
-                {formatRelativeTime(date)} &middot; {formatDualTimezone(date)}
+
+              {/* Timestamp */}
+              <p style={{ fontSize: 10, color: colors.textDim, margin: '2px 0 0', fontFamily: fonts.body }}>
+                {formatRelativeTime(new Date(entry.created_at))}
+                {' · '}
+                {formatDualTimezone(new Date(entry.created_at))}
               </p>
             </div>
           </div>
