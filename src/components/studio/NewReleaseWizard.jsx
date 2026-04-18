@@ -20,8 +20,9 @@ function formatShortDate(date) {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export default function NewReleaseWizard({ template, onClose, onCreated }) {
+export default function NewReleaseWizard({ template, templates = [], onClose, onCreated }) {
   const [step, setStep] = useState(1);
+  const [selectedTemplate, setSelectedTemplate] = useState(template);
   const [title, setTitle] = useState('');
   const [targetDate, setTargetDate] = useState(() => {
     const d = new Date();
@@ -33,13 +34,26 @@ export default function NewReleaseWizard({ template, onClose, onCreated }) {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState(null);
 
+  const allTemplates = templates.length > 0 ? templates : (template ? [template] : []);
+
   useEffect(() => {
-    if (!template?.id) return;
-    listTemplateTasks(template.id).then(data => {
+    if (!selectedTemplate?.id) return;
+    listTemplateTasks(selectedTemplate.id).then(data => {
       setTasks(data);
       setExcludedIds(new Set(data.filter(t => t.excluded_by_default).map(t => t.id)));
     });
-  }, [template?.id]);
+  }, [selectedTemplate?.id]);
+
+  function handleTemplateChange(e) {
+    const found = allTemplates.find(t => t.id === e.target.value);
+    if (!found) return;
+    setSelectedTemplate(found);
+    setTargetDate(() => {
+      const d = new Date();
+      d.setDate(d.getDate() + (found.duration_days ?? 60));
+      return d.toISOString().slice(0, 10);
+    });
+  }
 
   const isSunday = targetDate && new Date(targetDate + 'T12:00:00').getDay() === 0;
 
@@ -56,7 +70,7 @@ export default function NewReleaseWizard({ template, onClose, onCreated }) {
     setError(null);
     try {
       const releaseId = await createReleaseFromTemplate({
-        templateId: template.id,
+        templateId: selectedTemplate.id,
         title,
         targetDate,
         excludedTaskIds: Array.from(excludedIds),
@@ -102,9 +116,9 @@ export default function NewReleaseWizard({ template, onClose, onCreated }) {
         {/* Step 1 — Details */}
         {step === 1 && (
           <div className="nrw-body">
-            <div className="nrw-eyebrow">{template.name}</div>
+            <div className="nrw-eyebrow">{selectedTemplate.name}</div>
             <h2 className="nrw-title">Name your release</h2>
-            <p className="nrw-sub">{template.description}</p>
+            <p className="nrw-sub">{selectedTemplate.description}</p>
 
             <div className="nrw-form">
               <div>
@@ -121,7 +135,19 @@ export default function NewReleaseWizard({ template, onClose, onCreated }) {
               <div className="nrw-form-row">
                 <div>
                   <div className="nrw-label">Release type</div>
-                  <div className="nrw-static">{template.release_type}</div>
+                  {allTemplates.length > 1 ? (
+                    <select
+                      className="nrw-input"
+                      value={selectedTemplate.id}
+                      onChange={handleTemplateChange}
+                    >
+                      {allTemplates.map(t => (
+                        <option key={t.id} value={t.id}>{t.release_type ?? t.name}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="nrw-static">{selectedTemplate.release_type}</div>
+                  )}
                 </div>
                 <div>
                   <div className="nrw-label">Target date</div>
@@ -163,7 +189,7 @@ export default function NewReleaseWizard({ template, onClose, onCreated }) {
                 <div className="nrw-eyebrow">Preview and customize</div>
                 <h2 className="nrw-title">{title}</h2>
                 <p className="nrw-sub">
-                  {template.release_type} · releases {formatShortDate(new Date(targetDate + 'T12:00:00'))}
+                  {selectedTemplate.release_type} · releases {formatShortDate(new Date(targetDate + 'T12:00:00'))}
                 </p>
               </div>
               <div className="nrw-preview-counts">
