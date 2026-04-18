@@ -222,6 +222,7 @@ export default function TemplatesPage() {
       {wizardTemplate && (
         <NewReleaseWizard
           template={wizardTemplate}
+          templates={templates}
           onClose={() => setWizardTemplate(null)}
           onCreated={(releaseId) => navigate(`/studio/release/${releaseId}`)}
         />

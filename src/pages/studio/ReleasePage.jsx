@@ -422,7 +422,7 @@ export default function ReleasePage() {
       {/* ── Add task quick-entry ── */}
       {addingToWorkstream && (
         <div
-          style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 16, background: 'rgba(9,9,11,0.88)', backdropFilter: 'blur(4px)' }}
+          style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(9,9,11,0.88)', backdropFilter: 'blur(4px)' }}
           onClick={(e) => e.target === e.currentTarget && setAddingToWorkstream(null)}
         >
           <form
