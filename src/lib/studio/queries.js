@@ -205,21 +205,39 @@ export async function getActivityLog(releaseId, limit = 100) {
 export async function listTemplates() {
   const { data, error } = await supabase
     .from('templates')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .select(`
+      id, name, description, release_type, duration_days, task_count,
+      created_at, is_system,
+      created_by_profile:profiles!created_by (display_name)
+    `)
+    .order('is_system', { ascending: false })
+    .order('name', { ascending: true });
   if (error) throw error;
   return data;
 }
 
-export async function getTemplateTasks(templateId) {
+export async function getTemplate(templateId) {
+  const { data, error } = await supabase
+    .from('templates')
+    .select('*')
+    .eq('id', templateId)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function listTemplateTasks(templateId) {
   const { data, error } = await supabase
     .from('template_tasks')
     .select('*')
     .eq('template_id', templateId)
-    .order('days_before_release', { ascending: false });
+    .order('sort_order', { ascending: true });
   if (error) throw error;
   return data;
 }
+
+// Keep old name as alias for any callers that still use it
+export const getTemplateTasks = listTemplateTasks;
 
 // ── Profiles ──────────────────────────────────────────────────────────────────
 

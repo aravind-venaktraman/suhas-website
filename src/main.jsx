@@ -12,12 +12,12 @@ import './index.css';
 // alongside the public marketing site. This means missing Supabase env vars
 // won't crash suhasmusic.com — the studio chunk only loads when someone
 // actually navigates to /studio/*.
-const StudioApp         = lazy(() => import('./pages/studio/StudioApp.jsx'));
-const LoginPage         = lazy(() => import('./pages/studio/LoginPage.jsx'));
-const ReleasePage       = lazy(() => import('./pages/studio/ReleasePage.jsx'));
+const StudioApp        = lazy(() => import('./pages/studio/StudioApp.jsx'));
+const LoginPage        = lazy(() => import('./pages/studio/LoginPage.jsx'));
+const ReleasePage      = lazy(() => import('./pages/studio/ReleasePage.jsx'));
 const RetrospectivePage = lazy(() => import('./pages/studio/RetrospectivePage.jsx'));
-const TemplatesPage     = lazy(() => import('./pages/studio/TemplatesPage.jsx'));
-const SettingsPage      = lazy(() => import('./pages/studio/SettingsPage.jsx'));
+const TemplatesPage    = lazy(() => import('./pages/studio/TemplatesPage.jsx'));
+const SettingsPage     = lazy(() => import('./pages/studio/SettingsPage.jsx'));
 
 function EpkRedirect() {
   useEffect(() => { window.location.replace('/epk.pdf'); }, []);

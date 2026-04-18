@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Plus, Settings, LogOut, BarChart3 } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Outlet, NavLink, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Plus, Settings, LogOut, BarChart3, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { useStudioAuth } from '../../lib/studio/auth';
 import { listReleases, getCurrentProfile } from '../../lib/studio/queries';
+import { updateRelease, deleteRelease } from '../../lib/studio/mutations';
 import './StudioApp.css';
 
 // Load Inter font for Studio (Michroma is already loaded by the main site's FontLoader)
@@ -36,7 +37,11 @@ export default function StudioApp() {
   const [releases, setReleases] = useState([]);
   const [profile, setProfile] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState(null);
+  const [renamingId, setRenamingId] = useState(null);
+  const [renameValue, setRenameValue] = useState('');
   const menuRef = useRef(null);
+  const renameInputRef = useRef(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -50,16 +55,59 @@ export default function StudioApp() {
     getCurrentProfile().then(setProfile).catch(console.error);
   }, [user, location.pathname]);
 
-  // Close user menu on outside click
+  // Close menus on outside click
   useEffect(() => {
     function handleClick(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setUserMenuOpen(false);
       }
+      // Close release ⋯ menu if click is outside
+      if (!e.target.closest('.studio-release-more-wrap')) {
+        setMenuOpenId(null);
+      }
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
+
+  const refreshReleases = useCallback(() => {
+    listReleases().then(setReleases).catch(console.error);
+  }, []);
+
+  function startRename(r) {
+    setMenuOpenId(null);
+    setRenamingId(r.id);
+    setRenameValue(r.title);
+    setTimeout(() => renameInputRef.current?.focus(), 0);
+  }
+
+  async function submitRename(r) {
+    const trimmed = renameValue.trim();
+    if (!trimmed || trimmed === r.title) { setRenamingId(null); return; }
+    setReleases(prev => prev.map(x => x.id === r.id ? { ...x, title: trimmed } : x));
+    setRenamingId(null);
+    try {
+      await updateRelease({ id: r.id, title: trimmed });
+    } catch (err) {
+      console.error('[studio] rename failed:', err);
+      refreshReleases();
+    }
+  }
+
+  async function handleDelete(r) {
+    const currentReleaseId = location.pathname.match(/\/release\/([^/]+)/)?.[1];
+    if (!window.confirm(`Delete "${r.title}"? This cannot be undone.`)) return;
+    setMenuOpenId(null);
+    setReleases(prev => prev.filter(x => x.id !== r.id));
+    try {
+      await deleteRelease(r.id);
+    } catch (err) {
+      console.error('[studio] delete failed:', err);
+      refreshReleases();
+      return;
+    }
+    if (currentReleaseId === r.id) navigate('/studio', { replace: true });
+  }
 
   function toggleSidebar() {
     const next = !collapsed;
@@ -101,21 +149,61 @@ export default function StudioApp() {
         {/* Nav: release list */}
         <nav className="studio-sidebar-body">
           {releases.map((r) => (
-            <NavLink
-              key={r.id}
-              to={`/studio/release/${r.id}`}
-              className={({ isActive }) => `studio-release-item${isActive ? ' active' : ''}`}
-              title={collapsed ? r.title : undefined}
-            >
-              <span
-                className="studio-release-dot"
-                style={{ background: STATUS_COLOR[r.status] ?? '#22D3EE' }}
-              />
-              <div className="studio-release-info">
-                <div className="studio-release-title">{r.title}</div>
-                <div className="studio-release-sub">{r.status} · {r.type}</div>
-              </div>
-            </NavLink>
+            <div key={r.id} className="studio-release-row">
+              {renamingId === r.id ? (
+                <form
+                  className="studio-release-rename-form"
+                  onSubmit={(e) => { e.preventDefault(); submitRename(r); }}
+                >
+                  <input
+                    ref={renameInputRef}
+                    className="studio-release-rename-input"
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onBlur={() => submitRename(r)}
+                    onKeyDown={(e) => e.key === 'Escape' && setRenamingId(null)}
+                  />
+                </form>
+              ) : (
+                <NavLink
+                  to={`/studio/release/${r.id}`}
+                  className={({ isActive }) => `studio-release-item${isActive ? ' active' : ''}`}
+                  title={collapsed ? r.title : undefined}
+                  onClick={() => setMenuOpenId(null)}
+                >
+                  <span
+                    className="studio-release-dot"
+                    style={{ background: STATUS_COLOR[r.status] ?? '#22D3EE' }}
+                  />
+                  <div className="studio-release-info">
+                    <div className="studio-release-title">{r.title}</div>
+                    <div className="studio-release-sub">{r.status} · {r.type}</div>
+                  </div>
+                </NavLink>
+              )}
+
+              {!collapsed && renamingId !== r.id && (
+                <div className="studio-release-more-wrap">
+                  <button
+                    className="studio-release-more-btn"
+                    onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === r.id ? null : r.id); }}
+                    title="Rename or delete"
+                  >
+                    <MoreHorizontal size={13} />
+                  </button>
+                  {menuOpenId === r.id && (
+                    <div className="studio-release-actions">
+                      <button onClick={() => startRename(r)}>
+                        <Pencil size={11} /> Rename
+                      </button>
+                      <button className="danger" onClick={() => handleDelete(r)}>
+                        <Trash2 size={11} /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           ))}
 
           <button
@@ -169,7 +257,7 @@ export default function StudioApp() {
 
       {/* ── Main ── */}
       <main className="studio-main">
-        <Outlet context={{ user, profile, allProfiles: profile ? [profile] : [] }} />
+        <Outlet context={{ user, profile, allProfiles: profile ? [profile] : [], refreshReleases }} />
       </main>
     </div>
   );

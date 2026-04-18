@@ -98,6 +98,11 @@ export async function createRelease({ title, type, targetDate, templateId = null
   return release;
 }
 
+export async function deleteRelease(id) {
+  const { error } = await supabase.from('releases').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function updateRelease({ id, ...fields }) {
   const { data, error } = await supabase
     .from('releases')
@@ -310,6 +315,19 @@ export async function updateWorkstream({ id, name, sortOrder }) {
     .eq('id', id)
     .select()
     .single();
+  if (error) throw error;
+  return data;
+}
+
+// ── Templates ─────────────────────────────────────────────────────────────────
+
+export async function createReleaseFromTemplate({ templateId, title, targetDate, excludedTaskIds = [] }) {
+  const { data, error } = await supabase.rpc('create_release_from_template', {
+    p_template_id: templateId,
+    p_title: title,
+    p_target_date: targetDate,
+    p_excluded_task_ids: excludedTaskIds,
+  });
   if (error) throw error;
   return data;
 }

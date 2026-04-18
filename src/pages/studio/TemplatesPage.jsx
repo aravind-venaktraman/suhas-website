@@ -12,8 +12,7 @@ export default function TemplatesPage() {
   const [expanded, setExpanded] = useState(null);
   const [tasksByTemplate, setTasksByTemplate] = useState({});
   const [loading, setLoading] = useState(true);
-  const [showWizard, setShowWizard] = useState(false);
-  const [preselectedTemplate, setPreselectedTemplate] = useState(null);
+  const [wizardTemplate, setWizardTemplate] = useState(null);
 
   useEffect(() => {
     listTemplates()
@@ -53,7 +52,7 @@ export default function TemplatesPage() {
           </h1>
         </div>
         <button
-          onClick={() => { setPreselectedTemplate(null); setShowWizard(true); }}
+          onClick={() => setWizardTemplate(templates[0] ?? null)}
           className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all hover:brightness-110"
           style={{
             background: 'linear-gradient(135deg, #6366F1, #22D3EE)',
@@ -140,8 +139,7 @@ export default function TemplatesPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      setPreselectedTemplate(template.id);
-                      setShowWizard(true);
+                      setWizardTemplate(template);
                     }}
                     className="text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full transition-all hover:brightness-110"
                     style={{
@@ -221,10 +219,11 @@ export default function TemplatesPage() {
         })}
       </div>
 
-      {showWizard && (
+      {wizardTemplate && (
         <NewReleaseWizard
-          onClose={() => setShowWizard(false)}
-          onCreated={(r) => navigate(`/studio/release/${r.id}`)}
+          template={wizardTemplate}
+          onClose={() => setWizardTemplate(null)}
+          onCreated={(releaseId) => navigate(`/studio/release/${releaseId}`)}
         />
       )}
     </div>

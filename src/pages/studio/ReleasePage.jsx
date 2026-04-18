@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useOutletContext, useNavigate, Link } from 'react-router-dom';
-import { Plus, Calendar, BarChart2, LayoutGrid } from 'lucide-react';
+import { Plus, Calendar, BarChart2, LayoutGrid, Pencil, Trash2 } from 'lucide-react';
 import {
   listReleases,
   getRelease,
@@ -11,7 +11,7 @@ import {
   listProfiles,
 } from '../../lib/studio/queries';
 
-import { createTask, toggleChecklistItem, updateTask, updateWorkstream } from '../../lib/studio/mutations';
+import { createTask, toggleChecklistItem, updateTask, updateWorkstream, updateRelease, deleteRelease } from '../../lib/studio/mutations';
 import {
   computeReadiness,
   computeBlockers,
@@ -36,7 +36,7 @@ const TABS = [
 
 export default function ReleasePage() {
   const { releaseId } = useParams();
-  const { user, profile: userProfile } = useOutletContext();
+  const { user, profile: userProfile, refreshReleases } = useOutletContext();
   const navigate = useNavigate();
 
   const [release, setRelease] = useState(null);
@@ -53,6 +53,9 @@ export default function ReleasePage() {
   const [addTaskTitle, setAddTaskTitle] = useState('');
   const [addTaskError, setAddTaskError] = useState('');
   const [submittingTask, setSubmittingTask] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleValue, setTitleValue] = useState('');
+  const titleInputRef = useRef(null);
 
   // Load all profiles once for the assignee autocomplete
   useEffect(() => {
@@ -204,6 +207,37 @@ export default function ReleasePage() {
     setSubmittingTask(false);
   }
 
+  function startTitleEdit() {
+    setTitleValue(release.title);
+    setEditingTitle(true);
+    setTimeout(() => titleInputRef.current?.select(), 0);
+  }
+
+  async function submitTitleEdit() {
+    const trimmed = titleValue.trim();
+    setEditingTitle(false);
+    if (!trimmed || trimmed === release.title) return;
+    setRelease(prev => ({ ...prev, title: trimmed }));
+    try {
+      await updateRelease({ id: releaseId, title: trimmed });
+      refreshReleases?.();
+    } catch (err) {
+      console.error('[studio] rename failed:', err);
+      setRelease(prev => ({ ...prev, title: release.title }));
+    }
+  }
+
+  async function handleDeleteRelease() {
+    if (!window.confirm(`Delete "${release.title}"? This cannot be undone.`)) return;
+    try {
+      await deleteRelease(releaseId);
+      refreshReleases?.();
+      navigate('/studio', { replace: true });
+    } catch (err) {
+      console.error('[studio] delete failed:', err);
+    }
+  }
+
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
@@ -257,9 +291,41 @@ export default function ReleasePage() {
               </>
             )}
           </div>
-          <h1 style={{ fontFamily: fonts.display, fontSize: 24, fontWeight: 900, color: colors.textPrimary, textTransform: 'uppercase', letterSpacing: '-0.01em', lineHeight: 1, margin: 0 }}>
-            {release.title}
-          </h1>
+          {editingTitle ? (
+            <form onSubmit={(e) => { e.preventDefault(); submitTitleEdit(); }} style={{ margin: 0 }}>
+              <input
+                ref={titleInputRef}
+                value={titleValue}
+                onChange={(e) => setTitleValue(e.target.value)}
+                onBlur={submitTitleEdit}
+                onKeyDown={(e) => e.key === 'Escape' && setEditingTitle(false)}
+                style={{
+                  fontFamily: fonts.display, fontSize: 24, fontWeight: 900,
+                  color: colors.textPrimary, textTransform: 'uppercase',
+                  letterSpacing: '-0.01em', lineHeight: 1, margin: 0,
+                  background: 'transparent', border: 'none',
+                  borderBottom: `2px solid rgba(34,211,238,0.5)`,
+                  outline: 'none', padding: '0 0 2px', width: '100%',
+                  minWidth: 120,
+                }}
+              />
+            </form>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h1 style={{ fontFamily: fonts.display, fontSize: 24, fontWeight: 900, color: colors.textPrimary, textTransform: 'uppercase', letterSpacing: '-0.01em', lineHeight: 1, margin: 0 }}>
+                {release.title}
+              </h1>
+              <button
+                onClick={startTitleEdit}
+                title="Rename release"
+                style={{ background: 'transparent', border: 'none', color: colors.textDim, cursor: 'pointer', padding: 4, borderRadius: 4, display: 'flex', opacity: 0.6, transition: 'opacity 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                onMouseLeave={e => e.currentTarget.style.opacity = 0.6}
+              >
+                <Pencil size={13} />
+              </button>
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
@@ -274,6 +340,20 @@ export default function ReleasePage() {
           >
             Retro
           </Link>
+          <button
+            onClick={handleDeleteRelease}
+            title="Delete release"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'transparent', border: `1px solid ${colors.border}`,
+              borderRadius: 999, padding: '7px 10px', cursor: 'pointer',
+              color: colors.textDim, transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(248,113,113,0.4)'; e.currentTarget.style.color = '#FCA5A5'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = colors.border; e.currentTarget.style.color = colors.textDim; }}
+          >
+            <Trash2 size={13} />
+          </button>
         </div>
       </div>
 
