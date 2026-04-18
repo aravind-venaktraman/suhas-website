@@ -1,0 +1,58 @@
+/* ── Board scroll container ───────────────────────────────────────────────── */
+
+.studio-board-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-bottom: 10px;
+  margin: 0 -4px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+/* Firefox */
+.studio-board-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.2) transparent;
+}
+
+/* Chrome / Safari / Edge */
+.studio-board-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.studio-board-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0 4px;
+}
+
+.studio-board-scroll::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.15);
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+
+.studio-board-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.35);
+}
+
+/* ── Board grid ────────────────────────────────────────────────────────────── */
+
+.studio-board-grid {
+  display: grid;
+  /* 5 fixed lanes, each at least 260px, expanding equally above ~1300px */
+  grid-template-columns: repeat(5, minmax(260px, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+/* ── Per-lane and per-card helpers ─────────────────────────────────────────── */
+
+.studio-lane {
+  min-width: 0;
+}
+
+/* Force long titles to wrap rather than overflow the card */
+.studio-card-title {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
