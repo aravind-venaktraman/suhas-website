@@ -159,15 +159,45 @@ export async function getChecklist(releaseId) {
 
 // ── Activity log ──────────────────────────────────────────────────────────────
 
-export async function getActivityLog(releaseId, limit = 50) {
+export async function getActivityLog(releaseId, limit = 100) {
   const { data, error } = await supabase
     .from('activity_log')
-    .select('*')
+    .select(`
+      id,
+      action,
+      metadata,
+      created_at,
+      task_id,
+      actor:profiles!actor_id (
+        id,
+        display_name,
+        initials,
+        avatar_color_from,
+        avatar_color_to
+      ),
+      task:tasks!task_id (
+        id,
+        title
+      )
+    `)
     .eq('release_id', releaseId)
     .order('created_at', { ascending: false })
     .limit(limit);
-  if (error) throw error;
-  return data;
+
+  if (error) {
+    // profiles table might not exist yet — fall back to raw rows
+    console.warn('[studio] getActivityLog join failed, falling back:', error.message);
+    const { data: plain, error: plainError } = await supabase
+      .from('activity_log')
+      .select('*')
+      .eq('release_id', releaseId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (plainError) throw plainError;
+    return (plain ?? []).map((row) => ({ ...row, actor: null, task: null }));
+  }
+
+  return data ?? [];
 }
 
 // ── Templates ─────────────────────────────────────────────────────────────────
