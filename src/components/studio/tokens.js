@@ -51,7 +51,7 @@ export const priorityMeta = {
 
 // Gradient for avatar backgrounds
 export const avatarGradient = (email) => {
-  if (email === 'management@suhasmusic.com') {
+  if (email === 'management@suhasmusic.com' || email === 'suhas@suhasmusic.com') {
     return 'linear-gradient(135deg, #EC4899, #A855F7)';
   }
   return 'linear-gradient(135deg, #6366F1, #22D3EE)';

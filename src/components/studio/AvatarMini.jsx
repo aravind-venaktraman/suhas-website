@@ -13,7 +13,7 @@ export default function AvatarMini({ profile, email, displayName, size = 20 }) {
   // Derive gradient and initials from whichever source is available
   const bg = profile
     ? `linear-gradient(135deg, ${profile.avatar_color_from}, ${profile.avatar_color_to})`
-    : email === 'management@suhasmusic.com'
+    : (email === 'management@suhasmusic.com' || email === 'suhas@suhasmusic.com')
     ? 'linear-gradient(135deg, #EC4899, #A855F7)'
     : 'linear-gradient(135deg, #6366F1, #22D3EE)';
 

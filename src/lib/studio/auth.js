@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 
-const ALLOWED_EMAILS = ['arav@suhasmusic.com', 'management@suhasmusic.com'];
+const ALLOWED_EMAILS = ['arav@suhasmusic.com', 'management@suhasmusic.com', 'suhas@suhasmusic.com'];
 
 export function useStudioAuth() {
   const [user, setUser] = useState(null);
