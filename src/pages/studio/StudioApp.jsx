@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Plus, Settings, LogOut, BarChart3, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Settings, LogOut, BarChart3, MoreHorizontal, Pencil, Trash2, Home } from 'lucide-react';
 import { useStudioAuth } from '../../lib/studio/auth';
 import { listReleases, getCurrentProfile } from '../../lib/studio/queries';
 import { updateRelease, deleteRelease } from '../../lib/studio/mutations';
@@ -134,9 +134,18 @@ export default function StudioApp() {
       {/* ── Sidebar ── */}
       <aside className={`studio-sidebar ${collapsed ? 'collapsed' : 'expanded'}`}>
 
-        {/* Header: label + collapse toggle */}
+        {/* Header: home link + collapse toggle */}
         <div className="studio-sidebar-head">
-          <span className="studio-sidebar-label">Releases</span>
+          <NavLink
+            to="/studio"
+            end
+            className={({ isActive }) => `studio-sidebar-home${isActive ? ' active' : ''}`}
+            title={collapsed ? 'All releases' : undefined}
+            onClick={() => setMenuOpenId(null)}
+          >
+            <Home size={13} style={{ flexShrink: 0 }} />
+            <span className="studio-sidebar-home-label">All releases</span>
+          </NavLink>
           <button
             className="studio-sidebar-toggle"
             onClick={toggleSidebar}

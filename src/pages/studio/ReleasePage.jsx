@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useOutletContext, useNavigate, Link } from 'react-router-dom';
-import { Plus, Calendar, BarChart2, LayoutGrid, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Calendar, BarChart2, LayoutGrid, Pencil, Trash2, Disc3, ChevronDown, X } from 'lucide-react';
 import {
-  listReleases,
   getRelease,
   listWorkstreams,
   listTasks,
   listSongs,
   getChecklist,
   listProfiles,
+  listChildReleases,
+  listAssignableAlbums,
 } from '../../lib/studio/queries';
 
 import { createTask, toggleChecklistItem, updateTask, updateWorkstream, updateRelease, deleteRelease } from '../../lib/studio/mutations';
@@ -56,21 +57,24 @@ export default function ReleasePage() {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
   const titleInputRef = useRef(null);
+  const [editingDate, setEditingDate] = useState(false);
+  const [dateValue, setDateValue] = useState('');
+  const dateInputRef = useRef(null);
+  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
+  const [albumMenuOpen, setAlbumMenuOpen] = useState(false);
+  const [assignableAlbums, setAssignableAlbums] = useState([]);
+  const [childReleases, setChildReleases] = useState([]);
 
   // Load all profiles once for the assignee autocomplete
   useEffect(() => {
     listProfiles().then(setAllProfiles).catch(console.error);
   }, []);
 
-  // Navigate to first release if none is selected
+  // Bounce back to /studio if someone lands here without a release id
+  // (e.g. after deleting a release). The homepage is the landing surface now.
   useEffect(() => {
-    if (!releaseId) {
-      listReleases().then((r) => {
-        if (r.length > 0) navigate(`/studio/release/${r[0].id}`, { replace: true });
-        else setLoading(false);
-      });
-    }
-  }, [releaseId]);
+    if (!releaseId) navigate('/studio', { replace: true });
+  }, [releaseId, navigate]);
 
   const loadRelease = useCallback(async (id) => {
     setLoading(true);
@@ -104,6 +108,51 @@ export default function ReleasePage() {
   useEffect(() => {
     if (releaseId) loadRelease(releaseId);
   }, [releaseId, loadRelease]);
+
+  // Load album siblings/children metadata whenever release loads.
+  // listAssignableAlbums + listChildReleases each gracefully return [] if the
+  // parent_release_id column isn't there yet (pre-migration).
+  useEffect(() => {
+    if (!release) return;
+    if (release.type === 'album') {
+      listChildReleases(release.id).then(setChildReleases).catch((e) => {
+        console.error('[studio] listChildReleases failed:', e);
+        setChildReleases([]);
+      });
+    } else {
+      listAssignableAlbums(release.id).then(setAssignableAlbums).catch((e) => {
+        console.error('[studio] listAssignableAlbums failed:', e);
+        setAssignableAlbums([]);
+      });
+    }
+  }, [release?.id, release?.type]);
+
+  // Close popovers on outside click / Escape.
+  useEffect(() => {
+    if (!statusMenuOpen && !albumMenuOpen) return;
+    function onKey(e) {
+      if (e.key === 'Escape') {
+        setStatusMenuOpen(false);
+        setAlbumMenuOpen(false);
+      }
+    }
+    function onClick(e) {
+      if (!e.target.closest?.('[data-popover]')) {
+        setStatusMenuOpen(false);
+        setAlbumMenuOpen(false);
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('mousedown', onClick);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('mousedown', onClick);
+    };
+  }, [statusMenuOpen, albumMenuOpen]);
+
+  const parentAlbum = release?.parent_release_id
+    ? assignableAlbums.find((a) => a.id === release.parent_release_id)
+    : null;
 
   // Realtime updates — tasks only (comments are scoped to modal)
   useRealtimeRelease(releaseId, {
@@ -227,6 +276,62 @@ export default function ReleasePage() {
     }
   }
 
+  function startDateEdit() {
+    setDateValue(release.target_date ?? '');
+    setEditingDate(true);
+    setTimeout(() => dateInputRef.current?.focus(), 0);
+  }
+
+  async function submitDateEdit() {
+    const next = dateValue || null;
+    setEditingDate(false);
+    if (next === (release.target_date ?? null)) return;
+    const prev = release.target_date;
+    setRelease(p => ({ ...p, target_date: next }));
+    try {
+      await updateRelease({ id: releaseId, target_date: next });
+      refreshReleases?.();
+    } catch (err) {
+      console.error('[studio] date update failed:', err);
+      setRelease(p => ({ ...p, target_date: prev }));
+    }
+  }
+
+  async function setStatus(newStatus) {
+    setStatusMenuOpen(false);
+    if (newStatus === release.status) return;
+    const prev = release.status;
+    const prevReleasedAt = release.released_at;
+    setRelease(p => ({
+      ...p,
+      status: newStatus,
+      // match mutation-side behavior optimistically
+      released_at: newStatus === 'released' ? (p.released_at ?? new Date().toISOString()) : null,
+    }));
+    try {
+      const updated = await updateRelease({ id: releaseId, status: newStatus });
+      setRelease(updated);
+      refreshReleases?.();
+    } catch (err) {
+      console.error('[studio] status update failed:', err);
+      setRelease(p => ({ ...p, status: prev, released_at: prevReleasedAt }));
+    }
+  }
+
+  async function setParentAlbum(newParentId) {
+    setAlbumMenuOpen(false);
+    const prev = release.parent_release_id ?? null;
+    if ((newParentId ?? null) === prev) return;
+    setRelease(p => ({ ...p, parent_release_id: newParentId ?? null }));
+    try {
+      await updateRelease({ id: releaseId, parent_release_id: newParentId ?? null });
+      refreshReleases?.();
+    } catch (err) {
+      console.error('[studio] parent update failed:', err);
+      setRelease(p => ({ ...p, parent_release_id: prev }));
+    }
+  }
+
   async function handleDeleteRelease() {
     if (!window.confirm(`Delete "${release.title}"? This cannot be undone.`)) return;
     try {
@@ -277,17 +382,204 @@ export default function ReleasePage() {
 
       {/* ── Release header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{ fontFamily: fonts.display, fontSize: 9, color: colors.textDim, textTransform: 'uppercase', letterSpacing: '0.2em' }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+            <span style={{ fontFamily: fonts.display, fontSize: 9, color: release.type === 'album' ? '#D8B4FE' : colors.textDim, textTransform: 'uppercase', letterSpacing: '0.2em', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              {release.type === 'album' && <Disc3 size={10} />}
               {release.type}
             </span>
-            {release.target_date && (
+
+            {/* Editable target date */}
+            <span style={{ color: colors.border }}>·</span>
+            {editingDate ? (
+              <form onSubmit={(e) => { e.preventDefault(); submitDateEdit(); }} style={{ margin: 0, display: 'inline-flex' }}>
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  value={dateValue}
+                  onChange={(e) => setDateValue(e.target.value)}
+                  onBlur={submitDateEdit}
+                  onKeyDown={(e) => e.key === 'Escape' && setEditingDate(false)}
+                  style={{
+                    fontFamily: fonts.display, fontSize: 10,
+                    color: colors.textSecondary, letterSpacing: '0.1em',
+                    background: 'rgba(9,9,11,0.6)',
+                    border: '1px solid rgba(34,211,238,0.45)',
+                    borderRadius: 4,
+                    padding: '3px 6px',
+                    outline: 'none',
+                  }}
+                />
+              </form>
+            ) : (
+              <button
+                onClick={startDateEdit}
+                title={release.target_date ? 'Edit target date' : 'Set target date'}
+                style={{
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  padding: 0, display: 'inline-flex', alignItems: 'center', gap: 4,
+                  fontFamily: fonts.display, fontSize: 9,
+                  color: release.target_date ? colors.textDim : '#71717A',
+                  textTransform: 'uppercase', letterSpacing: '0.12em',
+                  fontStyle: release.target_date ? 'normal' : 'italic',
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = '#22D3EE'}
+                onMouseLeave={e => e.currentTarget.style.color = release.target_date ? colors.textDim : '#71717A'}
+              >
+                {release.target_date
+                  ? new Date(release.target_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                  : 'Set target date'}
+                <Pencil size={9} style={{ opacity: 0.55 }} />
+              </button>
+            )}
+
+            {/* Status popover */}
+            <span style={{ color: colors.border }}>·</span>
+            <div data-popover style={{ position: 'relative', display: 'inline-block' }}>
+              <button
+                onClick={() => setStatusMenuOpen(v => !v)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  padding: '3px 8px', borderRadius: 4,
+                  fontFamily: fonts.display, fontSize: 8,
+                  fontWeight: 700, letterSpacing: '0.18em',
+                  textTransform: 'uppercase', cursor: 'pointer',
+                  ...statusChipStyles(release.status),
+                }}
+                aria-haspopup="menu"
+                aria-expanded={statusMenuOpen}
+              >
+                {statusLabelFor(release.status)}
+                <ChevronDown size={10} style={{ opacity: 0.65 }} />
+              </button>
+              {statusMenuOpen && (
+                <div
+                  role="menu"
+                  style={{
+                    position: 'absolute', top: 'calc(100% + 6px)', left: 0,
+                    minWidth: 140,
+                    background: 'rgba(24,24,27,0.98)',
+                    border: '1px solid rgba(244,244,245,0.1)',
+                    borderRadius: 8,
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                    padding: 4,
+                    zIndex: 60,
+                  }}
+                >
+                  {[
+                    { id: 'planning',    label: 'Planning' },
+                    { id: 'in_progress', label: 'In progress' },
+                    { id: 'released',    label: 'Released' },
+                    { id: 'archived',    label: 'Archived' },
+                  ].map(s => (
+                    <button
+                      key={s.id}
+                      role="menuitem"
+                      onClick={() => setStatus(s.id)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        width: '100%', padding: '7px 10px',
+                        background: release.status === s.id ? 'rgba(34,211,238,0.08)' : 'transparent',
+                        border: 'none', borderRadius: 6, cursor: 'pointer',
+                        textAlign: 'left', color: colors.textSecondary,
+                        fontFamily: fonts.body, fontSize: 12,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(244,244,245,0.05)'}
+                      onMouseLeave={e => e.currentTarget.style.background = release.status === s.id ? 'rgba(34,211,238,0.08)' : 'transparent'}
+                    >
+                      <span style={{
+                        width: 8, height: 8, borderRadius: '50%',
+                        background: statusChipStyles(s.id).color ?? '#A1A1AA',
+                      }} />
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Part of album chip / selector */}
+            {release.type !== 'album' && assignableAlbums.length > 0 && (
               <>
                 <span style={{ color: colors.border }}>·</span>
-                <span style={{ fontFamily: fonts.display, fontSize: 9, color: colors.textDim, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-                  {new Date(release.target_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </span>
+                <div data-popover style={{ position: 'relative', display: 'inline-block' }}>
+                  <button
+                    onClick={() => setAlbumMenuOpen(v => !v)}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      padding: '3px 8px', borderRadius: 4,
+                      fontFamily: fonts.display, fontSize: 8,
+                      fontWeight: 700, letterSpacing: '0.18em',
+                      textTransform: 'uppercase', cursor: 'pointer',
+                      color: parentAlbum ? '#D8B4FE' : '#71717A',
+                      background: parentAlbum ? 'rgba(168,85,247,0.08)' : 'transparent',
+                      border: `1px solid ${parentAlbum ? 'rgba(168,85,247,0.28)' : colors.border}`,
+                    }}
+                    aria-haspopup="menu"
+                  >
+                    <Disc3 size={9} />
+                    {parentAlbum ? parentAlbum.title : 'Link to album'}
+                    <ChevronDown size={10} style={{ opacity: 0.65 }} />
+                  </button>
+                  {albumMenuOpen && (
+                    <div
+                      role="menu"
+                      style={{
+                        position: 'absolute', top: 'calc(100% + 6px)', left: 0,
+                        minWidth: 200, maxHeight: 260, overflow: 'auto',
+                        background: 'rgba(24,24,27,0.98)',
+                        border: '1px solid rgba(168,85,247,0.22)',
+                        borderRadius: 8,
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                        padding: 4,
+                        zIndex: 60,
+                      }}
+                    >
+                      {parentAlbum && (
+                        <button
+                          role="menuitem"
+                          onClick={() => setParentAlbum(null)}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            width: '100%', padding: '7px 10px',
+                            background: 'transparent', border: 'none', borderRadius: 6,
+                            cursor: 'pointer', textAlign: 'left',
+                            color: '#FCA5A5', fontFamily: fonts.body, fontSize: 12,
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        >
+                          <X size={11} /> Remove from album
+                        </button>
+                      )}
+                      {assignableAlbums.length === 0 && !parentAlbum && (
+                        <div style={{ padding: '8px 10px', fontSize: 12, color: colors.textDim, fontStyle: 'italic' }}>
+                          No albums yet — create one from the releases page.
+                        </div>
+                      )}
+                      {assignableAlbums.map(a => (
+                        <button
+                          key={a.id}
+                          role="menuitem"
+                          onClick={() => setParentAlbum(a.id)}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            width: '100%', padding: '7px 10px',
+                            background: release.parent_release_id === a.id ? 'rgba(168,85,247,0.1)' : 'transparent',
+                            border: 'none', borderRadius: 6, cursor: 'pointer',
+                            textAlign: 'left', color: colors.textSecondary,
+                            fontFamily: fonts.body, fontSize: 12,
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(244,244,245,0.05)'}
+                          onMouseLeave={e => e.currentTarget.style.background = release.parent_release_id === a.id ? 'rgba(168,85,247,0.1)' : 'transparent'}
+                        >
+                          <Disc3 size={11} style={{ color: '#D8B4FE' }} />
+                          {a.title}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>
@@ -365,6 +657,14 @@ export default function ReleasePage() {
         stuck={stuckCount}
         collaborators={collaborators}
       />
+
+      {/* ── Album: included releases ── */}
+      {release.type === 'album' && (
+        <AlbumChildrenPanel
+          items={childReleases}
+          onOpen={(id) => navigate(`/studio/release/${id}`)}
+        />
+      )}
 
       {/* ── Tab switcher ── */}
       <div style={{ display: 'flex', gap: 2, padding: 4, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: `1px solid ${colors.border}`, alignSelf: 'flex-start' }}>
@@ -477,6 +777,115 @@ export default function ReleasePage() {
           onCreated={(r) => navigate(`/studio/release/${r.id}`)}
         />
       )}
+    </div>
+  );
+}
+
+// ── Status chip styling (shared between pill + popover swatch) ─────────────
+
+function statusChipStyles(status) {
+  switch (status) {
+    case 'in_progress':
+      return { color: '#67E8F9', background: 'rgba(34,211,238,0.08)', border: '1px solid rgba(34,211,238,0.28)' };
+    case 'planning':
+      return { color: '#A5B4FC', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.28)' };
+    case 'released':
+      return { color: '#6EE7B7', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)' };
+    case 'archived':
+      return { color: '#A1A1AA', background: 'rgba(82,82,91,0.15)', border: '1px solid rgba(82,82,91,0.4)' };
+    default:
+      return { color: '#A1A1AA', background: 'rgba(9,9,11,0.5)', border: '1px solid rgba(244,244,245,0.08)' };
+  }
+}
+
+function statusLabelFor(status) {
+  switch (status) {
+    case 'in_progress': return 'In progress';
+    case 'planning':    return 'Planning';
+    case 'released':    return 'Released';
+    case 'archived':    return 'Archived';
+    default:            return status ?? '—';
+  }
+}
+
+// ── Album: included releases panel ────────────────────────────────────────
+
+function AlbumChildrenPanel({ items, onOpen }) {
+  if (!items || items.length === 0) {
+    return (
+      <div style={{
+        padding: '18px 20px',
+        borderRadius: 12,
+        border: '1px dashed rgba(168,85,247,0.28)',
+        background: 'linear-gradient(180deg, rgba(168,85,247,0.05), rgba(168,85,247,0.02))',
+        color: '#D4D4D8', fontSize: 12, lineHeight: 1.5,
+      }}>
+        <div style={{ fontFamily: 'Michroma, sans-serif', fontSize: 9, letterSpacing: '0.22em', color: '#D8B4FE', textTransform: 'uppercase', marginBottom: 6 }}>
+          Included releases
+        </div>
+        No singles linked yet. Open a single release and use <strong style={{ color: '#FAFAFA' }}>Link to album</strong> to attach it here.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      padding: '16px 18px 14px',
+      borderRadius: 12,
+      border: '1px solid rgba(168,85,247,0.22)',
+      background: 'linear-gradient(180deg, rgba(168,85,247,0.05), rgba(168,85,247,0.02))',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <div style={{ fontFamily: 'Michroma, sans-serif', fontSize: 9, letterSpacing: '0.22em', color: '#D8B4FE', textTransform: 'uppercase' }}>
+          Included releases
+        </div>
+        <div style={{ fontSize: 11, color: '#A1A1AA' }}>
+          {items.filter(c => c.status === 'released').length}/{items.length} shipped
+        </div>
+      </div>
+      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {items.map(c => (
+          <li
+            key={c.id}
+            onClick={() => onOpen(c.id)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(c.id); }
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '8px 10px', borderRadius: 6, cursor: 'pointer',
+              color: '#D4D4D8', fontSize: 13, transition: 'background 0.12s, color 0.12s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(168,85,247,0.08)'; e.currentTarget.style.color = '#FAFAFA'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#D4D4D8'; }}
+          >
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+              <Disc3 size={11} style={{ color: '#D8B4FE', flexShrink: 0 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>{c.title}</span>
+              <span style={{ fontFamily: 'Michroma, sans-serif', fontSize: 8, color: '#71717A', textTransform: 'uppercase', letterSpacing: '0.18em' }}>
+                {c.type}
+              </span>
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+              {c.target_date && (
+                <span style={{ fontSize: 11, color: '#A1A1AA' }}>
+                  {new Date(c.target_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </span>
+              )}
+              <span style={{
+                fontFamily: 'Michroma, sans-serif', fontSize: 8,
+                letterSpacing: '0.18em', textTransform: 'uppercase',
+                padding: '3px 6px', borderRadius: 3,
+                ...statusChipStyles(c.status),
+              }}>
+                {statusLabelFor(c.status)}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

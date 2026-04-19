@@ -104,10 +104,39 @@ export async function deleteRelease(id) {
 }
 
 export async function updateRelease({ id, ...fields }) {
+  // If status is being set to 'released' and no released_at is provided,
+  // stamp it now. If status transitions away from 'released', clear the stamp.
+  if (fields.status === 'released' && fields.released_at === undefined) {
+    fields.released_at = new Date().toISOString();
+  } else if (
+    fields.status !== undefined &&
+    fields.status !== 'released' &&
+    fields.released_at === undefined
+  ) {
+    fields.released_at = null;
+  }
+
   const { data, error } = await supabase
     .from('releases')
     .update(fields)
     .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// Create an empty album (no template, no default workstreams / checklist —
+// albums are containers for other releases, not work boards themselves).
+export async function createAlbum({ title, targetDate = null }) {
+  const { data, error } = await supabase
+    .from('releases')
+    .insert({
+      title,
+      type: 'album',
+      status: 'planning',
+      target_date: targetDate,
+    })
     .select()
     .single();
   if (error) throw error;
