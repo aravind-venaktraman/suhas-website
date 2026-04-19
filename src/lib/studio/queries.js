@@ -11,6 +11,32 @@ export async function listReleases() {
     .select('*')
     .order('created_at', { ascending: false });
   if (error) throw error;
+  // Pre-migration safety: guarantee the field exists even if the column hasn't
+  // been added yet (keeps sidebar grouping logic simple — null = top-level).
+  return (data ?? []).map((r) => ({ ...r, parent_release_id: r.parent_release_id ?? null }));
+}
+
+// Fetch a single release (any type) by id. Used by the ReleasePage to
+// display the parent album chip independent of the assignable-albums list.
+export async function getReleaseById(id) {
+  if (!id) return null;
+  const { data, error } = await supabase
+    .from('releases')
+    .select('id, title, type, status, target_date, released_at, parent_release_id')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) {
+    if (/parent_release_id/.test(error.message ?? '')) {
+      const fb = await supabase
+        .from('releases')
+        .select('id, title, type, status, target_date, released_at')
+        .eq('id', id)
+        .maybeSingle();
+      if (fb.error) throw fb.error;
+      return fb.data ? { ...fb.data, parent_release_id: null } : null;
+    }
+    throw error;
+  }
   return data;
 }
 
