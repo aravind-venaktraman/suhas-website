@@ -24,6 +24,7 @@ import {
 import { useRealtimeRelease } from '../../lib/studio/realtime';
 import { colors, fonts } from '../../components/studio/tokens';
 import MetricStrip from '../../components/studio/MetricStrip';
+import ReleaseCard from '../../components/studio/ReleaseCard';
 import Board from '../../components/studio/Board';
 import Timeline from '../../components/studio/Timeline';
 import Analytics from '../../components/studio/Analytics';
@@ -695,6 +696,19 @@ export default function ReleasePage() {
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+          {release.status === 'released' && (
+            <Link
+              to={`/studio/release/${releaseId}/stats`}
+              style={{
+                fontFamily: fonts.display, fontSize: 10, color: '#D8B4FE',
+                border: '1px solid rgba(168,85,247,0.35)', borderRadius: 999,
+                padding: '7px 14px', textDecoration: 'none',
+                letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 700,
+              }}
+            >
+              Stats
+            </Link>
+          )}
           <Link
             to={`/studio/release/${releaseId}/retro`}
             style={{
@@ -734,10 +748,7 @@ export default function ReleasePage() {
 
       {/* ── Album: included releases ── */}
       {release.type === 'album' && (
-        <AlbumChildrenPanel
-          items={childReleases}
-          onOpen={(id) => navigate(`/studio/release/${id}`)}
-        />
+        <AlbumChildrenPanel items={childReleases} />
       )}
 
       {/* ── Tab switcher ── */}
@@ -884,82 +895,40 @@ function statusLabelFor(status) {
 
 // ── Album: included releases panel ────────────────────────────────────────
 
-function AlbumChildrenPanel({ items, onOpen }) {
+function AlbumChildrenPanel({ items }) {
+  const header = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+      <Disc3 size={11} style={{ color: '#D8B4FE' }} />
+      <span style={{ fontFamily: 'Michroma, sans-serif', fontSize: 9, letterSpacing: '0.22em', color: '#D8B4FE', textTransform: 'uppercase' }}>
+        Included releases
+      </span>
+      {items?.length > 0 && (
+        <span style={{ fontFamily: 'Michroma, sans-serif', fontSize: 9, letterSpacing: '0.18em', color: '#71717A', padding: '2px 7px', borderRadius: 999, background: 'rgba(244,244,245,0.04)', border: '1px solid rgba(244,244,245,0.08)' }}>
+          {items.filter(c => c.status === 'released').length}/{items.length} shipped
+        </span>
+      )}
+    </div>
+  );
+
   if (!items || items.length === 0) {
     return (
-      <div style={{
-        padding: '18px 20px',
-        borderRadius: 12,
-        border: '1px dashed rgba(168,85,247,0.28)',
-        background: 'linear-gradient(180deg, rgba(168,85,247,0.05), rgba(168,85,247,0.02))',
-        color: '#D4D4D8', fontSize: 12, lineHeight: 1.5,
-      }}>
-        <div style={{ fontFamily: 'Michroma, sans-serif', fontSize: 9, letterSpacing: '0.22em', color: '#D8B4FE', textTransform: 'uppercase', marginBottom: 6 }}>
-          Included releases
-        </div>
+      <div style={{ padding: '18px 20px', borderRadius: 12, border: '1px dashed rgba(168,85,247,0.28)', background: 'linear-gradient(180deg, rgba(168,85,247,0.05), rgba(168,85,247,0.02))', color: '#D4D4D8', fontSize: 12, lineHeight: 1.5 }}>
+        {header}
         No singles linked yet. Open a single release and use <strong style={{ color: '#FAFAFA' }}>Link to album</strong> to attach it here.
       </div>
     );
   }
 
   return (
-    <div style={{
-      padding: '16px 18px 14px',
-      borderRadius: 12,
-      border: '1px solid rgba(168,85,247,0.22)',
-      background: 'linear-gradient(180deg, rgba(168,85,247,0.05), rgba(168,85,247,0.02))',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div style={{ fontFamily: 'Michroma, sans-serif', fontSize: 9, letterSpacing: '0.22em', color: '#D8B4FE', textTransform: 'uppercase' }}>
-          Included releases
-        </div>
-        <div style={{ fontSize: 11, color: '#A1A1AA' }}>
-          {items.filter(c => c.status === 'released').length}/{items.length} shipped
-        </div>
-      </div>
-      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {items.map(c => (
-          <li
-            key={c.id}
-            onClick={() => onOpen(c.id)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(c.id); }
-            }}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '8px 10px', borderRadius: 6, cursor: 'pointer',
-              color: '#D4D4D8', fontSize: 13, transition: 'background 0.12s, color 0.12s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(168,85,247,0.08)'; e.currentTarget.style.color = '#FAFAFA'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#D4D4D8'; }}
-          >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-              <Disc3 size={11} style={{ color: '#D8B4FE', flexShrink: 0 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>{c.title}</span>
-              <span style={{ fontFamily: 'Michroma, sans-serif', fontSize: 8, color: '#71717A', textTransform: 'uppercase', letterSpacing: '0.18em' }}>
-                {c.type}
-              </span>
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-              {c.target_date && (
-                <span style={{ fontSize: 11, color: '#A1A1AA' }}>
-                  {new Date(c.target_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </span>
-              )}
-              <span style={{
-                fontFamily: 'Michroma, sans-serif', fontSize: 8,
-                letterSpacing: '0.18em', textTransform: 'uppercase',
-                padding: '3px 6px', borderRadius: 3,
-                ...statusChipStyles(c.status),
-              }}>
-                {statusLabelFor(c.status)}
-              </span>
-            </span>
-          </li>
+    <div>
+      {header}
+      <div className="hp-grid">
+        {items.map((child) => (
+          <div key={child.id} className="hp-grid-item">
+            <ReleaseCard release={child} />
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

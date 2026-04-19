@@ -17,6 +17,7 @@ const LoginPage        = lazy(() => import('./pages/studio/LoginPage.jsx'));
 const HomePage         = lazy(() => import('./pages/studio/HomePage.jsx'));
 const ReleasePage      = lazy(() => import('./pages/studio/ReleasePage.jsx'));
 const RetrospectivePage = lazy(() => import('./pages/studio/RetrospectivePage.jsx'));
+const StatsPage         = lazy(() => import('./pages/studio/StatsPage.jsx'));
 const TemplatesPage    = lazy(() => import('./pages/studio/TemplatesPage.jsx'));
 const SettingsPage     = lazy(() => import('./pages/studio/SettingsPage.jsx'));
 
@@ -48,7 +49,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/*" element={<StudioApp />}>
                 <Route index element={<HomePage />} />
                 <Route path="release/:releaseId" element={<ReleasePage />} />
-                <Route path="release/:releaseId/retro" element={<RetrospectivePage />} />
+                <Route path="release/:releaseId/retro"  element={<RetrospectivePage />} />
+                <Route path="release/:releaseId/stats" element={<StatsPage />} />
                 <Route path="templates" element={<TemplatesPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>

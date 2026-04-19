@@ -129,13 +129,18 @@ export default function HomePage() {
   };
 
   // Split albums from everything else so we can group them in the UI.
+  // Singles intentionally include releases that are linked to an album — the
+  // user wants the full card visible in this section AND the compact entry
+  // nested under the album above. The album rollup card already accounts for
+  // them, so showing them here is purely so their per-release metrics
+  // (readiness, blockers, days-out) stay scannable from the homepage.
   const rawAlbums = useMemo(
     () => topLevel.filter((r) => r.type === 'album'),
     [topLevel],
   );
   const rawSingles = useMemo(
-    () => topLevel.filter((r) => r.type !== 'album'),
-    [topLevel],
+    () => releases.filter((r) => r.type !== 'album'),
+    [releases],
   );
 
   // Saved manual order takes precedence; otherwise fall back to status sort.
@@ -365,15 +370,16 @@ export default function HomePage() {
         <div className="hp-section-head">
           <div className="hp-section-titles">
             <div className="hp-section-title">Releases</div>
-            <div className="hp-section-count">{visibleCount} of {topLevel.length}</div>
+            <div className="hp-section-count">{visibleCount} of {rawAlbums.length + rawSingles.length}</div>
           </div>
           <div className="hp-filters" role="tablist" aria-label="Filter releases">
             {FILTERS.map((f) => {
+              const pool = [...rawAlbums, ...rawSingles];
               const count =
-                f.id === 'all'      ? topLevel.length
-                : f.id === 'active' ? topLevel.filter((r) => r.status === 'in_progress').length
-                : f.id === 'planning' ? topLevel.filter((r) => r.status === 'planning').length
-                : topLevel.filter((r) => r.status === 'released').length;
+                f.id === 'all'      ? pool.length
+                : f.id === 'active' ? pool.filter((r) => r.status === 'in_progress').length
+                : f.id === 'planning' ? pool.filter((r) => r.status === 'planning').length
+                : pool.filter((r) => r.status === 'released').length;
               return (
                 <button
                   key={f.id}

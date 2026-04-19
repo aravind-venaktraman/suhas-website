@@ -68,148 +68,7 @@ export async function listReleasesWithStats() {
   }
   if (!releases || releases.length === 0) return [];
 
-  const releaseIds = releases.map((r) => r.id);
-
-  // Pull workstreams so we can both map tasks → release and build per-card
-  // workstream distribution viz.
-  const { data: workstreams, error: wsErr } = await supabase
-    .from('workstreams')
-    .select('id, name, color, release_id, sort_order')
-    .in('release_id', releaseIds);
-  if (wsErr) throw wsErr;
-
-  const wsByRelease = new Map();
-  const wsById = new Map();
-  (workstreams ?? []).forEach((w) => {
-    wsById.set(w.id, w);
-    if (!wsByRelease.has(w.release_id)) wsByRelease.set(w.release_id, []);
-    wsByRelease.get(w.release_id).push(w);
-  });
-
-  const workstreamIds = (workstreams ?? []).map((w) => w.id);
-
-  // Tasks — fetch in bulk, scope in JS. Safer than a deep join if the inner
-  // relationship isn't configured in PostgREST.
-  let tasks = [];
-  if (workstreamIds.length > 0) {
-    const { data: taskRows, error: tErr } = await supabase
-      .from('tasks')
-      .select('id, workstream_id, status, due_date, created_at, completed_at')
-      .in('workstream_id', workstreamIds);
-    if (tErr) throw tErr;
-    tasks = taskRows ?? [];
-  }
-
-  const wsToRelease = new Map();
-  (workstreams ?? []).forEach((w) => wsToRelease.set(w.id, w.release_id));
-
-  const tasksByRelease = new Map();
-  tasks.forEach((t) => {
-    const rid = wsToRelease.get(t.workstream_id);
-    if (!rid) return;
-    if (!tasksByRelease.has(rid)) tasksByRelease.set(rid, []);
-    tasksByRelease.get(rid).push(t);
-  });
-
-  // Checklist
-  const { data: checklist, error: clErr } = await supabase
-    .from('release_checklist')
-    .select('release_id, completed')
-    .in('release_id', releaseIds);
-  if (clErr) throw clErr;
-
-  const checklistByRelease = new Map();
-  (checklist ?? []).forEach((c) => {
-    if (!checklistByRelease.has(c.release_id)) checklistByRelease.set(c.release_id, []);
-    checklistByRelease.get(c.release_id).push(c);
-  });
-
-  const now = Date.now();
-  const DAY = 24 * 60 * 60 * 1000;
-  const THIRTY_DAYS = 30 * DAY;
-
-  const enriched = releases.map((release) => {
-    const relTasks = tasksByRelease.get(release.id) ?? [];
-    const relChecklist = checklistByRelease.get(release.id) ?? [];
-    const relWorkstreams = wsByRelease.get(release.id) ?? [];
-
-    const taskTotal = relTasks.length;
-    const taskDone = relTasks.filter((t) => t.status === 'done').length;
-    const taskInProgress = relTasks.filter((t) => t.status === 'in_progress').length;
-    const blockers = relTasks.filter((t) => t.status === 'blocked').length;
-    const stuck = relTasks.filter((t) => {
-      if (t.status === 'done') return false;
-      return now - new Date(t.created_at).getTime() > THIRTY_DAYS;
-    }).length;
-
-    const checklistTotal = relChecklist.length;
-    const checklistDone = relChecklist.filter((c) => c.completed).length;
-
-    // Readiness: weighted blend of task + checklist completion.
-    const taskRatio = taskTotal > 0 ? taskDone / taskTotal : null;
-    const checklistRatio = checklistTotal > 0 ? checklistDone / checklistTotal : null;
-    let readiness;
-    if (taskRatio === null && checklistRatio === null) readiness = 0;
-    else if (taskRatio === null) readiness = Math.round(checklistRatio * 100);
-    else if (checklistRatio === null) readiness = Math.round(taskRatio * 100);
-    else readiness = Math.round((taskRatio * 0.6 + checklistRatio * 0.4) * 100);
-
-    // Soonest upcoming due date among open tasks.
-    const upcomingDueMs = relTasks
-      .filter((t) => t.status !== 'done' && t.due_date)
-      .map((t) => new Date(t.due_date).getTime())
-      .filter((ms) => !Number.isNaN(ms) && ms >= now)
-      .sort((a, b) => a - b);
-    const nextDueMs = upcomingDueMs[0] ?? null;
-
-    // Days to target (never negative; null if no target set).
-    const targetMs = release.target_date ? new Date(release.target_date).getTime() : null;
-    const daysOut = targetMs !== null && !Number.isNaN(targetMs)
-      ? Math.max(0, Math.ceil((targetMs - now) / DAY))
-      : null;
-    const isOverdue = targetMs !== null && !Number.isNaN(targetMs)
-      && release.status !== 'released' && release.status !== 'archived'
-      && targetMs < now;
-
-    // Cycle time (released only).
-    const cycleDays = release.status === 'released' && release.created_at && release.released_at
-      ? Math.max(1, Math.ceil((new Date(release.released_at).getTime() - new Date(release.created_at).getTime()) / DAY))
-      : null;
-
-    // Per-workstream distribution for the mini-viz.
-    const distribution = relWorkstreams
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-      .map((w) => {
-        const laneTasks = relTasks.filter((t) => t.workstream_id === w.id);
-        const laneDone = laneTasks.filter((t) => t.status === 'done').length;
-        return {
-          id: w.id,
-          name: w.name,
-          color: w.color,
-          total: laneTasks.length,
-          done: laneDone,
-        };
-      });
-
-    return {
-      ...release,
-      stats: {
-        task_total: taskTotal,
-        task_done: taskDone,
-        task_in_progress: taskInProgress,
-        blockers,
-        stuck,
-        readiness,
-        days_out: daysOut,
-        next_due_ms: nextDueMs,
-        cycle_days: cycleDays,
-        checklist_total: checklistTotal,
-        checklist_done: checklistDone,
-        is_overdue: isOverdue,
-        distribution,
-      },
-    };
-  });
+  const enriched = await enrichReleasesWithStats(releases);
 
   // Attach album rollups: an album's card should reflect its own tasks PLUS
   // the sum of its children's tasks. readiness is recomputed on the combined
@@ -265,7 +124,9 @@ export async function listReleasesWithStats() {
   });
 }
 
-// Pull just the children of one parent release (for the album detail page).
+// Pull just the children of one parent release, enriched with the same per-
+// release stats (readiness, blockers, distribution, etc.) the homepage uses,
+// so the album detail page can render full ReleaseCards for its children.
 export async function listChildReleases(parentId) {
   const { data, error } = await supabase
     .from('releases')
@@ -277,7 +138,145 @@ export async function listChildReleases(parentId) {
     if (/parent_release_id/.test(error.message ?? '')) return [];
     throw error;
   }
-  return data ?? [];
+  const rows = data ?? [];
+  if (rows.length === 0) return [];
+  return enrichReleasesWithStats(rows);
+}
+
+// Shared enrichment: fetch workstreams/tasks/checklist for the given releases
+// and return them with the homepage-style `stats` block attached. Pure helper —
+// no rollup/children logic (caller handles that for the homepage view).
+async function enrichReleasesWithStats(releases) {
+  const releaseIds = releases.map((r) => r.id);
+
+  const { data: workstreams, error: wsErr } = await supabase
+    .from('workstreams')
+    .select('id, name, color, release_id, sort_order')
+    .in('release_id', releaseIds);
+  if (wsErr) throw wsErr;
+
+  const wsByRelease = new Map();
+  (workstreams ?? []).forEach((w) => {
+    if (!wsByRelease.has(w.release_id)) wsByRelease.set(w.release_id, []);
+    wsByRelease.get(w.release_id).push(w);
+  });
+
+  const workstreamIds = (workstreams ?? []).map((w) => w.id);
+
+  let tasks = [];
+  if (workstreamIds.length > 0) {
+    const { data: taskRows, error: tErr } = await supabase
+      .from('tasks')
+      .select('id, workstream_id, status, due_date, created_at, completed_at')
+      .in('workstream_id', workstreamIds);
+    if (tErr) throw tErr;
+    tasks = taskRows ?? [];
+  }
+
+  const wsToRelease = new Map();
+  (workstreams ?? []).forEach((w) => wsToRelease.set(w.id, w.release_id));
+
+  const tasksByRelease = new Map();
+  tasks.forEach((t) => {
+    const rid = wsToRelease.get(t.workstream_id);
+    if (!rid) return;
+    if (!tasksByRelease.has(rid)) tasksByRelease.set(rid, []);
+    tasksByRelease.get(rid).push(t);
+  });
+
+  const { data: checklist, error: clErr } = await supabase
+    .from('release_checklist')
+    .select('release_id, completed')
+    .in('release_id', releaseIds);
+  if (clErr) throw clErr;
+
+  const checklistByRelease = new Map();
+  (checklist ?? []).forEach((c) => {
+    if (!checklistByRelease.has(c.release_id)) checklistByRelease.set(c.release_id, []);
+    checklistByRelease.get(c.release_id).push(c);
+  });
+
+  const now = Date.now();
+  const DAY = 24 * 60 * 60 * 1000;
+  const THIRTY_DAYS = 30 * DAY;
+
+  return releases.map((release) => {
+    const relTasks = tasksByRelease.get(release.id) ?? [];
+    const relChecklist = checklistByRelease.get(release.id) ?? [];
+    const relWorkstreams = wsByRelease.get(release.id) ?? [];
+
+    const taskTotal = relTasks.length;
+    const taskDone = relTasks.filter((t) => t.status === 'done').length;
+    const taskInProgress = relTasks.filter((t) => t.status === 'in_progress').length;
+    const blockers = relTasks.filter((t) => t.status === 'blocked').length;
+    const stuck = relTasks.filter((t) => {
+      if (t.status === 'done') return false;
+      return now - new Date(t.created_at).getTime() > THIRTY_DAYS;
+    }).length;
+
+    const checklistTotal = relChecklist.length;
+    const checklistDone = relChecklist.filter((c) => c.completed).length;
+
+    const taskRatio = taskTotal > 0 ? taskDone / taskTotal : null;
+    const checklistRatio = checklistTotal > 0 ? checklistDone / checklistTotal : null;
+    let readiness;
+    if (taskRatio === null && checklistRatio === null) readiness = 0;
+    else if (taskRatio === null) readiness = Math.round(checklistRatio * 100);
+    else if (checklistRatio === null) readiness = Math.round(taskRatio * 100);
+    else readiness = Math.round((taskRatio * 0.6 + checklistRatio * 0.4) * 100);
+
+    const upcomingDueMs = relTasks
+      .filter((t) => t.status !== 'done' && t.due_date)
+      .map((t) => new Date(t.due_date).getTime())
+      .filter((ms) => !Number.isNaN(ms) && ms >= now)
+      .sort((a, b) => a - b);
+    const nextDueMs = upcomingDueMs[0] ?? null;
+
+    const targetMs = release.target_date ? new Date(release.target_date).getTime() : null;
+    const daysOut = targetMs !== null && !Number.isNaN(targetMs)
+      ? Math.max(0, Math.ceil((targetMs - now) / DAY))
+      : null;
+    const isOverdue = targetMs !== null && !Number.isNaN(targetMs)
+      && release.status !== 'released' && release.status !== 'archived'
+      && targetMs < now;
+
+    const cycleDays = release.status === 'released' && release.created_at && release.released_at
+      ? Math.max(1, Math.ceil((new Date(release.released_at).getTime() - new Date(release.created_at).getTime()) / DAY))
+      : null;
+
+    const distribution = relWorkstreams
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .map((w) => {
+        const laneTasks = relTasks.filter((t) => t.workstream_id === w.id);
+        const laneDone = laneTasks.filter((t) => t.status === 'done').length;
+        return {
+          id: w.id,
+          name: w.name,
+          color: w.color,
+          total: laneTasks.length,
+          done: laneDone,
+        };
+      });
+
+    return {
+      ...release,
+      stats: {
+        task_total: taskTotal,
+        task_done: taskDone,
+        task_in_progress: taskInProgress,
+        blockers,
+        stuck,
+        readiness,
+        days_out: daysOut,
+        next_due_ms: nextDueMs,
+        cycle_days: cycleDays,
+        checklist_total: checklistTotal,
+        checklist_done: checklistDone,
+        is_overdue: isOverdue,
+        distribution,
+      },
+    };
+  });
 }
 
 // All releases eligible to be an album (top-level albums, excluding self).
@@ -598,4 +597,26 @@ export async function listProfiles() {
     .order('display_name', { ascending: true });
   if (error) throw error;
   return data;
+}
+
+// ── Streaming stats ────────────────────────────────────────────────────────────
+
+// Latest snapshot per platform for a release, plus full history ordered newest-first.
+export async function listReleaseStats(releaseId) {
+  const { data, error } = await supabase
+    .from('release_stats')
+    .select('*')
+    .eq('release_id', releaseId)
+    .order('snapshot_date', { ascending: false });
+  if (error) {
+    if (/release_stats/.test(error.message ?? '')) return [];
+    throw error;
+  }
+  // Group into { platform -> { latest, history[] } }
+  const map = {};
+  for (const row of data ?? []) {
+    if (!map[row.platform]) map[row.platform] = { latest: row, history: [] };
+    map[row.platform].history.push(row);
+  }
+  return map;
 }
