@@ -499,7 +499,7 @@ export default function ReleasePage() {
             </div>
 
             {/* Part of album chip / selector */}
-            {release.type !== 'album' && assignableAlbums.length > 0 && (
+            {release.type !== 'album' && (
               <>
                 <span style={{ color: colors.border }}>·</span>
                 <div data-popover style={{ position: 'relative', display: 'inline-block' }}>
@@ -553,9 +553,27 @@ export default function ReleasePage() {
                         </button>
                       )}
                       {assignableAlbums.length === 0 && !parentAlbum && (
-                        <div style={{ padding: '8px 10px', fontSize: 12, color: colors.textDim, fontStyle: 'italic' }}>
-                          No albums yet — create one from the releases page.
-                        </div>
+                        <>
+                          <div style={{ padding: '8px 10px 4px', fontSize: 11, color: colors.textDim, lineHeight: 1.4 }}>
+                            No albums yet. Create one from the releases page to group singles together.
+                          </div>
+                          <button
+                            role="menuitem"
+                            type="button"
+                            onClick={() => { setAlbumMenuOpen(false); navigate('/studio'); }}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 8,
+                              width: '100%', padding: '8px 10px',
+                              background: 'transparent', border: 'none', borderRadius: 6,
+                              cursor: 'pointer', textAlign: 'left',
+                              color: '#D8B4FE', fontFamily: fonts.body, fontSize: 12, fontWeight: 600,
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(168,85,247,0.08)'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                          >
+                            <Disc3 size={11} /> Go to releases
+                          </button>
+                        </>
                       )}
                       {assignableAlbums.map(a => (
                         <button
