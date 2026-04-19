@@ -363,6 +363,36 @@ export async function createReleaseFromTemplate({ templateId, title, targetDate,
 
 // ── Profiles ──────────────────────────────────────────────────────────────────
 
+// ── Streaming stats ────────────────────────────────────────────────────────────
+
+export async function updatePlatformIds(releaseId, platformIds) {
+  const { data, error } = await supabase
+    .from('releases')
+    .update({ platform_ids: platformIds })
+    .eq('id', releaseId)
+    .select('platform_ids')
+    .single();
+  if (error) throw error;
+  return data.platform_ids;
+}
+
+// Upsert today's snapshot for a platform. Caller passes only the fields it has.
+export async function upsertReleaseStat({ releaseId, platform, source = 'manual', ...metrics }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from('release_stats')
+    .upsert(
+      { release_id: releaseId, platform, snapshot_date: today, source, ...metrics },
+      { onConflict: 'release_id,platform,snapshot_date' }
+    )
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// ── Profiles ──────────────────────────────────────────────────────────────────
+
 export async function updateProfile(updates) {
   const {
     data: { user },
