@@ -18,6 +18,10 @@ export const colors = {
   pinkDim: '#F9A8D4',
   red: '#F87171',
   redDim: '#FCA5A5',
+  green: '#10B981',
+  greenDim: '#6EE7B7',
+  purple: '#A855F7',
+  purpleDim: '#D8B4FE',
   gray: '#A1A1AA',
 };
 
