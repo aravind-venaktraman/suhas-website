@@ -3,6 +3,7 @@ import { useParams, useOutletContext, useNavigate, Link } from 'react-router-dom
 import { Plus, Calendar, BarChart2, LayoutGrid, Pencil, Trash2, Disc3, ChevronDown, X } from 'lucide-react';
 import {
   getRelease,
+  getReleaseById,
   listWorkstreams,
   listTasks,
   listSongs,
@@ -64,6 +65,8 @@ export default function ReleasePage() {
   const [albumMenuOpen, setAlbumMenuOpen] = useState(false);
   const [assignableAlbums, setAssignableAlbums] = useState([]);
   const [childReleases, setChildReleases] = useState([]);
+  const [parentRelease, setParentRelease] = useState(null);
+  const [assignError, setAssignError] = useState(null);
 
   // Load all profiles once for the assignee autocomplete
   useEffect(() => {
@@ -150,8 +153,25 @@ export default function ReleasePage() {
     };
   }, [statusMenuOpen, albumMenuOpen]);
 
+  // Fetch parent album metadata directly so the chip renders the correct label
+  // even when assignableAlbums hasn't loaded (pre-migration fallback, race).
+  useEffect(() => {
+    if (!release?.parent_release_id) {
+      setParentRelease(null);
+      return;
+    }
+    let cancelled = false;
+    getReleaseById(release.parent_release_id)
+      .then((r) => { if (!cancelled) setParentRelease(r ?? null); })
+      .catch((e) => {
+        console.error('[studio] getReleaseById(parent) failed:', e);
+        if (!cancelled) setParentRelease(null);
+      });
+    return () => { cancelled = true; };
+  }, [release?.parent_release_id]);
+
   const parentAlbum = release?.parent_release_id
-    ? assignableAlbums.find((a) => a.id === release.parent_release_id)
+    ? (parentRelease ?? assignableAlbums.find((a) => a.id === release.parent_release_id) ?? null)
     : null;
 
   // Realtime updates — tasks only (comments are scoped to modal)
@@ -320,15 +340,25 @@ export default function ReleasePage() {
 
   async function setParentAlbum(newParentId) {
     setAlbumMenuOpen(false);
+    setAssignError(null);
     const prev = release.parent_release_id ?? null;
     if ((newParentId ?? null) === prev) return;
     setRelease(p => ({ ...p, parent_release_id: newParentId ?? null }));
     try {
-      await updateRelease({ id: releaseId, parent_release_id: newParentId ?? null });
+      const updated = await updateRelease({ id: releaseId, parent_release_id: newParentId ?? null });
+      // Trust the server's returned row; keeps any trigger-adjusted fields in sync.
+      if (updated) setRelease(updated);
       refreshReleases?.();
+      // Refresh assignable list in case the set of eligible albums shifted.
+      listAssignableAlbums(releaseId).then(setAssignableAlbums).catch(() => {});
     } catch (err) {
       console.error('[studio] parent update failed:', err);
       setRelease(p => ({ ...p, parent_release_id: prev }));
+      setAssignError(
+        /parent_release_id/i.test(err?.message ?? '')
+          ? 'Album linking needs a database migration — contact your admin.'
+          : (err?.message ?? 'Could not link to album.')
+      );
     }
   }
 
@@ -598,6 +628,32 @@ export default function ReleasePage() {
                     </div>
                   )}
                 </div>
+                {assignError && (
+                  <span
+                    role="alert"
+                    style={{
+                      flexBasis: '100%',
+                      marginTop: 4,
+                      fontSize: 11,
+                      color: '#FCA5A5',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <X size={11} /> {assignError}
+                    <button
+                      type="button"
+                      onClick={() => setAssignError(null)}
+                      style={{
+                        background: 'transparent', border: 'none', cursor: 'pointer',
+                        color: '#FCA5A5', fontSize: 11, padding: 0, textDecoration: 'underline',
+                      }}
+                    >
+                      dismiss
+                    </button>
+                  </span>
+                )}
               </>
             )}
           </div>

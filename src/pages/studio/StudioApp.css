@@ -145,6 +145,70 @@
   opacity: 1;
 }
 
+/* Album rows get a subtle purple edge so the tree structure reads quickly. */
+.studio-release-row.is-album .studio-release-item.album {
+  border-left: 2px solid rgba(168, 85, 247, 0.35);
+  padding-left: 8px;
+}
+
+.studio-release-row.is-album .studio-release-item.album.active {
+  border-left-color: #A855F7;
+  background: rgba(168, 85, 247, 0.1);
+  color: #FAFAFA;
+  border-color: rgba(168, 85, 247, 0.4) rgba(168, 85, 247, 0.2) rgba(168, 85, 247, 0.2) #A855F7;
+}
+
+.studio-release-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: #A1A1AA;
+  cursor: pointer;
+  border-radius: 3px;
+  flex-shrink: 0;
+  transition: color 0.12s, background 0.12s, transform 0.18s;
+  transform: rotate(-90deg);
+}
+.studio-release-caret.is-open { transform: rotate(0deg); }
+.studio-release-caret:hover { color: #D8B4FE; background: rgba(168, 85, 247, 0.12); }
+
+.studio-release-caret-spacer {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Child releases nest visually under the album via a guide line. */
+.studio-release-children {
+  margin: 1px 0 4px 12px;
+  padding-left: 8px;
+  border-left: 1px dashed rgba(168, 85, 247, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: studio-child-fade 0.16s ease-out;
+}
+
+@keyframes studio-child-fade {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.studio-release-row.is-child .studio-release-item {
+  padding: 7px 8px;
+  font-size: 11px;
+}
+.studio-release-row.is-child .studio-release-title { font-size: 11px; }
+.studio-release-row.is-child .studio-release-sub   { font-size: 8px; }
+
 .studio-release-item {
   display: flex;
   align-items: center;

@@ -7,6 +7,11 @@ import {
 import { supabase } from '../../lib/supabase';
 import { listReleasesWithStats, computePortfolioStats } from '../../lib/studio/queries';
 import { createAlbum } from '../../lib/studio/mutations';
+import {
+  loadAlbumOrder, loadSinglesOrder,
+  saveAlbumOrder, saveSinglesOrder,
+  applyOrder,
+} from '../../lib/studio/background';
 import ReleaseCard from '../../components/studio/ReleaseCard';
 import './HomePage.css';
 
@@ -25,6 +30,11 @@ export default function HomePage() {
   const [filter, setFilter]       = useState('all');
   const [refreshing, setRefreshing] = useState(false);
   const [albumModalOpen, setAlbumModalOpen] = useState(false);
+  // Bump to re-read saved order after a drag commits. Cheap, avoids needing
+  // to mirror localStorage in React state.
+  const [orderVersion, setOrderVersion] = useState(0);
+  const [draggingId, setDraggingId] = useState(null);
+  const [dragOverId, setDragOverId] = useState(null);
   const navigate = useNavigate();
   const searchRef = useRef(null);
   const debounceRef = useRef(null);
@@ -95,9 +105,57 @@ export default function HomePage() {
     [releases],
   );
 
-  const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
+  // Default status-bucket sort (used when the user hasn't manually reordered).
+  const defaultSort = (a, b) => {
+    const bucket = (r) => {
+      if (r.status === 'archived') return 3;
+      if (r.status === 'released') return 2;
+      return 1;
+    };
+    const ba = bucket(a); const bb = bucket(b);
+    if (ba !== bb) return ba - bb;
+    if (ba === 1) {
+      const at = a.target_date ? new Date(a.target_date).getTime() : Number.POSITIVE_INFINITY;
+      const bt = b.target_date ? new Date(b.target_date).getTime() : Number.POSITIVE_INFINITY;
+      if (at !== bt) return at - bt;
+      return a.title.localeCompare(b.title);
+    }
+    if (ba === 2) {
+      const ar = a.released_at ? new Date(a.released_at).getTime() : 0;
+      const br = b.released_at ? new Date(b.released_at).getTime() : 0;
+      return br - ar;
+    }
+    return (a.title ?? '').localeCompare(b.title ?? '');
+  };
 
+  // Split albums from everything else so we can group them in the UI.
+  const rawAlbums = useMemo(
+    () => topLevel.filter((r) => r.type === 'album'),
+    [topLevel],
+  );
+  const rawSingles = useMemo(
+    () => topLevel.filter((r) => r.type !== 'album'),
+    [topLevel],
+  );
+
+  // Saved manual order takes precedence; otherwise fall back to status sort.
+  // `orderVersion` forces a re-read after a drag commits.
+  const orderedAlbums = useMemo(() => {
+    const saved = loadAlbumOrder();
+    if (saved.length > 0) return applyOrder(rawAlbums, saved);
+    return [...rawAlbums].sort(defaultSort);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawAlbums, orderVersion]);
+
+  const orderedSingles = useMemo(() => {
+    const saved = loadSinglesOrder();
+    if (saved.length > 0) return applyOrder(rawSingles, saved);
+    return [...rawSingles].sort(defaultSort);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawSingles, orderVersion]);
+
+  const { albumsVisible, singlesVisible } = useMemo(() => {
+    const q = query.trim().toLowerCase();
     const matchesFilter = (r) => {
       if (filter === 'all')      return true;
       if (filter === 'active')   return r.status === 'in_progress';
@@ -105,11 +163,8 @@ export default function HomePage() {
       if (filter === 'released') return r.status === 'released';
       return true;
     };
-
     const matchesQuery = (r) =>
       !q || r.title.toLowerCase().includes(q) || (r.type ?? '').toLowerCase().includes(q);
-
-    // An album matches if it matches directly OR any of its children match.
     const albumMatches = (r) => {
       if (matchesQuery(r)) return true;
       if (r.type === 'album' && r.children?.length) {
@@ -117,33 +172,53 @@ export default function HomePage() {
       }
       return false;
     };
+    return {
+      albumsVisible: orderedAlbums.filter((r) => matchesFilter(r) && albumMatches(r)),
+      singlesVisible: orderedSingles.filter((r) => matchesFilter(r) && matchesQuery(r)),
+    };
+  }, [orderedAlbums, orderedSingles, query, filter]);
 
-    const filtered = topLevel.filter((r) => matchesFilter(r) && albumMatches(r));
+  const visibleCount = albumsVisible.length + singlesVisible.length;
 
-    // Sort: active first (by target_date asc, then title), then released (by released_at desc), archived last.
-    return [...filtered].sort((a, b) => {
-      const bucket = (r) => {
-        if (r.status === 'archived') return 3;
-        if (r.status === 'released') return 2;
-        return 1; // planning / in_progress
-      };
-      const ba = bucket(a); const bb = bucket(b);
-      if (ba !== bb) return ba - bb;
+  // ── Drag and drop reorder ────────────────────────────────────────────────
+  const onDragStart = useCallback((e, id) => {
+    setDraggingId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  }, []);
 
-      if (ba === 1) {
-        const at = a.target_date ? new Date(a.target_date).getTime() : Number.POSITIVE_INFINITY;
-        const bt = b.target_date ? new Date(b.target_date).getTime() : Number.POSITIVE_INFINITY;
-        if (at !== bt) return at - bt;
-        return a.title.localeCompare(b.title);
-      }
-      if (ba === 2) {
-        const ar = a.released_at ? new Date(a.released_at).getTime() : 0;
-        const br = b.released_at ? new Date(b.released_at).getTime() : 0;
-        return br - ar;
-      }
-      return (a.title ?? '').localeCompare(b.title ?? '');
-    });
-  }, [releases, query, filter]);
+  const onDragOver = useCallback((e, overId) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverId(overId);
+  }, []);
+
+  const onDragEnd = useCallback(() => {
+    setDraggingId(null);
+    setDragOverId(null);
+  }, []);
+
+  const commitReorder = useCallback((section, draggedId, overId) => {
+    const list = section === 'albums' ? orderedAlbums : orderedSingles;
+    const ids = list.map((r) => r.id);
+    const from = ids.indexOf(draggedId);
+    const to = ids.indexOf(overId);
+    if (from < 0 || to < 0 || from === to) return;
+    ids.splice(from, 1);
+    ids.splice(to, 0, draggedId);
+    if (section === 'albums') saveAlbumOrder(ids);
+    else saveSinglesOrder(ids);
+    setOrderVersion((v) => v + 1);
+  }, [orderedAlbums, orderedSingles]);
+
+  const onDrop = useCallback((e, section, overId) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData('text/plain') || draggingId;
+    setDraggingId(null);
+    setDragOverId(null);
+    if (!draggedId || draggedId === overId) return;
+    commitReorder(section, draggedId, overId);
+  }, [draggingId, commitReorder]);
 
   // ── Render paths ──────────────────────────────────────────────────────────
 
@@ -182,7 +257,7 @@ export default function HomePage() {
     );
   }
 
-  const noResults = visible.length === 0;
+  const noResults = visibleCount === 0;
 
   return (
     <div className="hp">
@@ -290,7 +365,7 @@ export default function HomePage() {
         <div className="hp-section-head">
           <div className="hp-section-titles">
             <div className="hp-section-title">Releases</div>
-            <div className="hp-section-count">{visible.length} of {topLevel.length}</div>
+            <div className="hp-section-count">{visibleCount} of {topLevel.length}</div>
           </div>
           <div className="hp-filters" role="tablist" aria-label="Filter releases">
             {FILTERS.map((f) => {
@@ -329,20 +404,72 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <div className="hp-grid">
-            {visible.map((release, i) => (
-              <div
-                key={release.id}
-                className="hp-grid-item"
-                style={{ animationDelay: `${Math.min(i, 8) * 28}ms` }}
-              >
-                <ReleaseCard release={release} />
-                {release.type === 'album' && release.children?.length > 0 && (
-                  <AlbumChildren items={release.children} navigate={navigate} />
-                )}
+          <>
+            {albumsVisible.length > 0 && (
+              <div className="hp-subsection">
+                <div className="hp-subsection-head">
+                  <Disc3 size={11} className="hp-subsection-icon" aria-hidden />
+                  <span className="hp-subsection-title">Albums</span>
+                  <span className="hp-subsection-count">{albumsVisible.length}</span>
+                  <span className="hp-subsection-hint">drag to reorder</span>
+                </div>
+                <div className="hp-grid hp-grid-albums">
+                  {albumsVisible.map((release, i) => (
+                    <div
+                      key={release.id}
+                      className={[
+                        'hp-grid-item hp-grid-item-album',
+                        draggingId === release.id ? 'is-dragging' : '',
+                        dragOverId === release.id && draggingId && draggingId !== release.id ? 'is-drag-over' : '',
+                      ].filter(Boolean).join(' ')}
+                      style={{ animationDelay: `${Math.min(i, 8) * 28}ms` }}
+                      draggable
+                      onDragStart={(e) => onDragStart(e, release.id)}
+                      onDragOver={(e) => onDragOver(e, release.id)}
+                      onDrop={(e) => onDrop(e, 'albums', release.id)}
+                      onDragEnd={onDragEnd}
+                    >
+                      <ReleaseCard release={release} />
+                      {release.children?.length > 0 && (
+                        <AlbumChildren items={release.children} navigate={navigate} />
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+            )}
+
+            {singlesVisible.length > 0 && (
+              <div className="hp-subsection">
+                <div className="hp-subsection-head">
+                  <Sparkles size={11} className="hp-subsection-icon" aria-hidden />
+                  <span className="hp-subsection-title">Singles &amp; releases</span>
+                  <span className="hp-subsection-count">{singlesVisible.length}</span>
+                  <span className="hp-subsection-hint">drag to reorder</span>
+                </div>
+                <div className="hp-grid">
+                  {singlesVisible.map((release, i) => (
+                    <div
+                      key={release.id}
+                      className={[
+                        'hp-grid-item',
+                        draggingId === release.id ? 'is-dragging' : '',
+                        dragOverId === release.id && draggingId && draggingId !== release.id ? 'is-drag-over' : '',
+                      ].filter(Boolean).join(' ')}
+                      style={{ animationDelay: `${Math.min(i, 8) * 28}ms` }}
+                      draggable
+                      onDragStart={(e) => onDragStart(e, release.id)}
+                      onDragOver={(e) => onDragOver(e, release.id)}
+                      onDrop={(e) => onDrop(e, 'singles', release.id)}
+                      onDragEnd={onDragEnd}
+                    >
+                      <ReleaseCard release={release} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </section>
 
