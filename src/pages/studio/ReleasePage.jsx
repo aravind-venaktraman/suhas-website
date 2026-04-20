@@ -13,7 +13,16 @@ import {
   listAssignableAlbums,
 } from '../../lib/studio/queries';
 
-import { createTask, toggleChecklistItem, updateTask, updateWorkstream, updateRelease, deleteRelease } from '../../lib/studio/mutations';
+import {
+  createTask,
+  toggleChecklistItem,
+  updateTask,
+  updateWorkstream,
+  updateRelease,
+  deleteRelease,
+  markComplete,
+  deleteTask,
+} from '../../lib/studio/mutations';
 import {
   computeReadiness,
   computeBlockers,
@@ -42,40 +51,43 @@ export default function ReleasePage() {
   const { user, profile: userProfile, refreshReleases } = useOutletContext();
   const navigate = useNavigate();
 
-  const [release, setRelease] = useState(null);
+  const [release, setRelease]         = useState(null);
   const [workstreams, setWorkstreams] = useState([]);
-  const [tasks, setTasks] = useState([]);
-  const [songs, setSongs] = useState([]);
-  const [checklist, setChecklist] = useState([]);
+  const [tasks, setTasks]             = useState([]);
+  const [songs, setSongs]             = useState([]);
+  const [checklist, setChecklist]     = useState([]);
   const [allProfiles, setAllProfiles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('board');
+  const [loading, setLoading]         = useState(true);
+  const [tab, setTab]                 = useState('board');
   const [selectedTask, setSelectedTask] = useState(null);
-  const [addingToWorkstream, setAddingToWorkstream] = useState(null);
-  const [showWizard, setShowWizard] = useState(false);
-  const [addTaskTitle, setAddTaskTitle] = useState('');
-  const [addTaskError, setAddTaskError] = useState('');
-  const [submittingTask, setSubmittingTask] = useState(false);
+  const [showWizard, setShowWizard]   = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
-  const [titleValue, setTitleValue] = useState('');
-  const titleInputRef = useRef(null);
+  const [titleValue, setTitleValue]   = useState('');
+  const titleInputRef                 = useRef(null);
   const [editingDate, setEditingDate] = useState(false);
-  const [dateValue, setDateValue] = useState('');
-  const dateInputRef = useRef(null);
+  const [dateValue, setDateValue]     = useState('');
+  const dateInputRef                  = useRef(null);
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
-  const [albumMenuOpen, setAlbumMenuOpen] = useState(false);
+  const [albumMenuOpen, setAlbumMenuOpen]   = useState(false);
   const [assignableAlbums, setAssignableAlbums] = useState([]);
-  const [childReleases, setChildReleases] = useState([]);
-  const [parentRelease, setParentRelease] = useState(null);
-  const [assignError, setAssignError] = useState(null);
+  const [childReleases, setChildReleases]       = useState([]);
+  const [parentRelease, setParentRelease]       = useState(null);
+  const [assignError, setAssignError]           = useState(null);
 
-  // Load all profiles once for the assignee autocomplete
+  // ── New direct-manipulation state ───────────────────────────────────────────
+  const [filterQuery, setFilterQuery]   = useState('');
+  const [selectedIds, setSelectedIds]   = useState(new Set());
+  const [showHelp, setShowHelp]         = useState(false);
+  // addTrigger: { laneId, counter } — counter increment fires inline-add in matching lane
+  const [addTrigger, setAddTrigger]     = useState({ laneId: null, counter: 0 });
+  const [lastAddedLaneId, setLastAddedLaneId] = useState(null);
+  const filterInputRef                  = useRef(null);
+
+  // Load all profiles once
   useEffect(() => {
     listProfiles().then(setAllProfiles).catch(console.error);
   }, []);
 
-  // Bounce back to /studio if someone lands here without a release id
-  // (e.g. after deleting a release). The homepage is the landing surface now.
   useEffect(() => {
     if (!releaseId) navigate('/studio', { replace: true });
   }, [releaseId, navigate]);
@@ -83,7 +95,6 @@ export default function ReleasePage() {
   const loadRelease = useCallback(async (id) => {
     setLoading(true);
     try {
-      // Load core release data first — these never need the profiles table
       const [rel, ws, s, cl] = await Promise.all([
         getRelease(id),
         listWorkstreams(id),
@@ -94,8 +105,6 @@ export default function ReleasePage() {
       setWorkstreams(ws);
       setSongs(s);
       setChecklist(cl);
-
-      // Load tasks separately so a profiles-join failure never blanks the board
       try {
         const t = await listTasks(id);
         setTasks(t);
@@ -113,110 +122,190 @@ export default function ReleasePage() {
     if (releaseId) loadRelease(releaseId);
   }, [releaseId, loadRelease]);
 
-  // Load album siblings/children metadata whenever release loads.
-  // listAssignableAlbums + listChildReleases each gracefully return [] if the
-  // parent_release_id column isn't there yet (pre-migration).
   useEffect(() => {
     if (!release) return;
     if (release.type === 'album') {
-      listChildReleases(release.id).then(setChildReleases).catch((e) => {
+      listChildReleases(release.id).then(setChildReleases).catch(e => {
         console.error('[studio] listChildReleases failed:', e);
         setChildReleases([]);
       });
     } else {
-      listAssignableAlbums(release.id).then(setAssignableAlbums).catch((e) => {
+      listAssignableAlbums(release.id).then(setAssignableAlbums).catch(e => {
         console.error('[studio] listAssignableAlbums failed:', e);
         setAssignableAlbums([]);
       });
     }
   }, [release?.id, release?.type]);
 
-  // Close popovers on outside click / Escape.
+  // Close header popovers on outside click / Escape
   useEffect(() => {
     if (!statusMenuOpen && !albumMenuOpen) return;
     function onKey(e) {
-      if (e.key === 'Escape') {
-        setStatusMenuOpen(false);
-        setAlbumMenuOpen(false);
-      }
+      if (e.key === 'Escape') { setStatusMenuOpen(false); setAlbumMenuOpen(false); }
     }
     function onClick(e) {
-      if (!e.target.closest?.('[data-popover]')) {
-        setStatusMenuOpen(false);
-        setAlbumMenuOpen(false);
-      }
+      if (!e.target.closest?.('[data-popover]')) { setStatusMenuOpen(false); setAlbumMenuOpen(false); }
     }
     window.addEventListener('keydown', onKey);
     window.addEventListener('mousedown', onClick);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      window.removeEventListener('mousedown', onClick);
-    };
+    return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('mousedown', onClick); };
   }, [statusMenuOpen, albumMenuOpen]);
 
-  // Fetch parent album metadata directly so the chip renders the correct label
-  // even when assignableAlbums hasn't loaded (pre-migration fallback, race).
   useEffect(() => {
-    if (!release?.parent_release_id) {
-      setParentRelease(null);
-      return;
-    }
+    if (!release?.parent_release_id) { setParentRelease(null); return; }
     let cancelled = false;
     getReleaseById(release.parent_release_id)
-      .then((r) => { if (!cancelled) setParentRelease(r ?? null); })
-      .catch((e) => {
-        console.error('[studio] getReleaseById(parent) failed:', e);
-        if (!cancelled) setParentRelease(null);
-      });
+      .then(r => { if (!cancelled) setParentRelease(r ?? null); })
+      .catch(e => { console.error('[studio] getReleaseById(parent) failed:', e); if (!cancelled) setParentRelease(null); });
     return () => { cancelled = true; };
   }, [release?.parent_release_id]);
 
   const parentAlbum = release?.parent_release_id
-    ? (parentRelease ?? assignableAlbums.find((a) => a.id === release.parent_release_id) ?? null)
+    ? (parentRelease ?? assignableAlbums.find(a => a.id === release.parent_release_id) ?? null)
     : null;
 
-  // Realtime updates — tasks only (comments are scoped to modal)
+  // ── Global keyboard shortcuts (board tab only) ─────────────────────────────
+  useEffect(() => {
+    function handleKey(e) {
+      const active = document.activeElement;
+      const inInput = active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable;
+
+      if (e.key === 'Escape') {
+        if (showHelp) { setShowHelp(false); return; }
+        if (filterQuery) { setFilterQuery(''); filterInputRef.current?.blur(); return; }
+        if (selectedIds.size > 0) { setSelectedIds(new Set()); return; }
+        if (selectedTask) { setSelectedTask(null); return; }
+      }
+
+      if (inInput) return;
+
+      if (e.key === '?') {
+        e.preventDefault();
+        setShowHelp(v => !v);
+        return;
+      }
+
+      if (tab !== 'board') return;
+
+      if (e.key === '/' || e.key === 'F' || e.key === 'f') {
+        if (e.key === '/') e.preventDefault();
+        filterInputRef.current?.focus();
+        return;
+      }
+
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        const targetLaneId = lastAddedLaneId || workstreams[0]?.id;
+        if (targetLaneId) {
+          setAddTrigger(prev => ({ laneId: targetLaneId, counter: prev.counter + 1 }));
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [tab, showHelp, filterQuery, selectedIds, selectedTask, lastAddedLaneId, workstreams]);
+
+  // Realtime updates
   useRealtimeRelease(releaseId, {
     onTaskChange: (payload) => {
       if (payload.eventType === 'INSERT') {
-        setTasks((prev) => [...prev, payload.new]);
+        setTasks(prev => [...prev, payload.new]);
       } else if (payload.eventType === 'UPDATE') {
-        setTasks((prev) =>
-          prev.map((t) => (t.id === payload.new.id ? { ...t, ...payload.new } : t))
-        );
+        setTasks(prev => prev.map(t => t.id === payload.new.id ? { ...t, ...payload.new } : t));
         if (selectedTask?.id === payload.new.id) {
-          setSelectedTask((prev) => ({ ...prev, ...payload.new }));
+          setSelectedTask(prev => ({ ...prev, ...payload.new }));
         }
       } else if (payload.eventType === 'DELETE') {
-        setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
+        setTasks(prev => prev.filter(t => t.id !== payload.old.id));
         if (selectedTask?.id === payload.old.id) setSelectedTask(null);
       }
     },
   });
 
   // Computed metrics
-  const readiness      = computeReadiness(tasks, checklist);
-  const blockersCount  = computeBlockers(tasks).length;
-  const stuckCount     = computeStuck(tasks).length;
-  const daysToRelease  = computeDaysToRelease(release?.target_date);
-  const collaborators  = computeCollaborators(tasks);
+  const readiness     = computeReadiness(tasks, checklist);
+  const blockersCount = computeBlockers(tasks).length;
+  const stuckCount    = computeStuck(tasks).length;
+  const daysToRelease = computeDaysToRelease(release?.target_date);
+  const collaborators = computeCollaborators(tasks);
+
+  // ── Task handlers ────────────────────────────────────────────────────────────
 
   function handleTaskUpdate(updated, deletedId) {
     if (deletedId) {
-      setTasks((prev) => prev.filter((t) => t.id !== deletedId));
+      setTasks(prev => prev.filter(t => t.id !== deletedId));
       setSelectedTask(null);
     } else if (updated) {
-      setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+      setTasks(prev => prev.map(t => t.id === updated.id ? updated : t));
       setSelectedTask(updated);
     }
   }
 
-  // ── Move card to a different workstream ────────────────────────────────────
+  // Inline add — optimistic, stays open for rapid entry
+  async function handleAddTask({ workstreamId, title }) {
+    const tempId = `temp-${Date.now()}-${Math.random()}`;
+    const tempTask = {
+      id: tempId,
+      workstream_id: workstreamId,
+      title,
+      status: 'not_started',
+      priority: 'normal',
+      created_at: new Date().toISOString(),
+      assignee: null,
+      assignee_id: null,
+      external_assignee: null,
+      due_date: null,
+      song_id: null,
+    };
+    setTasks(prev => [...prev, tempTask]);
+    try {
+      const newTask = await createTask({ workstreamId, releaseId, actorId: user.id, title });
+      setTasks(prev => prev.map(t => t.id === tempId ? { ...t, ...newTask } : t));
+    } catch (err) {
+      console.error('[studio] inline add failed:', err);
+      setTasks(prev => prev.filter(t => t.id !== tempId));
+    }
+  }
+
+  // Card click — shift-click toggles bulk selection, normal click opens modal
+  function handleCardClick(task, e) {
+    if (e?.shiftKey) {
+      e.preventDefault();
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        next.has(task.id) ? next.delete(task.id) : next.add(task.id);
+        return next;
+      });
+    } else {
+      setSelectedIds(new Set()); // clear selection on normal click
+      setSelectedTask(task);
+    }
+  }
+
+  // Inline title commit
+  async function handleTaskTitleCommit(taskId, newTitle) {
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, title: newTitle } : t));
+    try {
+      await updateTask({ id: taskId, releaseId, actorId: user.id, title: newTitle });
+    } catch (err) {
+      console.error('[studio] title commit failed:', err);
+      listTasks(releaseId).then(setTasks).catch(console.error);
+    }
+  }
+
+  // Inline metadata updates from card popovers (due date, assignee, song, priority)
+  async function handleTaskUpdate2(taskId, fields) {
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...fields } : t));
+    try {
+      await updateTask({ id: taskId, releaseId, actorId: user.id, ...fields });
+    } catch (err) {
+      console.error('[studio] inline update failed:', err);
+      listTasks(releaseId).then(setTasks).catch(console.error);
+    }
+  }
+
   async function handleTaskMove(taskId, newWorkstreamId) {
-    // Optimistic
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, workstream_id: newWorkstreamId } : t))
-    );
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, workstream_id: newWorkstreamId } : t));
     try {
       await updateTask({ id: taskId, releaseId, actorId: user.id, workstream_id: newWorkstreamId });
     } catch (err) {
@@ -225,27 +314,19 @@ export default function ReleasePage() {
     }
   }
 
-  // ── Reorder columns ─────────────────────────────────────────────────────────
   async function handleWorkstreamsReorder(newOrderIds) {
-    const wsById = Object.fromEntries(workstreams.map((w) => [w.id, w]));
-    // Optimistic
+    const wsById = Object.fromEntries(workstreams.map(w => [w.id, w]));
     setWorkstreams(newOrderIds.map((id, i) => ({ ...wsById[id], sort_order: i + 1 })));
     try {
-      await Promise.all(
-        newOrderIds.map((id, i) => updateWorkstream({ id, sortOrder: i + 1 }))
-      );
+      await Promise.all(newOrderIds.map((id, i) => updateWorkstream({ id, sortOrder: i + 1 })));
     } catch (err) {
       console.error('[studio] reorder failed, reverting:', err);
       listWorkstreams(releaseId).then(setWorkstreams).catch(console.error);
     }
   }
 
-  // ── Rename a workstream ─────────────────────────────────────────────────────
   async function handleWorkstreamRename(wsId, newName) {
-    // Optimistic
-    setWorkstreams((prev) =>
-      prev.map((w) => (w.id === wsId ? { ...w, name: newName } : w))
-    );
+    setWorkstreams(prev => prev.map(w => w.id === wsId ? { ...w, name: newName } : w));
     try {
       await updateWorkstream({ id: wsId, name: newName });
     } catch (err) {
@@ -254,28 +335,50 @@ export default function ReleasePage() {
     }
   }
 
-  async function handleAddTask(e) {
-    e.preventDefault();
-    if (!addTaskTitle.trim() || !addingToWorkstream) return;
-    setSubmittingTask(true);
-    setAddTaskError('');
+  // ── Bulk actions ─────────────────────────────────────────────────────────────
+
+  async function handleBulkMove(newWorkstreamId) {
+    if (!newWorkstreamId) return;
+    const ids = [...selectedIds];
+    setTasks(prev => prev.map(t => ids.includes(t.id) ? { ...t, workstream_id: newWorkstreamId } : t));
+    setSelectedIds(new Set());
     try {
-      await createTask({
-        workstreamId: addingToWorkstream.id,
-        releaseId,
-        actorId: user.id,
-        title: addTaskTitle.trim(),
-        status: 'not_started',
-      });
-      const t = await listTasks(releaseId);
-      setTasks(t);
-      setAddTaskTitle('');
-      setAddingToWorkstream(null);
+      await Promise.all(ids.map(id => updateTask({ id, releaseId, actorId: user.id, workstream_id: newWorkstreamId })));
     } catch (err) {
-      setAddTaskError(err.message);
+      console.error('[studio] bulk move failed:', err);
+      listTasks(releaseId).then(setTasks).catch(console.error);
     }
-    setSubmittingTask(false);
   }
+
+  async function handleBulkComplete() {
+    const ids = [...selectedIds];
+    const now = new Date().toISOString();
+    setTasks(prev => prev.map(t => ids.includes(t.id) ? { ...t, status: 'done', completed_at: now } : t));
+    setSelectedIds(new Set());
+    try {
+      await Promise.all(ids.map(id => markComplete({ id, releaseId, actorId: user.id })));
+    } catch (err) {
+      console.error('[studio] bulk complete failed:', err);
+      listTasks(releaseId).then(setTasks).catch(console.error);
+    }
+  }
+
+  async function handleBulkDelete() {
+    const count = selectedIds.size;
+    if (!window.confirm(`Delete ${count} task${count > 1 ? 's' : ''}? This cannot be undone.`)) return;
+    const ids = [...selectedIds];
+    const toDelete = tasks.filter(t => ids.includes(t.id));
+    setTasks(prev => prev.filter(t => !ids.includes(t.id)));
+    setSelectedIds(new Set());
+    try {
+      await Promise.all(toDelete.map(t => deleteTask({ id: t.id, releaseId, actorId: user.id, title: t.title })));
+    } catch (err) {
+      console.error('[studio] bulk delete failed:', err);
+      listTasks(releaseId).then(setTasks).catch(console.error);
+    }
+  }
+
+  // ── Release header handlers ───────────────────────────────────────────────────
 
   function startTitleEdit() {
     setTitleValue(release.title);
@@ -326,7 +429,6 @@ export default function ReleasePage() {
     setRelease(p => ({
       ...p,
       status: newStatus,
-      // match mutation-side behavior optimistically
       released_at: newStatus === 'released' ? (p.released_at ?? new Date().toISOString()) : null,
     }));
     try {
@@ -347,10 +449,8 @@ export default function ReleasePage() {
     setRelease(p => ({ ...p, parent_release_id: newParentId ?? null }));
     try {
       const updated = await updateRelease({ id: releaseId, parent_release_id: newParentId ?? null });
-      // Trust the server's returned row; keeps any trigger-adjusted fields in sync.
       if (updated) setRelease(updated);
       refreshReleases?.();
-      // Refresh assignable list in case the set of eligible albums shifted.
       listAssignableAlbums(releaseId).then(setAssignableAlbums).catch(() => {});
     } catch (err) {
       console.error('[studio] parent update failed:', err);
@@ -373,6 +473,8 @@ export default function ReleasePage() {
       console.error('[studio] delete failed:', err);
     }
   }
+
+  // ── Loading / empty states ────────────────────────────────────────────────────
 
   if (loading) {
     return (
@@ -420,25 +522,22 @@ export default function ReleasePage() {
               {release.type}
             </span>
 
-            {/* Editable target date */}
             <span style={{ color: colors.border }}>·</span>
             {editingDate ? (
-              <form onSubmit={(e) => { e.preventDefault(); submitDateEdit(); }} style={{ margin: 0, display: 'inline-flex' }}>
+              <form onSubmit={e => { e.preventDefault(); submitDateEdit(); }} style={{ margin: 0, display: 'inline-flex' }}>
                 <input
                   ref={dateInputRef}
                   type="date"
                   value={dateValue}
-                  onChange={(e) => setDateValue(e.target.value)}
+                  onChange={e => setDateValue(e.target.value)}
                   onBlur={submitDateEdit}
-                  onKeyDown={(e) => e.key === 'Escape' && setEditingDate(false)}
+                  onKeyDown={e => e.key === 'Escape' && setEditingDate(false)}
                   style={{
                     fontFamily: fonts.display, fontSize: 10,
                     color: colors.textSecondary, letterSpacing: '0.1em',
                     background: 'rgba(9,9,11,0.6)',
                     border: '1px solid rgba(34,211,238,0.45)',
-                    borderRadius: 4,
-                    padding: '3px 6px',
-                    outline: 'none',
+                    borderRadius: 4, padding: '3px 6px', outline: 'none',
                   }}
                 />
               </form>
@@ -454,8 +553,8 @@ export default function ReleasePage() {
                   textTransform: 'uppercase', letterSpacing: '0.12em',
                   fontStyle: release.target_date ? 'normal' : 'italic',
                 }}
-                onMouseEnter={e => e.currentTarget.style.color = '#22D3EE'}
-                onMouseLeave={e => e.currentTarget.style.color = release.target_date ? colors.textDim : '#71717A'}
+                onMouseEnter={e => { e.currentTarget.style.color = '#22D3EE'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = release.target_date ? colors.textDim : '#71717A'; }}
               >
                 {release.target_date
                   ? new Date(release.target_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -464,7 +563,6 @@ export default function ReleasePage() {
               </button>
             )}
 
-            {/* Status popover */}
             <span style={{ color: colors.border }}>·</span>
             <div data-popover style={{ position: 'relative', display: 'inline-block' }}>
               <button
@@ -493,8 +591,7 @@ export default function ReleasePage() {
                     border: '1px solid rgba(244,244,245,0.1)',
                     borderRadius: 8,
                     boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                    padding: 4,
-                    zIndex: 60,
+                    padding: 4, zIndex: 60,
                   }}
                 >
                   {[
@@ -515,13 +612,10 @@ export default function ReleasePage() {
                         textAlign: 'left', color: colors.textSecondary,
                         fontFamily: fonts.body, fontSize: 12,
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(244,244,245,0.05)'}
-                      onMouseLeave={e => e.currentTarget.style.background = release.status === s.id ? 'rgba(34,211,238,0.08)' : 'transparent'}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(244,244,245,0.05)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = release.status === s.id ? 'rgba(34,211,238,0.08)' : 'transparent'; }}
                     >
-                      <span style={{
-                        width: 8, height: 8, borderRadius: '50%',
-                        background: statusChipStyles(s.id).color ?? '#A1A1AA',
-                      }} />
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: statusChipStyles(s.id).color ?? '#A1A1AA' }} />
                       {s.label}
                     </button>
                   ))}
@@ -529,7 +623,6 @@ export default function ReleasePage() {
               )}
             </div>
 
-            {/* Part of album chip / selector */}
             {release.type !== 'album' && (
               <>
                 <span style={{ color: colors.border }}>·</span>
@@ -562,8 +655,7 @@ export default function ReleasePage() {
                         border: '1px solid rgba(168,85,247,0.22)',
                         borderRadius: 8,
                         boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                        padding: 4,
-                        zIndex: 60,
+                        padding: 4, zIndex: 60,
                       }}
                     >
                       {parentAlbum && (
@@ -577,8 +669,8 @@ export default function ReleasePage() {
                             cursor: 'pointer', textAlign: 'left',
                             color: '#FCA5A5', fontFamily: fonts.body, fontSize: 12,
                           }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                         >
                           <X size={11} /> Remove from album
                         </button>
@@ -599,8 +691,8 @@ export default function ReleasePage() {
                               cursor: 'pointer', textAlign: 'left',
                               color: '#D8B4FE', fontFamily: fonts.body, fontSize: 12, fontWeight: 600,
                             }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(168,85,247,0.08)'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(168,85,247,0.08)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                           >
                             <Disc3 size={11} /> Go to releases
                           </button>
@@ -619,8 +711,8 @@ export default function ReleasePage() {
                             textAlign: 'left', color: colors.textSecondary,
                             fontFamily: fonts.body, fontSize: 12,
                           }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(244,244,245,0.05)'}
-                          onMouseLeave={e => e.currentTarget.style.background = release.parent_release_id === a.id ? 'rgba(168,85,247,0.1)' : 'transparent'}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(244,244,245,0.05)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = release.parent_release_id === a.id ? 'rgba(168,85,247,0.1)' : 'transparent'; }}
                         >
                           <Disc3 size={11} style={{ color: '#D8B4FE' }} />
                           {a.title}
@@ -632,24 +724,13 @@ export default function ReleasePage() {
                 {assignError && (
                   <span
                     role="alert"
-                    style={{
-                      flexBasis: '100%',
-                      marginTop: 4,
-                      fontSize: 11,
-                      color: '#FCA5A5',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                    }}
+                    style={{ flexBasis: '100%', marginTop: 4, fontSize: 11, color: '#FCA5A5', display: 'inline-flex', alignItems: 'center', gap: 6 }}
                   >
                     <X size={11} /> {assignError}
                     <button
                       type="button"
                       onClick={() => setAssignError(null)}
-                      style={{
-                        background: 'transparent', border: 'none', cursor: 'pointer',
-                        color: '#FCA5A5', fontSize: 11, padding: 0, textDecoration: 'underline',
-                      }}
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#FCA5A5', fontSize: 11, padding: 0, textDecoration: 'underline' }}
                     >
                       dismiss
                     </button>
@@ -658,22 +739,22 @@ export default function ReleasePage() {
               </>
             )}
           </div>
+
           {editingTitle ? (
-            <form onSubmit={(e) => { e.preventDefault(); submitTitleEdit(); }} style={{ margin: 0 }}>
+            <form onSubmit={e => { e.preventDefault(); submitTitleEdit(); }} style={{ margin: 0 }}>
               <input
                 ref={titleInputRef}
                 value={titleValue}
-                onChange={(e) => setTitleValue(e.target.value)}
+                onChange={e => setTitleValue(e.target.value)}
                 onBlur={submitTitleEdit}
-                onKeyDown={(e) => e.key === 'Escape' && setEditingTitle(false)}
+                onKeyDown={e => e.key === 'Escape' && setEditingTitle(false)}
                 style={{
                   fontFamily: fonts.display, fontSize: 24, fontWeight: 900,
                   color: colors.textPrimary, textTransform: 'uppercase',
                   letterSpacing: '-0.01em', lineHeight: 1, margin: 0,
                   background: 'transparent', border: 'none',
                   borderBottom: `2px solid rgba(34,211,238,0.5)`,
-                  outline: 'none', padding: '0 0 2px', width: '100%',
-                  minWidth: 120,
+                  outline: 'none', padding: '0 0 2px', width: '100%', minWidth: 120,
                 }}
               />
             </form>
@@ -686,8 +767,8 @@ export default function ReleasePage() {
                 onClick={startTitleEdit}
                 title="Rename release"
                 style={{ background: 'transparent', border: 'none', color: colors.textDim, cursor: 'pointer', padding: 4, borderRadius: 4, display: 'flex', opacity: 0.6, transition: 'opacity 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.opacity = 1}
-                onMouseLeave={e => e.currentTarget.style.opacity = 0.6}
+                onMouseEnter={e => { e.currentTarget.style.opacity = 1; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = 0.6; }}
               >
                 <Pencil size={13} />
               </button>
@@ -747,30 +828,63 @@ export default function ReleasePage() {
       />
 
       {/* ── Album: included releases ── */}
-      {release.type === 'album' && (
-        <AlbumChildrenPanel items={childReleases} />
-      )}
+      {release.type === 'album' && <AlbumChildrenPanel items={childReleases} />}
 
-      {/* ── Tab switcher ── */}
-      <div style={{ display: 'flex', gap: 2, padding: 4, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: `1px solid ${colors.border}`, alignSelf: 'flex-start' }}>
-        {TABS.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setTab(id)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '7px 14px', borderRadius: 8,
-              fontFamily: fonts.display, fontSize: 10, fontWeight: 700,
-              textTransform: 'uppercase', letterSpacing: '0.12em',
-              cursor: 'pointer', border: tab === id ? `1px solid rgba(99,102,241,0.4)` : '1px solid transparent',
-              background: tab === id ? 'rgba(99,102,241,0.18)' : 'transparent',
-              color: tab === id ? '#A5B4FC' : colors.textDim,
-              transition: 'all 0.15s',
-            }}
-          >
-            <Icon size={12} /> {label}
-          </button>
-        ))}
+      {/* ── Tab switcher + board filter ── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 2, padding: 4, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: `1px solid ${colors.border}`, alignSelf: 'flex-start' }}>
+          {TABS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 8,
+                fontFamily: fonts.display, fontSize: 10, fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '0.12em',
+                cursor: 'pointer', border: tab === id ? `1px solid rgba(99,102,241,0.4)` : '1px solid transparent',
+                background: tab === id ? 'rgba(99,102,241,0.18)' : 'transparent',
+                color: tab === id ? '#A5B4FC' : colors.textDim,
+                transition: 'all 0.15s',
+              }}
+            >
+              <Icon size={12} /> {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Quick filter — board tab only */}
+        {tab === 'board' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <input
+              ref={filterInputRef}
+              type="text"
+              placeholder="Filter  (/)"
+              value={filterQuery}
+              onChange={e => setFilterQuery(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Escape') { setFilterQuery(''); e.currentTarget.blur(); } }}
+              className="studio-board-filter"
+            />
+            <button
+              onClick={() => setShowHelp(true)}
+              title="Keyboard shortcuts (?)"
+              style={{
+                background: 'transparent',
+                border: `1px solid ${colors.border}`,
+                color: colors.textDim,
+                borderRadius: 5, padding: '6px 10px',
+                fontSize: 12, cursor: 'pointer',
+                fontFamily: fonts.display,
+                letterSpacing: '0.1em',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(34,211,238,0.3)'; e.currentTarget.style.color = '#22D3EE'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = colors.border; e.currentTarget.style.color = colors.textDim; }}
+            >
+              ?
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Tab content ── */}
@@ -779,11 +893,18 @@ export default function ReleasePage() {
           workstreams={workstreams}
           tasks={tasks}
           songs={songs}
-          onTaskClick={setSelectedTask}
-          onAddTask={setAddingToWorkstream}
+          allProfiles={allProfiles}
+          filterQuery={filterQuery}
+          selectedIds={selectedIds}
+          addTrigger={addTrigger}
+          onTaskClick={handleCardClick}
+          onAddTask={handleAddTask}
           onTaskMove={handleTaskMove}
           onWorkstreamsReorder={handleWorkstreamsReorder}
           onWorkstreamRename={handleWorkstreamRename}
+          onTaskTitleCommit={handleTaskTitleCommit}
+          onTaskUpdate={handleTaskUpdate2}
+          onAddActivated={laneId => setLastAddedLaneId(laneId)}
         />
       )}
 
@@ -796,46 +917,32 @@ export default function ReleasePage() {
           tasks={tasks}
           workstreams={workstreams}
           checklist={checklist}
-          onChecklistToggle={async (item) => {
+          onChecklistToggle={async item => {
             const updated = await toggleChecklistItem({ id: item.id, completed: !item.completed });
-            setChecklist((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+            setChecklist(prev => prev.map(c => c.id === updated.id ? updated : c));
           }}
-          onTaskClick={setSelectedTask}
+          onTaskClick={task => setSelectedTask(task)}
         />
       )}
 
-      {/* ── Add task quick-entry ── */}
-      {addingToWorkstream && (
-        <div
-          style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(9,9,11,0.88)', backdropFilter: 'blur(4px)' }}
-          onClick={(e) => e.target === e.currentTarget && setAddingToWorkstream(null)}
-        >
-          <form
-            onSubmit={handleAddTask}
-            style={{ width: '100%', maxWidth: 380, borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 14, background: colors.bgCardSolid, border: `1px solid ${colors.border}` }}
+      {/* ── Bulk action bar ── */}
+      {selectedIds.size > 0 && (
+        <div className="studio-bulk-bar">
+          <span style={{ color: colors.textDim, fontFamily: fonts.display, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            {selectedIds.size} selected
+          </span>
+          <select
+            defaultValue=""
+            onChange={e => { handleBulkMove(e.target.value); e.target.value = ''; }}
           >
-            <p style={{ fontFamily: fonts.display, fontSize: 9, color: colors.textDim, textTransform: 'uppercase', letterSpacing: '0.2em' }}>
-              New task in {addingToWorkstream.name}
-            </p>
-            <input
-              autoFocus
-              value={addTaskTitle}
-              onChange={(e) => setAddTaskTitle(e.target.value)}
-              placeholder="Task title..."
-              style={{ borderRadius: 10, padding: '10px 14px', fontSize: 13, background: 'rgba(255,255,255,0.04)', border: `1px solid ${colors.border}`, color: colors.textSecondary, fontFamily: fonts.body, outline: 'none', width: '100%', boxSizing: 'border-box' }}
-            />
-            {addTaskError && <p style={{ fontSize: 11, color: colors.red }}>{addTaskError}</p>}
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button type="button" onClick={() => setAddingToWorkstream(null)}
-                style={{ flex: 1, borderRadius: 999, padding: '9px 0', fontFamily: fonts.display, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: colors.textDim, border: `1px solid ${colors.border}`, background: 'transparent', cursor: 'pointer' }}>
-                Cancel
-              </button>
-              <button type="submit" disabled={submittingTask || !addTaskTitle.trim()}
-                style={{ flex: 1, borderRadius: 999, padding: '9px 0', fontFamily: fonts.display, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#09090B', background: 'linear-gradient(135deg, #6366F1, #22D3EE)', border: 'none', cursor: 'pointer', opacity: submittingTask || !addTaskTitle.trim() ? 0.45 : 1 }}>
-                {submittingTask ? 'Adding...' : 'Add task'}
-              </button>
-            </div>
-          </form>
+            <option value="" disabled>Move to…</option>
+            {workstreams.map(w => (
+              <option key={w.id} value={w.id}>{w.name}</option>
+            ))}
+          </select>
+          <button onClick={handleBulkComplete}>Mark complete</button>
+          <button onClick={handleBulkDelete} className="danger">Delete</button>
+          <button onClick={() => setSelectedIds(new Set())} style={{ color: colors.textDim }}>Clear</button>
         </div>
       )}
 
@@ -843,8 +950,8 @@ export default function ReleasePage() {
       {selectedTask && (
         <TaskModal
           task={selectedTask}
-          workstream={workstreams.find((w) => w.id === selectedTask.workstream_id)}
-          song={songs.find((s) => s.id === selectedTask.song_id)}
+          workstream={workstreams.find(w => w.id === selectedTask.workstream_id)}
+          song={songs.find(s => s.id === selectedTask.song_id)}
           songs={songs}
           releaseId={releaseId}
           user={user}
@@ -859,27 +966,71 @@ export default function ReleasePage() {
       {showWizard && (
         <NewReleaseWizard
           onClose={() => setShowWizard(false)}
-          onCreated={(r) => navigate(`/studio/release/${r.id}`)}
+          onCreated={r => navigate(`/studio/release/${r.id}`)}
         />
+      )}
+
+      {/* ── Keyboard shortcut overlay ── */}
+      {showHelp && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(9,9,11,0.85)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowHelp(false)}
+        >
+          <div
+            style={{ background: '#18181B', border: '1px solid rgba(244,244,245,0.1)', borderRadius: 12, padding: '24px 28px', minWidth: 340 }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p style={{ fontFamily: fonts.display, fontSize: 9, color: colors.textDim, textTransform: 'uppercase', letterSpacing: '0.25em', marginBottom: 18 }}>
+              Keyboard shortcuts
+            </p>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <tbody>
+                {[
+                  ['N', 'Start adding a task to the last-used lane'],
+                  ['/', 'Focus the filter'],
+                  ['Esc', 'Clear filter / cancel / close'],
+                  ['?', 'Show this overlay'],
+                  ['Shift+click', 'Select card for bulk actions'],
+                  ['Double-click title', 'Edit card title inline'],
+                ].map(([key, desc]) => (
+                  <tr key={key}>
+                    <td style={{ padding: '6px 16px 6px 0', verticalAlign: 'top', whiteSpace: 'nowrap' }}>
+                      <kbd style={{
+                        background: 'rgba(34,211,238,0.08)',
+                        border: '1px solid rgba(34,211,238,0.2)',
+                        borderRadius: 4, padding: '2px 7px',
+                        fontSize: 11, color: '#22D3EE',
+                        fontFamily: 'monospace',
+                      }}>
+                        {key}
+                      </kbd>
+                    </td>
+                    <td style={{ padding: '6px 0', fontSize: 12, color: '#E4E4E7', fontFamily: fonts.body, lineHeight: 1.4 }}>
+                      {desc}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p style={{ marginTop: 18, fontSize: 10, color: colors.textDim, fontFamily: fonts.body }}>
+              Click anywhere to close
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-// ── Status chip styling (shared between pill + popover swatch) ─────────────
+// ── Status chip styling ───────────────────────────────────────────────────────
 
 function statusChipStyles(status) {
   switch (status) {
-    case 'in_progress':
-      return { color: '#67E8F9', background: 'rgba(34,211,238,0.08)', border: '1px solid rgba(34,211,238,0.28)' };
-    case 'planning':
-      return { color: '#A5B4FC', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.28)' };
-    case 'released':
-      return { color: '#6EE7B7', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)' };
-    case 'archived':
-      return { color: '#A1A1AA', background: 'rgba(82,82,91,0.15)', border: '1px solid rgba(82,82,91,0.4)' };
-    default:
-      return { color: '#A1A1AA', background: 'rgba(9,9,11,0.5)', border: '1px solid rgba(244,244,245,0.08)' };
+    case 'in_progress': return { color: '#67E8F9', background: 'rgba(34,211,238,0.08)',  border: '1px solid rgba(34,211,238,0.28)' };
+    case 'planning':    return { color: '#A5B4FC', background: 'rgba(99,102,241,0.08)',  border: '1px solid rgba(99,102,241,0.28)' };
+    case 'released':    return { color: '#6EE7B7', background: 'rgba(16,185,129,0.1)',   border: '1px solid rgba(16,185,129,0.3)' };
+    case 'archived':    return { color: '#A1A1AA', background: 'rgba(82,82,91,0.15)',    border: '1px solid rgba(82,82,91,0.4)' };
+    default:            return { color: '#A1A1AA', background: 'rgba(9,9,11,0.5)',       border: '1px solid rgba(244,244,245,0.08)' };
   }
 }
 
@@ -893,7 +1044,7 @@ function statusLabelFor(status) {
   }
 }
 
-// ── Album: included releases panel ────────────────────────────────────────
+// ── Album: included releases panel ───────────────────────────────────────────
 
 function AlbumChildrenPanel({ items }) {
   const header = (
@@ -923,7 +1074,7 @@ function AlbumChildrenPanel({ items }) {
     <div>
       {header}
       <div className="hp-grid">
-        {items.map((child) => (
+        {items.map(child => (
           <div key={child.id} className="hp-grid-item">
             <ReleaseCard release={child} />
           </div>

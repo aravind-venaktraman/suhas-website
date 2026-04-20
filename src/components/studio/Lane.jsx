@@ -7,9 +7,16 @@ export default function Lane({
   workstream,
   tasks = [],
   songs = [],
-  onTaskClick,
-  onAddTask,
+  allProfiles = [],
+  filterQuery,
+  selectedIds,
+  onCardClick,        // (task, e) => void
+  onAddTask,          // ({ workstreamId, title }) => void
   onRename,
+  onTaskTitleCommit,  // (taskId, newTitle) => void
+  onTaskUpdate,       // (taskId, fields) => void
+  addTriggerPulse,    // number — increments to activate inline add from keyboard
+  onAddActivated,     // (workstreamId) => void — notify parent of last-used lane
   // Card DnD
   draggingCardId,
   isDragOverCard,
@@ -26,14 +33,33 @@ export default function Lane({
 }) {
   const [editing, setEditing]     = useState(false);
   const [draftName, setDraftName] = useState(workstream.name);
-  const [addHovered, setAddHovered] = useState(false);
-  const inputRef = useRef(null);
+  const [adding, setAdding]       = useState(false);
+  const [draftTitle, setDraftTitle] = useState('');
+  const headerInputRef = useRef(null);
+  const addInputRef    = useRef(null);
+  const escaping       = useRef(false);
 
-  // Keep draft in sync if workstream.name changes (e.g. after a remote update)
+  // Sync header name draft on external update
   useEffect(() => {
     if (!editing) setDraftName(workstream.name);
   }, [workstream.name, editing]);
 
+  // Respond to keyboard N shortcut from parent
+  const prevPulse = useRef(0);
+  useEffect(() => {
+    if (addTriggerPulse && addTriggerPulse > prevPulse.current) {
+      prevPulse.current = addTriggerPulse;
+      setAdding(true);
+      onAddActivated?.(workstream.id);
+    }
+  }, [addTriggerPulse, workstream.id, onAddActivated]);
+
+  // Focus the add input when adding activates
+  useEffect(() => {
+    if (adding) addInputRef.current?.focus();
+  }, [adding]);
+
+  // ── Column rename ────────────────────────────────────────────────────────────
   function startEdit(e) {
     e.stopPropagation();
     setDraftName(workstream.name);
@@ -47,14 +73,45 @@ export default function Lane({
     setEditing(false);
   }
 
-  function handleKeyDown(e) {
+  function handleHeaderKeyDown(e) {
     if (e.key === 'Enter')  { e.preventDefault(); commitEdit(); }
     if (e.key === 'Escape') { setDraftName(workstream.name); setEditing(false); }
   }
 
-  const songMap   = Object.fromEntries(songs.map((s) => [s.id, s]));
-  const laneTasks = tasks.filter((t) => t.workstream_id === workstream.id);
-  const done      = laneTasks.filter((t) => t.status === 'done').length;
+  // ── Inline task add ──────────────────────────────────────────────────────────
+  function activateAdd() {
+    setAdding(true);
+    onAddActivated?.(workstream.id);
+  }
+
+  function handleAddKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const title = draftTitle.trim();
+      if (title) {
+        onAddTask?.({ workstreamId: workstream.id, title });
+        setDraftTitle('');
+        // Stay open for rapid multi-task entry (Trello pattern)
+      }
+    } else if (e.key === 'Escape') {
+      escaping.current = true;
+      setAdding(false);
+      setDraftTitle('');
+    }
+  }
+
+  function handleAddBlur() {
+    if (escaping.current) { escaping.current = false; return; }
+    const title = draftTitle.trim();
+    if (title) onAddTask?.({ workstreamId: workstream.id, title });
+    setAdding(false);
+    setDraftTitle('');
+  }
+
+  // ── Derived ──────────────────────────────────────────────────────────────────
+  const songMap   = Object.fromEntries(songs.map(s => [s.id, s]));
+  const laneTasks = tasks.filter(t => t.workstream_id === workstream.id);
+  const done      = laneTasks.filter(t => t.status === 'done').length;
   const total     = laneTasks.length;
   const pct       = total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -74,14 +131,14 @@ export default function Lane({
         transition: 'border-color 0.12s, box-shadow 0.12s, opacity 0.15s',
       }}
       onDragOver={onDragOver}
-      onDrop={(e) => {
+      onDrop={e => {
         e.preventDefault();
         const type = e.dataTransfer.getData('dragtype');
         if (type === 'card')   onCardDrop?.();
         if (type === 'column') onColumnDrop?.();
       }}
     >
-      {/* Column-reorder insert indicator (right edge) */}
+      {/* Column-reorder insert indicator */}
       {showInsertAfter && (
         <div style={{
           position: 'absolute', right: -4, top: 16, bottom: 16,
@@ -95,7 +152,7 @@ export default function Lane({
       {/* ── Header (draggable for column reorder) ── */}
       <div
         draggable
-        onDragStart={(e) => {
+        onDragStart={e => {
           e.dataTransfer.setData('dragtype', 'column');
           e.dataTransfer.effectAllowed = 'move';
           onColumnDragStart?.();
@@ -110,7 +167,6 @@ export default function Lane({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 8 }}>
-          {/* Dot + editable name */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
             <span style={{
               width: 7, height: 7, borderRadius: '50%',
@@ -119,13 +175,13 @@ export default function Lane({
 
             {editing ? (
               <input
-                ref={inputRef}
+                ref={headerInputRef}
                 autoFocus
                 value={draftName}
-                onChange={(e) => setDraftName(e.target.value)}
+                onChange={e => setDraftName(e.target.value)}
                 onBlur={commitEdit}
-                onKeyDown={handleKeyDown}
-                onClick={(e) => e.stopPropagation()}
+                onKeyDown={handleHeaderKeyDown}
+                onClick={e => e.stopPropagation()}
                 style={{
                   flex: 1, minWidth: 0,
                   fontFamily: fonts.display, fontSize: 11, fontWeight: 700,
@@ -154,11 +210,7 @@ export default function Lane({
             )}
           </div>
 
-          {/* done/total count */}
-          <span style={{
-            fontFamily: fonts.body, fontSize: 10,
-            color: colors.textDim, flexShrink: 0,
-          }}>
+          <span style={{ fontFamily: fonts.body, fontSize: 10, color: colors.textDim, flexShrink: 0 }}>
             {done}/{total}
           </span>
         </div>
@@ -176,7 +228,7 @@ export default function Lane({
         overflowY: 'auto', maxHeight: 520,
         borderRadius: '0 0 16px 16px',
       }}>
-        {/* Drop zone placeholder when a card hovers this lane */}
+        {/* Drop zone placeholder */}
         {isDragOverCard && (
           <div style={{
             height: 56, borderRadius: 12,
@@ -195,7 +247,7 @@ export default function Lane({
           </div>
         )}
 
-        {!isDragOverCard && laneTasks.length === 0 && (
+        {!isDragOverCard && laneTasks.length === 0 && !adding && (
           <p style={{
             fontFamily: fonts.body, fontSize: 11,
             color: colors.textDim, textAlign: 'center',
@@ -205,38 +257,50 @@ export default function Lane({
           </p>
         )}
 
-        {laneTasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            song={task.song_id ? songMap[task.song_id] : null}
-            isDragging={draggingCardId === task.id}
-            onDragStart={() => onCardDragStart?.(task)}
-            onDragEnd={onDragEnd}
-            onClick={() => onTaskClick?.(task)}
-          />
-        ))}
+        {laneTasks.map(task => {
+          const isDimmed = filterQuery
+            ? !task.title.toLowerCase().includes(filterQuery.toLowerCase())
+            : false;
+          return (
+            <TaskCard
+              key={task.id}
+              task={task}
+              song={task.song_id ? songMap[task.song_id] : null}
+              songs={songs}
+              allProfiles={allProfiles}
+              isDragging={draggingCardId === task.id}
+              onDragStart={() => onCardDragStart?.(task)}
+              onDragEnd={onDragEnd}
+              onClick={e => onCardClick?.(task, e)}
+              onTitleCommit={(taskId, newTitle) => onTaskTitleCommit?.(taskId, newTitle)}
+              onTaskUpdate={onTaskUpdate}
+              isSelected={selectedIds?.has(task.id)}
+              isDimmed={isDimmed}
+            />
+          );
+        })}
 
-        {/* Add task */}
-        <button
-          onClick={() => onAddTask?.(workstream)}
-          onMouseEnter={() => setAddHovered(true)}
-          onMouseLeave={() => setAddHovered(false)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            borderRadius: 12, padding: '10px 12px',
-            border: `1px dashed ${addHovered ? `${colors.cyan}60` : colors.border}`,
-            color: addHovered ? colors.cyan : colors.textDim,
-            background: addHovered ? 'rgba(34,211,238,0.04)' : 'transparent',
-            cursor: 'pointer', transition: 'all 0.15s',
-            fontFamily: fonts.display, fontSize: 10,
-            fontWeight: 700, textTransform: 'uppercase',
-            letterSpacing: '0.12em', width: '100%', flexShrink: 0,
-          }}
-        >
-          <Plus size={12} />
-          Add task
-        </button>
+        {/* Inline add input / Add task button */}
+        {adding ? (
+          <div className="studio-inline-add">
+            <textarea
+              ref={addInputRef}
+              className="studio-inline-add-input"
+              value={draftTitle}
+              onChange={e => setDraftTitle(e.target.value)}
+              onKeyDown={handleAddKeyDown}
+              onBlur={handleAddBlur}
+              placeholder="Task title, Enter to add"
+              rows={2}
+            />
+            <div className="studio-inline-add-hint">Enter to add · Esc to cancel</div>
+          </div>
+        ) : (
+          <button onClick={activateAdd} className="studio-add-btn">
+            <Plus size={12} />
+            Add task
+          </button>
+        )}
       </div>
     </div>
   );

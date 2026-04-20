@@ -56,3 +56,187 @@
   word-break: break-word;
   overflow-wrap: anywhere;
 }
+
+/* ── Inline task creation ──────────────────────────────────────────────────── */
+
+.studio-inline-add {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: rgba(34,211,238,0.05);
+  border: 1px solid rgba(34,211,238,0.2);
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.studio-inline-add-input {
+  background: rgba(9,9,11,0.5);
+  border: 1px solid rgba(244,244,245,0.1);
+  color: #E4E4E7;
+  padding: 8px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  line-height: 1.4;
+  width: 100%;
+  box-sizing: border-box;
+}
+.studio-inline-add-input:focus {
+  border-color: rgba(34,211,238,0.4);
+}
+
+.studio-inline-add-hint {
+  font-size: 10px;
+  color: #71717A;
+  font-family: 'Michroma', sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ── Inline title editing ──────────────────────────────────────────────────── */
+
+.studio-card-title-edit {
+  width: 100%;
+  background: rgba(9,9,11,0.5);
+  border: 1px solid rgba(34,211,238,0.4);
+  color: #E4E4E7;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  line-height: 1.45;
+  min-height: 36px;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* ── Board filter input ────────────────────────────────────────────────────── */
+
+.studio-board-filter {
+  background: rgba(24,24,27,0.6);
+  border: 1px solid rgba(244,244,245,0.1);
+  color: #E4E4E7;
+  padding: 7px 12px;
+  font-size: 12px;
+  border-radius: 5px;
+  font-family: inherit;
+  outline: none;
+  width: 220px;
+}
+.studio-board-filter:focus {
+  border-color: rgba(34,211,238,0.4);
+}
+.studio-board-filter::placeholder {
+  color: #52525B;
+  font-size: 11px;
+}
+
+/* ── Card metadata quick-add button ───────────────────────────────────────── */
+
+.studio-card-meta-add {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px dashed rgba(244,244,245,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #52525B;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.group:hover .studio-card-meta-add {
+  opacity: 1;
+}
+.studio-card-meta-add:hover {
+  border-color: rgba(34,211,238,0.3) !important;
+  color: #22D3EE !important;
+}
+
+/* ── Add task button ───────────────────────────────────────────────────────── */
+
+.studio-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(244,244,245,0.08);
+  color: #71717A;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Michroma', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  width: 100%;
+  flex-shrink: 0;
+}
+.studio-add-btn:hover {
+  border-color: rgba(34,211,238,0.6);
+  color: #22D3EE;
+  background: rgba(34,211,238,0.04);
+}
+
+/* ── Bulk selection ────────────────────────────────────────────────────────── */
+
+.studio-bulk-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #18181B;
+  border: 1px solid rgba(34,211,238,0.3);
+  border-radius: 8px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #E4E4E7;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  z-index: 100;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+}
+
+.studio-bulk-bar select {
+  background: rgba(9,9,11,0.8);
+  border: 1px solid rgba(244,244,245,0.12);
+  color: #E4E4E7;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.studio-bulk-bar button {
+  background: transparent;
+  border: 1px solid rgba(244,244,245,0.12);
+  color: #E4E4E7;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.12s;
+}
+.studio-bulk-bar button:hover {
+  background: rgba(244,244,245,0.06);
+}
+.studio-bulk-bar button.danger:hover {
+  color: #FCA5A5;
+  border-color: rgba(248,113,113,0.3);
+}
