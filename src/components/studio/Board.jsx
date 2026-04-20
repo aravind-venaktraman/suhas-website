@@ -3,32 +3,32 @@ import './Board.css';
 import Lane from './Lane';
 
 /**
- * Board
- *
- * Owns all drag-and-drop state so Lane / TaskCard stay stateless about DnD.
- *
- * Drag types (communicated via dataTransfer so browser ghost images work):
- *   'card'   – a TaskCard is being dragged between lanes
- *   'column' – a Lane header is being dragged to reorder columns
+ * Board owns drag-and-drop state and threads new direct-manipulation props
+ * (filter, bulk selection, inline add trigger, inline metadata updates)
+ * down to Lane / TaskCard without owning the data or mutations themselves.
  */
 export default function Board({
   workstreams = [],
   tasks = [],
   songs = [],
-  onTaskClick,
-  onAddTask,
-  onTaskMove,            // (taskId, newWorkstreamId) => void
-  onWorkstreamsReorder,  // (newOrderedIds: string[]) => void
-  onWorkstreamRename,    // (workstreamId, newName) => void
+  allProfiles = [],
+  filterQuery,
+  selectedIds,
+  addTrigger,           // { laneId: string|null, counter: number }
+  onTaskClick,          // (task, e) => void — e carries shiftKey for bulk select
+  onAddTask,            // ({ workstreamId, title }) => void
+  onTaskMove,           // (taskId, newWorkstreamId) => void
+  onWorkstreamsReorder, // (newOrderedIds: string[]) => void
+  onWorkstreamRename,   // (workstreamId, newName) => void
+  onTaskTitleCommit,    // (taskId, newTitle) => void
+  onTaskUpdate,         // (taskId, fields) => void
+  onAddActivated,       // (workstreamId) => void
 }) {
-  // Which task card is currently being dragged
-  const [dragCard, setDragCard] = useState(null); // { taskId, fromWsId }
-  // Which column is being dragged
+  const [dragCard, setDragCard]   = useState(null); // { taskId, fromWsId }
   const [dragColId, setDragColId] = useState(null);
-  // Which column the pointer is currently over
   const [overColId, setOverColId] = useState(null);
 
-  // ── Card handlers ──────────────────────────────────────────────────────────
+  // ── Card DnD ────────────────────────────────────────────────────────────────
   function handleCardDragStart(task) {
     setDragCard({ taskId: task.id, fromWsId: task.workstream_id });
   }
@@ -41,15 +41,14 @@ export default function Board({
     setOverColId(null);
   }
 
-  // ── Column handlers ────────────────────────────────────────────────────────
+  // ── Column DnD ───────────────────────────────────────────────────────────────
   function handleColDragStart(wsId) {
     setDragColId(wsId);
   }
 
   function handleColDrop(targetWsId) {
     if (dragColId && dragColId !== targetWsId) {
-      // Insert dragCol *after* the target in the current order
-      const ids = workstreams.map((w) => w.id).filter((id) => id !== dragColId);
+      const ids = workstreams.map(w => w.id).filter(id => id !== dragColId);
       const ti  = ids.indexOf(targetWsId);
       ids.splice(ti + 1, 0, dragColId);
       onWorkstreamsReorder?.(ids);
@@ -58,7 +57,7 @@ export default function Board({
     setOverColId(null);
   }
 
-  // ── Shared ─────────────────────────────────────────────────────────────────
+  // ── Shared ───────────────────────────────────────────────────────────────────
   function handleDragOver(e, wsId) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
@@ -74,15 +73,22 @@ export default function Board({
   return (
     <div className="studio-board-scroll">
       <div className="studio-board-grid">
-        {workstreams.map((ws) => (
+        {workstreams.map(ws => (
           <Lane
             key={ws.id}
             workstream={ws}
             tasks={tasks}
             songs={songs}
-            onTaskClick={onTaskClick}
+            allProfiles={allProfiles}
+            filterQuery={filterQuery}
+            selectedIds={selectedIds}
+            onCardClick={onTaskClick}
             onAddTask={onAddTask}
-            onRename={(name) => onWorkstreamRename?.(ws.id, name)}
+            onRename={name => onWorkstreamRename?.(ws.id, name)}
+            onTaskTitleCommit={onTaskTitleCommit}
+            onTaskUpdate={onTaskUpdate}
+            addTriggerPulse={addTrigger?.laneId === ws.id ? addTrigger.counter : 0}
+            onAddActivated={onAddActivated}
             // card DnD
             draggingCardId={dragCard?.taskId ?? null}
             isDragOverCard={overColId === ws.id && !!dragCard}
@@ -90,15 +96,11 @@ export default function Board({
             onCardDrop={() => handleCardDrop(ws.id)}
             // column DnD
             isColumnDragging={dragColId === ws.id}
-            showInsertAfter={
-              !!dragColId &&
-              dragColId !== ws.id &&
-              overColId === ws.id
-            }
+            showInsertAfter={!!dragColId && dragColId !== ws.id && overColId === ws.id}
             onColumnDragStart={() => handleColDragStart(ws.id)}
             onColumnDrop={() => handleColDrop(ws.id)}
             // shared
-            onDragOver={(e) => handleDragOver(e, ws.id)}
+            onDragOver={e => handleDragOver(e, ws.id)}
             onDragEnd={handleDragEnd}
           />
         ))}
